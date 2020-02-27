@@ -23,5 +23,8 @@ namespace MathExpr.Syntax
             => other is FunctionExpression f
             && (ReferenceEquals(f, this)
                 || (f.Name == Name && Arguments.Zip(f.Arguments, (a, b) => a.Equals(b)).All(b => b)));
+
+        public override string ToString()
+            => $"{Name}({string.Join(", ", Arguments.Select(e => e.ToString()))})";
     }
 }

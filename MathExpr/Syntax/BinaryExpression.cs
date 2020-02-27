@@ -33,5 +33,8 @@ namespace MathExpr.Syntax
         {
             return new BinaryExpression(Left.Simplify(), Type, Right.Simplify());
         }
+
+        public override string ToString()
+            => $"({Left.ToString()} {Type} {Right.ToString()})";
     }
 }

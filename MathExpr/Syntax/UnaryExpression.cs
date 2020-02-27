@@ -29,5 +29,8 @@ namespace MathExpr.Syntax
         {
             return new UnaryExpression(Type, Argument.Simplify());
         }
+
+        public override string ToString()
+            => $"({Type} {Argument.ToString()}";
     }
 }

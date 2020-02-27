@@ -14,5 +14,6 @@ namespace MathExpr.Syntax
         protected internal abstract MathExpression Simplify();
 
         public abstract bool Equals(MathExpression other);
+        public abstract override string ToString();
     }
 }

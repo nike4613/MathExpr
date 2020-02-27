@@ -27,7 +27,7 @@ namespace MathExpr.Utilities
             if (lookaheadTail == lookaheadStart)
                 throw new InvalidOperationException("Max lookahead reached");
             lookaheadArray[lookaheadTail++ - 1] = val;
-            lookaheadTail %= lookaheadArray.Length;
+            lookaheadTail = ((lookaheadTail - 1) % lookaheadArray.Length) + 1;
         }
         private bool TryDequeueLookahead(out T val)
         {

@@ -3,54 +3,55 @@ using System.Globalization;
 
 namespace MathExpr.Syntax
 {
+    public enum TokenType
+    {
+        Identifier, Literal, OpenParen, CloseParen,
+        Star, Slash, Plus, Minus, Exponent,
+        Equals, Inequals, Less, Greater, LessEq, GreaterEq,
+        Xor, And, Bang, Percent,
+
+        Error
+    }
+
+    public struct Token
+    {
+        public TokenType Type { get; }
+        public object? Value { get; }
+
+        public int Position { get; }
+        public int Length { get; }
+
+        public double? AsDouble => Value as double?;
+        public string? AsString => Value as string;
+
+        public Token(TokenType type, object? value, int pos, int len)
+        {
+            Type = type; Value = value; Position = pos; Length = len;
+        }
+
+        public override bool Equals(object obj)
+            => obj is Token t && this == t;
+        public static bool operator ==(Token a, Token b)
+            => a.Type == b.Type && Equals(a.Value, b.Value);
+        public static bool operator !=(Token a, Token b)
+            => !(a == b);
+
+        public override string ToString()
+            => $"Token({Type}, {Value?.ToString()})";
+
+        public override int GetHashCode()
+        {
+            var hashCode = 9789246;
+            hashCode = hashCode * -1521134295 + Type.GetHashCode();
+            hashCode = hashCode * -1521134295 + EqualityComparer<object?>.Default.GetHashCode(Value);
+            hashCode = hashCode * -1521134295 + Position.GetHashCode();
+            hashCode = hashCode * -1521134295 + Length.GetHashCode();
+            return hashCode;
+        }
+    }
+
     internal static class Tokenizer
     {
-        public enum TokenType
-        {
-            Identifier, Literal, OpenParen, CloseParen,
-            Star, Slash, Plus, Minus, Exponent,
-            Equals, Inequals, Less, Greater, LessEq, GreaterEq,
-            Xor, And, Bang, Percent,
-
-            Error
-        }
-
-        public struct Token
-        {
-            public TokenType Type { get; }
-            public object? Value { get; }
-
-            public int Position { get; }
-            public int Length { get; }
-
-            public double? AsDouble => Value as double?;
-            public string? AsString => Value as string;
-
-            public Token(TokenType type, object? value, int pos, int len)
-            {
-                Type = type; Value = value; Position = pos; Length = len;
-            }
-
-            public override bool Equals(object obj)
-                => obj is Token t && this == t;
-            public static bool operator ==(Token a, Token b)
-                => a.Type == b.Type && Equals(a.Value, b.Value);
-            public static bool operator !=(Token a, Token b)
-                => !(a == b);
-
-            public override string ToString()
-                => $"Token({Type}, {Value?.ToString()})";
-
-            public override int GetHashCode()
-            {
-                var hashCode = 9789246;
-                hashCode = hashCode * -1521134295 + Type.GetHashCode();
-                hashCode = hashCode * -1521134295 + EqualityComparer<object?>.Default.GetHashCode(Value);
-                hashCode = hashCode * -1521134295 + Position.GetHashCode();
-                hashCode = hashCode * -1521134295 + Length.GetHashCode();
-                return hashCode;
-            }
-        }
 
         private static bool IsIdentifierChar(char c)
             => (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
