@@ -115,5 +115,40 @@ namespace MathExprTests
                 Assert.Equal(n, lookahead.Next());
             Assert.False(lookahead.HasNext);
         }
+
+        [Theory]
+        [InlineData(1, 10, 1, 1)]
+        [InlineData(1, 10, 2, 1)]
+        [InlineData(1, 10, 2, 2)]
+        [InlineData(1, 10, 3, 1)]
+        [InlineData(1, 10, 3, 2)]
+        [InlineData(1, 10, 3, 3)]
+        [InlineData(1, 10, 4, 1)]
+        [InlineData(1, 10, 4, 2)]
+        [InlineData(1, 10, 4, 3)]
+        [InlineData(1, 10, 4, 4)]
+        [InlineData(1, 10, 5, 1)]
+        [InlineData(1, 10, 5, 2)]
+        [InlineData(1, 10, 5, 3)]
+        [InlineData(1, 10, 5, 4)]
+        [InlineData(1, 10, 5, 5)]
+        public void AdvanceThroughPartialLookahead(int start, int end, int lookaheadSize, int peekSize)
+        {
+            // tests lookahead array wrapping properly
+
+            var nums = new RangeEnumerable(start..end);
+            var lookahead = nums.AsLookahead(lookaheadSize);
+
+            var count = 0;
+
+            while (count < end-start+1)
+            {
+                lookahead.TryPeek(out _, peekSize);
+                foreach (var n in nums.Skip(count).Take(peekSize))
+                    Assert.Equal(n, lookahead.Next());
+                count += peekSize;
+            }
+            Assert.False(lookahead.HasNext);
+        }
     }
 }

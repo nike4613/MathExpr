@@ -46,7 +46,7 @@ namespace MathExpr.Utilities
             return remove;
         }
         private T IndexLookahead(int idx)
-            => lookaheadArray[lookaheadStart + idx];
+            => lookaheadArray[(lookaheadStart + idx) % lookaheadArray.Length];
 
         public LookaheadEnumerable(IEnumerable<T> seq, int lookahead)
         {
