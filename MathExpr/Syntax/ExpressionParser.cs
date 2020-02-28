@@ -13,9 +13,9 @@ namespace MathExpr.Syntax
             var tokenStream = Tokenizer.Tokenize(s)
                 .Select(t => t.Type != TokenType.Error 
                     ? t 
-                    : throw new SyntaxException(t, t.AsString!)).AsLookahead();
+                    : throw new SyntaxException(t, t.AsString!)).AsLookahead(1); // should be able to get away with just 1 token of lookahead
 
-            return new ExpressionParser(tokenStream).ReadAddSubExpr();
+            return new ExpressionParser(tokenStream).Read();
         }
 
         private readonly LookaheadEnumerable<Token> tokens;
@@ -24,6 +24,14 @@ namespace MathExpr.Syntax
 
         private bool TryConsumeToken(TokenType type, out Token token)
             => tokens.TryPeek(out token) && token.Type == type && tokens.TryNext(out token);
+
+        private MathExpression Read()
+        {
+            var expr = ReadRoot();
+            if (tokens.HasNext && tokens.TryNext(out var tok))
+                throw new SyntaxException(tok, "Unexpected trailing token(s)");
+            return expr;
+        }
 
         private MathExpression ReadRoot()
             => ReadAddSubExpr();

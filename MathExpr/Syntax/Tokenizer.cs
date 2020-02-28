@@ -167,7 +167,7 @@ namespace MathExpr.Syntax
                                 yield return NewToken(TokenType.Greater, ref i);
                             break;
                         default:
-                            yield return new Token(TokenType.Error, "Unexpected charaget", i++, 1);
+                            yield return new Token(TokenType.Error, "Unexpected character", i++, 1);
                             break;
                     }
                 }

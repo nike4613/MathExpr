@@ -42,11 +42,24 @@ namespace MathExprTests
             Assert.Equal(expect, tokens);
         }
 
-        [Fact]
-        public void ParseString()
+        [Theory]
+        [InlineData("a + b + c - 3 * d ^ e * (f - g)", true)]
+        [InlineData("a + b + c - 3 * d ^ e * (f - g", false)]
+        [InlineData("a + b + c - 3 * d ^ e * f - g)", false)]
+        [InlineData("a + b + c - 3 * d ^ e * {f - g)", false)]
+        [InlineData("a + b + c - 3 * d ^ e * f - g", true)]
+        [InlineData("a+b*c/d^ehij  % k %( 3.442*ident) ^^ y & y", true)]
+        public void ParseString(string input, bool valid)
         {
-            var expr = ExpressionParser.ParseRoot("a + b + c - 3 * d ^ e * (f - g)");
-            var expr2 = ExpressionParser.ParseRoot("a + b + c - 3 * d ^ e * f - g");
+            try
+            {
+                _ = ExpressionParser.ParseRoot(input);
+                Assert.True(valid);
+            }
+            catch (SyntaxException e)
+            {
+                Assert.False(valid);
+            }
         }
     }
 }
