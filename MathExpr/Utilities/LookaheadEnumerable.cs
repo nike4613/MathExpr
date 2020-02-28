@@ -17,26 +17,29 @@ namespace MathExpr.Utilities
     public class LookaheadEnumerable<T>
     {
         private readonly IEnumerator<T> seq;
+
         private readonly T[] lookaheadArray;
         private int lookaheadStart = 0;
-        private int lookaheadTail = 1;
-        private int LookaheadLength => Math.Abs(lookaheadTail - lookaheadStart) - 1;
+        private int lookaheadTail = 0;
+        private int lookaheadLen = 0;
 
         private void QueueLookahead(T val)
         {
-            if (lookaheadTail == lookaheadStart)
+            if (lookaheadTail == lookaheadStart && lookaheadLen > 0)
                 throw new InvalidOperationException("Max lookahead reached");
-            lookaheadArray[lookaheadTail++ - 1] = val;
-            lookaheadTail = ((lookaheadTail - 1) % lookaheadArray.Length) + 1;
+            lookaheadArray[lookaheadTail++] = val;
+            lookaheadTail %= lookaheadArray.Length;
+            lookaheadLen++;
         }
         private bool TryDequeueLookahead(out T val)
         {
-            var remove = lookaheadTail - 1 != lookaheadStart;
+            var remove = lookaheadLen >= 1;
             if (remove)
             {
                 val = lookaheadArray[lookaheadStart];
                 lookaheadArray[lookaheadStart++] = default!;
                 lookaheadStart %= lookaheadArray.Length;
+                lookaheadLen--;
             }
             else
                 val = default!;
@@ -48,7 +51,7 @@ namespace MathExpr.Utilities
         public LookaheadEnumerable(IEnumerable<T> seq, int lookahead)
         {
             this.seq = seq.GetEnumerator();
-            lookaheadArray = new T[lookahead+1];
+            lookaheadArray = new T[lookahead];
         }
         // defaults to max lookahead of 2
         public LookaheadEnumerable(IEnumerable<T> seq) : this(seq, 4) { }
@@ -61,9 +64,9 @@ namespace MathExpr.Utilities
             if (amount > lookaheadArray.Length)
                 return false;
 
-            if (LookaheadLength < amount)
+            if (lookaheadLen < amount)
             {
-                var num = amount - LookaheadLength;
+                var num = amount - lookaheadLen;
                 for (int i = 0; i < num; i++)
                 {
                     if (seq.MoveNext())

@@ -20,7 +20,7 @@ namespace MathExprTests
         [InlineData(0, 5, 5, 5, 4, true, false)]
         [InlineData(0, 5, 6, 6, 5, true, false)]
         [InlineData(0, 5, 7, 7, 5, false, false)]
-        [InlineData(0, 5, 5, 6, 5, false, true)]
+        [InlineData(0, 5, 5, 6, 5, false, false)]
         [InlineData(0, 5, 7, 7, -1, false, false)]
         [InlineData(1, 5, 1, 0, 1, false, true)]
         [InlineData(1, 5, 1, 1, 1, true, false)]
@@ -29,8 +29,9 @@ namespace MathExprTests
         [InlineData(1, 5, 4, 4, 4, true, false)]
         [InlineData(1, 5, 5, 5, 5, true, false)]
         [InlineData(1, 5, 5, 6, 5, false, false)]
-        [InlineData(1, 5, 3, 4, 5, false, true)]
+        [InlineData(1, 5, 3, 4, 5, false, false)]
         [InlineData(1, 5, 6, 6, -1, false, false)]
+        [InlineData(1, 5, 3, -3, 3, true, true)]
         public void SoloPeek(int start, int end, int lookaheadSize, int peekDist, int expect, bool valid, bool throws)
         {
             var lookahead = new RangeEnumerable(start..end).AsLookahead(lookaheadSize);
@@ -52,35 +53,67 @@ namespace MathExprTests
             }
         }
 
-        public void InterleavedNextPeek(int start, int end, int lookaheadSize, int cycleIters, int validCycles, int peeksBefore, int validPeeksBefore, int peeksAfter, int validPeeksAfter)
+        [Theory]
+        [InlineData(0, 5, 1)]
+        [InlineData(0, 5, 2)]
+        [InlineData(0, 5, 3)]
+        [InlineData(0, 5, 4)]
+        [InlineData(0, 5, 5)]
+        [InlineData(0, 5, 6)]
+        [InlineData(0, 5, 7)]
+        [InlineData(0, 5, 8)]
+        [InlineData(0, 5, 9)]
+        [InlineData(0, 5, 10)]
+        [InlineData(1, 5, 1)]
+        [InlineData(1, 5, 2)]
+        [InlineData(1, 5, 3)]
+        [InlineData(1, 5, 4)]
+        [InlineData(1, 5, 5)]
+        [InlineData(1, 5, 6)]
+        [InlineData(1, 5, 7)]
+        [InlineData(1, 5, 8)]
+        [InlineData(1, 5, 9)]
+        [InlineData(1, 5, 10)]
+        public void AdvanceWithNext(int start, int end, int lookaheadSize)
         {
-            var list = new RangeEnumerable(start..end).ToArray();
-            var lookahead = list.AsLookahead(lookaheadSize);
+            var nums = new RangeEnumerable(start..end);
+            var lookahead = nums.AsLookahead(lookaheadSize);
 
-            int foundValidCycles = 0;
-            foreach (var cycle in new RangeEnumerable(1..cycleIters))
-            {
-                int foundValidPeeksBefore = 0;
-                foreach (var iBefore in new RangeEnumerable(1..peeksBefore))
-                {
-                    if (lookahead.TryPeek(out var val, iBefore))
-                    {
-                        foundValidPeeksBefore++;
-                        Assert.Equal(list[cycle + iBefore - 2], val);
-                    }
-                }
-                Assert.Equal(validPeeksBefore, foundValidPeeksBefore);
+            foreach (var n in nums)
+                Assert.Equal(n, lookahead.Next());
+            Assert.False(lookahead.HasNext);
+        }
 
-                if (lookahead.TryNext(out var val2))
-                {
-                    foundValidCycles++;
-                    Assert.Equal(list[cycle - 1], val2);
+        [Theory]
+        [InlineData(0, 5, 1, true)]
+        [InlineData(0, 5, 2, true)]
+        [InlineData(0, 5, 3, true)]
+        [InlineData(0, 5, 4, true)]
+        [InlineData(0, 5, 5, true)]
+        [InlineData(0, 5, 6, true)]
+        [InlineData(0, 5, 7, false)]
+        [InlineData(0, 5, 8, false)]
+        [InlineData(0, 5, 9, false)]
+        [InlineData(0, 5, 10, false)]
+        [InlineData(1, 5, 1, true)]
+        [InlineData(1, 5, 2, true)]
+        [InlineData(1, 5, 3, true)]
+        [InlineData(1, 5, 4, true)]
+        [InlineData(1, 5, 5, true)]
+        [InlineData(1, 5, 6, false)]
+        [InlineData(1, 5, 7, false)]
+        [InlineData(1, 5, 8, false)]
+        [InlineData(1, 5, 9, false)]
+        [InlineData(1, 5, 10, false)]
+        public void AdvanceThroughLookahead(int start, int end, int lookaheadSize, bool peekSucceeds)
+        {
+            var nums = new RangeEnumerable(start..end);
+            var lookahead = nums.AsLookahead(lookaheadSize);
 
-                    int foundValidPeeksAfter = 0;
-                }
-            }
-            
-            // TODO: make this a sane test
+            Assert.Equal(peekSucceeds, lookahead.TryPeek(out _, lookaheadSize));
+            foreach (var n in nums)
+                Assert.Equal(n, lookahead.Next());
+            Assert.False(lookahead.HasNext);
         }
     }
 }
