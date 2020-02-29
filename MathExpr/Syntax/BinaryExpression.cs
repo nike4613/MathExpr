@@ -28,6 +28,21 @@ namespace MathExpr.Syntax
             Arguments = new List<MathExpression> { left, right };
         }
 
+        public BinaryExpression(ExpressionType type, IEnumerable<MathExpression> args) : this(type, args.ToList())
+        {
+            if (Arguments.Count > 2)
+                switch (Type)
+                {
+                    case ExpressionType.Add:
+                    case ExpressionType.Multiply:
+                    case ExpressionType.And:
+                    case ExpressionType.Or:
+                        break;
+                    default:
+                        throw new ArgumentException("Can only have more than 2 arguments when the type is commutative");
+                }
+        }
+
         private BinaryExpression(ExpressionType type, IReadOnlyList<MathExpression> args)
         {
             if (args.Count < 2)
@@ -67,7 +82,7 @@ namespace MathExpr.Syntax
             if (list.Count(IsValueExpression) > 1)
             {
                 var arr = list.Where(IsValueExpression).Cast<LiteralExpression>().ToArray();
-                var sum = arr.Select(l => l.Value).Aggregate(0m, Type switch
+                var sum = arr.Select(l => l.Value).Aggregate(Type switch
                 {
                     ExpressionType.Add          => (a, b) => a + b,
                     ExpressionType.Subtract     => (a, b) => a - b,
