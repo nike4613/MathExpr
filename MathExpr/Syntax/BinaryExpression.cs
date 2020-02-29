@@ -9,7 +9,7 @@ namespace MathExpr.Syntax
         public enum ExpressionType 
         {
             Add, Subtract, Multiply, Divide, Modulo, Exponent,
-            And, NAnd, Or, Nor, Xor,
+            And, NAnd, Or, NOr, Xor, XNor,
             Equals, Inequals, Less, Greater, LessEq, GreaterEq,
         }
         
