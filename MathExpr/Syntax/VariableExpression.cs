@@ -17,6 +17,8 @@ namespace MathExpr.Syntax
 
         protected internal override MathExpression Simplify()
             => this;
+        protected internal override MathExpression Reduce()
+            => this;
 
         public override bool Equals(MathExpression other)
             => other is VariableExpression v && v.Name == Name;

@@ -18,6 +18,8 @@ namespace MathExpr.Syntax
 
         protected internal override MathExpression Simplify()
             => this;
+        protected internal override MathExpression Reduce()
+            => this;
 
         public override string ToString()
             => Value.ToString();

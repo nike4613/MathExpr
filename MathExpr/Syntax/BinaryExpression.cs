@@ -41,9 +41,9 @@ namespace MathExpr.Syntax
             && Arguments.Count == e.Arguments.Count
             && Arguments.Zip(e.Arguments, (a, b) => Equals(a, b)).All(b => b);
 
-        protected internal override MathExpression Simplify()
+        protected internal override MathExpression Reduce()
         {
-            var list = Arguments.Select(a => a.Simplify()).ToList();
+            var list = Arguments.Select(a => a.Reduce()).ToList();
             switch (Type)
             {
                 case ExpressionType.Add:
@@ -97,6 +97,10 @@ namespace MathExpr.Syntax
             if (list.Count < 2) return list.First();
             return new BinaryExpression(Type, list);
         }
+        protected internal override MathExpression Simplify()
+        {
+            return new BinaryExpression(Type, Arguments.Select(a => a.Simplify()).ToList());
+        }
 
         public override string ToString()
             => $"({string.Join($" {Type} ", Arguments)})";
@@ -108,5 +112,6 @@ namespace MathExpr.Syntax
             hashCode = hashCode * -1521134295 + EqualityComparer<IReadOnlyList<MathExpression>>.Default.GetHashCode(Arguments);
             return hashCode;
         }
+
     }
 }

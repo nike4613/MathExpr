@@ -51,6 +51,8 @@ namespace MathExpr.Syntax
 
         protected internal override MathExpression Simplify()
             => new CustomDefinitionExpression(FunctionName, ArgumentList, Definition.Simplify(), Value.Simplify());
+        protected internal override MathExpression Reduce()
+            => new CustomDefinitionExpression(FunctionName, ArgumentList, Definition.Reduce(), Value.Reduce());
 
         public override int GetHashCode()
         {

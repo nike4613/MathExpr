@@ -28,6 +28,9 @@ namespace MathExpr.Syntax
         protected internal override MathExpression Simplify()
             => new MemberExpression(Target.Simplify(), MemberName);
 
+        protected internal override MathExpression Reduce()
+            => new MemberExpression(Target.Reduce(), MemberName);
+
         public override int GetHashCode()
         {
             var hashCode = 1134248118;
@@ -35,5 +38,6 @@ namespace MathExpr.Syntax
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(MemberName);
             return hashCode;
         }
+
     }
 }

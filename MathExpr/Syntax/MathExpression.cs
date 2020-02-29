@@ -11,6 +11,7 @@ namespace MathExpr.Syntax
         public static MathExpression Parse(string expr)
             => ExpressionParser.ParseRoot(expr);
 
+        protected internal abstract MathExpression Reduce();
         protected internal abstract MathExpression Simplify();
 
         /// <summary>

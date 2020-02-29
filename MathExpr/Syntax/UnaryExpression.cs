@@ -31,6 +31,25 @@ namespace MathExpr.Syntax
         {
             return new UnaryExpression(Type, Argument.Simplify());
         }
+        protected internal override MathExpression Reduce()
+        {
+            var arg = Argument.Reduce();
+            if (arg is LiteralExpression l)
+            {
+                switch (Type)
+                {
+                    case ExpressionType.Negate:
+                        return new LiteralExpression(-l.Value);
+                    case ExpressionType.Not:
+                        return new LiteralExpression(l.Value != 0 ? 0 : 1);
+                    case ExpressionType.Factorial:
+                        // TODO: because i will implement factorial partially with exponents
+                        break;
+                }
+            }
+
+            return new UnaryExpression(Type, Argument.Reduce());
+        }
 
         public override string ToString()
             => $"({Type} {Argument.ToString()}";
