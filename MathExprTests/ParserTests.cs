@@ -56,6 +56,7 @@ namespace MathExprTests
         [InlineData("(x+1)!", true)]
         [InlineData("-(x+1)!", true)]
         [InlineData("(x = y + 2 ~^ y * 2 > z) * (x+1)!", true)]
+        [InlineData("f'(x, y) = x^2 + y - 1; f'(2, 3 + z)^2", true)]
         public void ParseString(string input, bool valid)
         {
             try

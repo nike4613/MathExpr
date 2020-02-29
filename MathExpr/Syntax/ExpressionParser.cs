@@ -37,7 +37,25 @@ namespace MathExpr.Syntax
         }
 
         private MathExpression ReadRoot()
-            => ReadLogicExpr();
+            => ReadDefinition();
+
+        private MathExpression ReadDefinition()
+        {
+            var left = ReadLogicExpr();
+            if (TryConsumeToken(TokenType.Semicolon, out var tok))
+            {
+                var right = ReadDefinition();
+                try
+                {
+                    return new CustomDefinitionExpression(left, right);
+                }
+                catch (ArgumentException e)
+                {
+                    throw new SyntaxException(tok, e.Message);
+                }
+            }
+            return left;
+        }
 
         private MathExpression ReadLogicExpr()
         {

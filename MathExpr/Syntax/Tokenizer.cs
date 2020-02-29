@@ -42,6 +42,7 @@ namespace MathExpr.Syntax
         [TokenDesc("%")]            Percent, //
         [TokenDesc("~")]            Tilde, //
         [TokenDesc("'")]            Prime, //
+        [TokenDesc(";")]            Semicolon, 
 
         Error,
     }
@@ -215,6 +216,9 @@ namespace MathExpr.Syntax
                             break;
                         case '\'':
                             yield return NewToken(TokenType.Prime, ref i);
+                            break;
+                        case ';':
+                            yield return NewToken(TokenType.Semicolon, ref i);
                             break;
                         default:
                             yield return new Token(TokenType.Error, "Unexpected character", i++, 1);
