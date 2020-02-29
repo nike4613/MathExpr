@@ -19,7 +19,7 @@ namespace MathExpr.Syntax
             => this;
 
         public override bool Equals(MathExpression other)
-            => other is VariableExpression v && (ReferenceEquals(v, this) || v.Name == Name);
+            => other is VariableExpression v && v.Name == Name;
 
         public override string ToString()
             => $"'{Name}'";

@@ -24,8 +24,8 @@ namespace MathExpr.Syntax
 
         public override bool Equals(MathExpression other)
             => other is UnaryExpression e 
-            && (ReferenceEquals(this, e) 
-                || (Type == e.Type && Equals(Argument, e.Argument)));
+            && Type == e.Type 
+            && Equals(Argument, e.Argument);
 
         protected internal override MathExpression Simplify()
         {

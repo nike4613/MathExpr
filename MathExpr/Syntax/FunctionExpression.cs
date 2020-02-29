@@ -25,8 +25,9 @@ namespace MathExpr.Syntax
 
         public override bool Equals(MathExpression other)
             => other is FunctionExpression f
-            && (ReferenceEquals(f, this)
-                || (f.Name == Name && Arguments.Zip(f.Arguments, (a, b) => Equals(a, b)).All(b => b)));
+            && f.Name == Name
+            && Arguments.Count == f.Arguments.Count
+            && Arguments.Zip(f.Arguments, (a, b) => Equals(a, b)).All(b => b);
 
         public override string ToString()
             => $"{Name}{(IsPrime ? "'" : "")}({string.Join(", ", Arguments.Select(e => e.ToString()))})";

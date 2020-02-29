@@ -43,6 +43,7 @@ namespace MathExpr.Syntax
             => other is CustomDefinitionExpression cde
             && FunctionName == cde.FunctionName
             && Equals(Value, cde.Value)
+            && ArgumentList.Count == cde.ArgumentList.Count
             && ArgumentList.Zip(cde.ArgumentList, (a, b) => Equals(a, b)).All(a => a);
 
         public override string ToString()
