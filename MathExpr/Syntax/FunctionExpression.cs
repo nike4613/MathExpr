@@ -27,6 +27,6 @@ namespace MathExpr.Syntax
                 || (f.Name == Name && Arguments.Zip(f.Arguments, (a, b) => a.Equals(b)).All(b => b)));
 
         public override string ToString()
-            => $"{Name}({string.Join(", ", Arguments.Select(e => e.ToString()))})";
+            => $"{Name}{(IsPrime ? "'" : "")}({string.Join(", ", Arguments.Select(e => e.ToString()))})";
     }
 }
