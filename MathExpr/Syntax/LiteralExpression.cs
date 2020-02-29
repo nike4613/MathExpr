@@ -6,8 +6,8 @@ namespace MathExpr.Syntax
 {
     public class LiteralExpression : MathExpression
     {
-        public double Value { get; }
-        public LiteralExpression(double value)
+        public decimal Value { get; }
+        public LiteralExpression(decimal value)
             => Value = value;
 
         public override bool Equals(MathExpression other)

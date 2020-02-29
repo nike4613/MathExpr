@@ -52,7 +52,7 @@ namespace MathExpr.Syntax
         public int Position { get; }
         public int Length { get; }
 
-        public decimal? AsDouble => Value as decimal?;
+        public decimal? AsDecimal => Value as decimal?;
         public string? AsString => Value as string;
 
         public Token(TokenType type, object? value, int pos, int len)
