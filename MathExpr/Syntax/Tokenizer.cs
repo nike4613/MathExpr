@@ -1,16 +1,47 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 
 namespace MathExpr.Syntax
 {
+    [AttributeUsage(AttributeTargets.Field)]
+    internal sealed class TokenDescAttribute : Attribute
+    {
+        public string Description { get; }
+        public TokenDescAttribute(string desc) 
+        {
+            Description = desc;
+        }
+    }
+
     public enum TokenType
     {
-        Identifier, Literal, OpenParen, CloseParen,
-        Star, Slash, Plus, Minus, Exponent,
-        Equals, Inequals, Less, Greater, LessEq, GreaterEq,
-        Xor, And, Bang, Percent,
+        [TokenDesc(@"[A-Za-z]+")]   Identifier, //
+        [TokenDesc(@"\d+(\.\d+)?")] Literal, //
+        [TokenDesc("(")]            OpenParen, //
+        [TokenDesc(")")]            CloseParen, //
+        [TokenDesc("*")]            Star, //
+        [TokenDesc("/")]            Slash, //
+        [TokenDesc("+")]            Plus, //
+        [TokenDesc("-")]            Minus, //
+        [TokenDesc("^")]            Exponent, //
+        [TokenDesc("=")]            Equals, //
+        [TokenDesc("~=")]           Inequals, //
+        [TokenDesc("<")]            Less, //
+        [TokenDesc(">")]            Greater, //
+        [TokenDesc("<=")]           LessEq, //
+        [TokenDesc(">=")]           GreaterEq, //
+        [TokenDesc("^^")]           Xor, //
+        [TokenDesc("~^")]           XNor, //
+        [TokenDesc("&")]            And, //
+        [TokenDesc("~&")]           NAnd, //
+        [TokenDesc("|")]            Or, //
+        [TokenDesc("~|")]           NOr, //
+        [TokenDesc("!")]            Bang,
+        [TokenDesc("%")]            Percent, //
+        [TokenDesc("~")]            Tilde,
 
-        Error
+        Error,
     }
 
     public struct Token
@@ -21,7 +52,7 @@ namespace MathExpr.Syntax
         public int Position { get; }
         public int Length { get; }
 
-        public double? AsDouble => Value as double?;
+        public decimal? AsDouble => Value as decimal?;
         public string? AsString => Value as string;
 
         public Token(TokenType type, object? value, int pos, int len)
@@ -56,7 +87,7 @@ namespace MathExpr.Syntax
         private static bool IsIdentifierChar(char c)
             => (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
         private static bool IsNumberChar(char c)
-            => char.IsNumber(c) || c == '.';
+            => char.IsNumber(c);
 
         public static IEnumerable<Token> Tokenize(string text)
         {
@@ -69,11 +100,10 @@ namespace MathExpr.Syntax
                 var value = currentTokenType switch
                 {
                     TokenType.Identifier => text.Substring(tokenStart, tokenLen),
-                    TokenType.Literal => (object?)double.Parse(text.Substring(tokenStart, tokenLen), CultureInfo.InvariantCulture),
+                    TokenType.Literal => (object?)decimal.Parse(text.Substring(tokenStart, tokenLen), CultureInfo.InvariantCulture),
                     _ => null
                 };
-                var tok = new Token(currentTokenType, value, tokenStart, tokenLen);
-                return tok;
+                return new Token(currentTokenType, value, tokenStart, tokenLen);
             }
 
             static Token NewToken(TokenType type, ref int i, int len = 1)
@@ -104,7 +134,7 @@ namespace MathExpr.Syntax
                     currentTokenType = TokenType.Literal;
                     tokenStart = i++;
                     tokenLen = 1;
-                    while (i < text.Length && IsNumberChar(text[i]))
+                    while (i < text.Length && (IsNumberChar(text[i]) || text[i] == '.'))
                     {
                         i++;
                         tokenLen++;
@@ -148,11 +178,24 @@ namespace MathExpr.Syntax
                         case '&':
                             yield return NewToken(TokenType.And, ref i);
                             break;
-                        case '!':
-                            if (text[i + 1] == '=')
+                        case '|':
+                            yield return NewToken(TokenType.Or, ref i);
+                            break;
+                        case '~':
+                            if (text[i + 1] == '&')
+                                yield return NewToken(TokenType.NAnd, ref i, 2);
+                            else if (text[i + 1] == '|')
+                                yield return NewToken(TokenType.NOr, ref i, 2);
+                            else if (text[i + 1] == '^')
+                                yield return NewToken(TokenType.XNor, ref i, 2);
+                            else if (text[i + 1] == '=')
                                 yield return NewToken(TokenType.Inequals, ref i, 2);
                             else
-                                yield return NewToken(TokenType.Bang, ref i);
+                                yield return NewToken(TokenType.Tilde, ref i);
+                            break;
+                        default:
+                        case '!':
+                            yield return NewToken(TokenType.Bang, ref i);
                             break;
                         case '<':
                             if (text[i + 1] == '=')
@@ -166,7 +209,6 @@ namespace MathExpr.Syntax
                             else
                                 yield return NewToken(TokenType.Greater, ref i);
                             break;
-                        default:
                             yield return new Token(TokenType.Error, "Unexpected character", i++, 1);
                             break;
                     }
