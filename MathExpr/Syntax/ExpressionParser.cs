@@ -43,7 +43,6 @@ namespace MathExpr.Syntax
                 || TryConsumeToken(TokenType.Or, out tok) || TryConsumeToken(TokenType.NOr, out tok)
                 || TryConsumeToken(TokenType.Xor, out tok) || TryConsumeToken(TokenType.XNor, out tok))
             {
-                var right = ReadCompareExpr();
                 left = new BinaryExpression(left, tok.Type switch
                 {
                     TokenType.And => BinaryExpression.ExpressionType.And,
@@ -53,7 +52,7 @@ namespace MathExpr.Syntax
                     TokenType.Xor => BinaryExpression.ExpressionType.Xor,
                     TokenType.XNor => BinaryExpression.ExpressionType.XNor,
                     _ => throw new SyntaxException(tok, "Unexpected token type")
-                }, right);
+                }, ReadCompareExpr());
             }
             return left;
         }
@@ -65,7 +64,6 @@ namespace MathExpr.Syntax
                 || TryConsumeToken(TokenType.Less, out tok) || TryConsumeToken(TokenType.Greater, out tok)
                 || TryConsumeToken(TokenType.LessEq, out tok) || TryConsumeToken(TokenType.GreaterEq, out tok))
             {
-                var right = ReadAddSubExpr();
                 left = new BinaryExpression(left, tok.Type switch
                 {
                     TokenType.Equals => BinaryExpression.ExpressionType.Equals,
@@ -75,7 +73,7 @@ namespace MathExpr.Syntax
                     TokenType.LessEq => BinaryExpression.ExpressionType.LessEq,
                     TokenType.GreaterEq => BinaryExpression.ExpressionType.GreaterEq,
                     _ => throw new SyntaxException(tok, "Unexpected token type")
-                }, right);
+                }, ReadAddSubExpr());
             }
             return left;
         }
@@ -85,13 +83,12 @@ namespace MathExpr.Syntax
             var left = ReadMulDivExpr();
             while (TryConsumeToken(TokenType.Plus, out var tok) || TryConsumeToken(TokenType.Minus, out tok))
             {
-                var right = ReadMulDivExpr();
                 left = new BinaryExpression(left, tok.Type switch
                 {
                     TokenType.Plus => BinaryExpression.ExpressionType.Add,
                     TokenType.Minus => BinaryExpression.ExpressionType.Subtract,
                     _ => throw new SyntaxException(tok, "Unexpected token type")
-                }, right);
+                }, ReadMulDivExpr());
             }
             return left;
         }
@@ -102,27 +99,38 @@ namespace MathExpr.Syntax
             while (TryConsumeToken(TokenType.Star, out var tok) || TryConsumeToken(TokenType.Slash, out tok)
                 || TryConsumeToken(TokenType.Percent, out tok))
             {
-                var right = ReadExponentExpr();
                 left = new BinaryExpression(left, tok.Type switch
                 {
                     TokenType.Star => BinaryExpression.ExpressionType.Multiply,
                     TokenType.Slash => BinaryExpression.ExpressionType.Divide,
                     TokenType.Percent => BinaryExpression.ExpressionType.Modulo,
                     _ => throw new SyntaxException(tok, "Unexpected token type")
-                }, right);
+                }, ReadExponentExpr());
             }
             return left;
         }
 
         private MathExpression ReadExponentExpr()
         {
-            var left = ReadParenExpr();
+            var left = ReadNegateNotExpr();
             while (TryConsumeToken(TokenType.Exponent, out var tok))
             {
-                var right = ReadParenExpr();
+                var right = ReadNegateNotExpr();
                 left = new BinaryExpression(left, BinaryExpression.ExpressionType.Exponent, right);
             }
             return left;
+        }
+
+        private MathExpression ReadNegateNotExpr()
+        {
+            if (TryConsumeToken(TokenType.Tilde, out var tok) || TryConsumeToken(TokenType.Minus, out tok))
+                return new UnaryExpression(tok.Type switch
+                {
+                    TokenType.Tilde => UnaryExpression.ExpressionType.Not,
+                    TokenType.Minus => UnaryExpression.ExpressionType.Negate,
+                    _ => throw new SyntaxException(tok, "Unexpected token type")
+                }, ReadParenExpr());
+            else return ReadParenExpr();
         }
 
         private MathExpression ReadParenExpr()
