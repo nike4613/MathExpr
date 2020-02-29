@@ -7,6 +7,9 @@ namespace MathExpr.Syntax
     public class LiteralExpression : MathExpression
     {
         public decimal Value { get; }
+
+        public override int Size => 0; // because we don't perform any operation
+
         public LiteralExpression(decimal value)
             => Value = value;
 

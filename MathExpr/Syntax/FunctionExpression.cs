@@ -11,6 +11,8 @@ namespace MathExpr.Syntax
         public IReadOnlyList<MathExpression> Arguments { get; }
         public bool IsPrime { get; }
 
+        public override int Size => Arguments.Sum(a => a.Size) + 1; // the function itself is only one operation as far as this is concerned
+
         public FunctionExpression(string name, IReadOnlyList<MathExpression> args, bool isPrime)
         {
             Name = name;

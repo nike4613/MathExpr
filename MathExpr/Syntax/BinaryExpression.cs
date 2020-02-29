@@ -17,6 +17,8 @@ namespace MathExpr.Syntax
         public MathExpression Left { get; }
         public MathExpression Right { get; }
 
+        public override int Size => Left.Size + Right.Size + 1;
+
         public BinaryExpression(MathExpression left, ExpressionType type, MathExpression right)
         {
             Type = type;

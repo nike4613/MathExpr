@@ -12,6 +12,9 @@ namespace MathExpr.Syntax
         public MathExpression Definition { get; }
         public MathExpression Value { get; }
 
+        public override int Size => Value.Size;
+        public int DefinitionSize => Definition.Size;
+
         public CustomDefinitionExpression(MathExpression assignExpr, MathExpression valueExpr)
         {
             if (!(assignExpr is BinaryExpression bexp) || bexp.Type != BinaryExpression.ExpressionType.Equals)

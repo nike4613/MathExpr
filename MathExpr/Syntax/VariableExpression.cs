@@ -8,6 +8,8 @@ namespace MathExpr.Syntax
     {
         public string Name { get; }
 
+        public override int Size => 1; // because it is one operation to load
+
         public VariableExpression(string name)
         {
             Name = name;

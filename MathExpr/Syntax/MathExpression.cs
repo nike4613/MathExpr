@@ -13,6 +13,10 @@ namespace MathExpr.Syntax
 
         protected internal abstract MathExpression Simplify();
 
+        /// <summary>
+        /// The size of the expression; that is, the number of operations it contains
+        /// </summary>
+        public abstract int Size { get; }
         public abstract bool Equals(MathExpression other);
         public abstract override int GetHashCode();
         public abstract override string ToString();

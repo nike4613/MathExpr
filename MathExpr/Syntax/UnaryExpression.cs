@@ -14,6 +14,8 @@ namespace MathExpr.Syntax
         public ExpressionType Type { get; }
         public MathExpression Argument { get; }
 
+        public override int Size => Argument.Size + 1;
+
         public UnaryExpression(ExpressionType type, MathExpression arg)
         {
             Type = type;

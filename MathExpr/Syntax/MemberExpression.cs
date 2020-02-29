@@ -9,6 +9,8 @@ namespace MathExpr.Syntax
         public MathExpression Target { get; }
         public string MemberName { get; }
 
+        public override int Size => Target.Size + 1;
+
         public MemberExpression(MathExpression target, string member)
         {
             Target = target;
