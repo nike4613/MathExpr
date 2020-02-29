@@ -54,11 +54,11 @@ namespace MathExprTests
             try
             {
                 _ = ExpressionParser.ParseRoot(input);
-                Assert.True(valid);
+                Assert.True(valid, "Parser did not throw when it was supposed to");
             }
             catch (SyntaxException e)
             {
-                Assert.False(valid);
+                Assert.False(valid, "Parser threw when it was not supposed to");
             }
         }
     }
