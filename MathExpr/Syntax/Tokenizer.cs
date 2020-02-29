@@ -20,6 +20,7 @@ namespace MathExpr.Syntax
         [TokenDesc(@"\d+(\.\d+)?")] Literal, //
         [TokenDesc("(")]            OpenParen, //
         [TokenDesc(")")]            CloseParen, //
+        [TokenDesc(",")]            Comma, //
         [TokenDesc("*")]            Star, //
         [TokenDesc("/")]            Slash, //
         [TokenDesc("+")]            Plus, //
@@ -37,10 +38,10 @@ namespace MathExpr.Syntax
         [TokenDesc("~&")]           NAnd, //
         [TokenDesc("|")]            Or, //
         [TokenDesc("~|")]           NOr, //
-        [TokenDesc("!")]            Bang,
+        [TokenDesc("!")]            Bang, //
         [TokenDesc("%")]            Percent, //
         [TokenDesc("~")]            Tilde, //
-        [TokenDesc("'")]            Prime, 
+        [TokenDesc("'")]            Prime, //
 
         Error,
     }
@@ -151,6 +152,9 @@ namespace MathExpr.Syntax
                             break;
                         case ')':
                             yield return NewToken(TokenType.CloseParen, ref i);
+                            break;
+                        case ',':
+                            yield return NewToken(TokenType.Comma, ref i);
                             break;
                         case '*':
                             yield return NewToken(TokenType.Star, ref i);

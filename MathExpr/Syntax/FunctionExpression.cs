@@ -9,11 +9,13 @@ namespace MathExpr.Syntax
     {
         public string Name { get; }
         public IReadOnlyList<MathExpression> Arguments { get; }
+        public bool IsPrime { get; }
 
-        public FunctionExpression(string name, IReadOnlyList<MathExpression> args)
+        public FunctionExpression(string name, IReadOnlyList<MathExpression> args, bool isPrime)
         {
             Name = name;
             Arguments = args;
+            IsPrime = isPrime;
         }
 
         protected internal override MathExpression Simplify()

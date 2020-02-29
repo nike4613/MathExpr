@@ -1,5 +1,6 @@
 ﻿using MathExpr.Utilities;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -22,8 +23,10 @@ namespace MathExpr.Syntax
         private ExpressionParser(LookaheadEnumerable<Token> toks)
             => tokens = toks;
 
+        private bool CheckNextToken(TokenType type, out Token token)
+            => tokens.TryPeek(out token) && token.Type == type;
         private bool TryConsumeToken(TokenType type, out Token token)
-            => tokens.TryPeek(out token) && token.Type == type && tokens.TryNext(out token);
+            => CheckNextToken(type, out token) && tokens.TryNext(out token);
 
         private MathExpression Read()
         {
@@ -129,8 +132,16 @@ namespace MathExpr.Syntax
                     TokenType.Tilde => UnaryExpression.ExpressionType.Not,
                     TokenType.Minus => UnaryExpression.ExpressionType.Negate,
                     _ => throw new SyntaxException(tok, "Unexpected token type")
-                }, ReadParenExpr());
-            else return ReadParenExpr();
+                }, ReadFactorialExpr());
+            else return ReadFactorialExpr();
+        }
+
+        private MathExpression ReadFactorialExpr()
+        {
+            var arg = ReadParenExpr();
+            while (TryConsumeToken(TokenType.Bang, out var tok))
+                arg = new UnaryExpression(UnaryExpression.ExpressionType.Factorial, arg);
+            return arg;
         }
 
         private MathExpression ReadParenExpr()
@@ -152,11 +163,28 @@ namespace MathExpr.Syntax
                 return new LiteralExpression(tok.AsDecimal!.Value);
             else if (TryConsumeToken(TokenType.Identifier, out tok))
             {
-                // TODO: check for function call
-                return new VariableExpression(tok.AsString!);
+                if (TryConsumeToken(TokenType.Prime, out _)) // a prime function
+                    return new FunctionExpression(tok.AsString!, ReadCallParamList().ToList(), true);
+                else if (CheckNextToken(TokenType.OpenParen, out _)) // a normal function
+                    return new FunctionExpression(tok.AsString!, ReadCallParamList().ToList(), false);
+                else return new VariableExpression(tok.AsString!);
             }
             else
-                throw new SyntaxException(tok, "Expected literal or identifier");
+                throw new SyntaxException(tok, "Unexpected token");
+        }
+
+        private IEnumerable<MathExpression> ReadCallParamList()
+        {
+            if (!TryConsumeToken(TokenType.OpenParen, out var tok))
+                throw new SyntaxException(tok, "Expected '(' to start function parameter list");
+            if (TryConsumeToken(TokenType.CloseParen, out _))
+                yield break;
+
+            do yield return ReadRoot();
+            while (TryConsumeToken(TokenType.Comma, out _));
+
+            if (!TryConsumeToken(TokenType.CloseParen, out _))
+                throw new SyntaxException(tok, "Expected ')' to end function parameter list");
         }
     }
 
