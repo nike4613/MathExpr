@@ -29,7 +29,7 @@ namespace MathExprTests
                 new Token(TokenType.Identifier, "k", 16, 1),
                 new Token(TokenType.Percent, null, 18, 1),
                 new Token(TokenType.OpenParen, null, 19, 1),
-                new Token(TokenType.Literal, 3.442d, 21, 5),
+                new Token(TokenType.Literal, 3.442m, 21, 5),
                 new Token(TokenType.Star, null, 26, 1),
                 new Token(TokenType.Identifier, "ident", 27, 5),
                 new Token(TokenType.CloseParen, null, 32, 1),
@@ -50,6 +50,7 @@ namespace MathExprTests
         [InlineData("a + b + c - 3 * d ^ e * f - g", true)]
         [InlineData("a+b*c/d^ehij  % k %( 3.442*ident) ^^ y & y", true)]
         [InlineData("x = y + 2 ~^ y * 2 > z", true)]
+        [InlineData("func'(a, b) = 14.3 * a * b!", true)]
         [InlineData("5!", true)]
         [InlineData("-5!", true)]
         [InlineData("(x+1)!", true)]
