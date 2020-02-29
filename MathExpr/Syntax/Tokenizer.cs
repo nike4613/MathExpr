@@ -39,7 +39,8 @@ namespace MathExpr.Syntax
         [TokenDesc("~|")]           NOr, //
         [TokenDesc("!")]            Bang,
         [TokenDesc("%")]            Percent, //
-        [TokenDesc("~")]            Tilde,
+        [TokenDesc("~")]            Tilde, //
+        [TokenDesc("'")]            Prime, 
 
         Error,
     }
@@ -193,7 +194,6 @@ namespace MathExpr.Syntax
                             else
                                 yield return NewToken(TokenType.Tilde, ref i);
                             break;
-                        default:
                         case '!':
                             yield return NewToken(TokenType.Bang, ref i);
                             break;
@@ -209,6 +209,10 @@ namespace MathExpr.Syntax
                             else
                                 yield return NewToken(TokenType.Greater, ref i);
                             break;
+                        case '\'':
+                            yield return NewToken(TokenType.Prime, ref i);
+                            break;
+                        default:
                             yield return new Token(TokenType.Error, "Unexpected character", i++, 1);
                             break;
                     }
