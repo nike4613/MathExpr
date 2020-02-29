@@ -27,7 +27,7 @@ namespace MathExpr.Syntax
         public override bool Equals(MathExpression other)
             => other is BinaryExpression e
             && (ReferenceEquals(this, e) 
-                || (Type == e.Type && Left == e.Left && Right == Right));
+                || (Type == e.Type && Equals(Left, e.Left) && Equals(Right, e.Right)));
 
         protected internal override MathExpression Simplify()
         {
@@ -36,5 +36,14 @@ namespace MathExpr.Syntax
 
         public override string ToString()
             => $"({Left.ToString()} {Type} {Right.ToString()})";
+
+        public override int GetHashCode()
+        {
+            var hashCode = 1099731784;
+            hashCode = hashCode * -1521134295 + Type.GetHashCode();
+            hashCode = hashCode * -1521134295 + EqualityComparer<MathExpression>.Default.GetHashCode(Left);
+            hashCode = hashCode * -1521134295 + EqualityComparer<MathExpression>.Default.GetHashCode(Right);
+            return hashCode;
+        }
     }
 }

@@ -18,5 +18,12 @@ namespace MathExpr.Syntax
 
         public override string ToString()
             => Value.ToString();
+
+        public override int GetHashCode()
+        {
+            var hashCode = -159790080;
+            hashCode = hashCode * -1521134295 + Value.GetHashCode();
+            return hashCode;
+        }
     }
 }

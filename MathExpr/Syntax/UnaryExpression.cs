@@ -23,7 +23,7 @@ namespace MathExpr.Syntax
         public override bool Equals(MathExpression other)
             => other is UnaryExpression e 
             && (ReferenceEquals(this, e) 
-                || (Type == e.Type && Argument == e.Argument));
+                || (Type == e.Type && Equals(Argument, e.Argument)));
 
         protected internal override MathExpression Simplify()
         {
@@ -32,5 +32,13 @@ namespace MathExpr.Syntax
 
         public override string ToString()
             => $"({Type} {Argument.ToString()}";
+
+        public override int GetHashCode()
+        {
+            var hashCode = -850124847;
+            hashCode = hashCode * -1521134295 + Type.GetHashCode();
+            hashCode = hashCode * -1521134295 + EqualityComparer<MathExpression>.Default.GetHashCode(Argument);
+            return hashCode;
+        }
     }
 }

@@ -24,9 +24,18 @@ namespace MathExpr.Syntax
         public override bool Equals(MathExpression other)
             => other is FunctionExpression f
             && (ReferenceEquals(f, this)
-                || (f.Name == Name && Arguments.Zip(f.Arguments, (a, b) => a.Equals(b)).All(b => b)));
+                || (f.Name == Name && Arguments.Zip(f.Arguments, (a, b) => Equals(a, b)).All(b => b)));
 
         public override string ToString()
             => $"{Name}{(IsPrime ? "'" : "")}({string.Join(", ", Arguments.Select(e => e.ToString()))})";
+
+        public override int GetHashCode()
+        {
+            var hashCode = 2000608931;
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Name);
+            hashCode = hashCode * -1521134295 + EqualityComparer<IReadOnlyList<MathExpression>>.Default.GetHashCode(Arguments);
+            hashCode = hashCode * -1521134295 + IsPrime.GetHashCode();
+            return hashCode;
+        }
     }
 }

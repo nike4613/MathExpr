@@ -21,5 +21,12 @@ namespace MathExpr.Syntax
 
         public override string ToString()
             => $"'{Name}'";
+
+        public override int GetHashCode()
+        {
+            var hashCode = 890389916;
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Name);
+            return hashCode;
+        }
     }
 }
