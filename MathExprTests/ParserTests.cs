@@ -51,7 +51,9 @@ namespace MathExprTests
         [InlineData("a+b*c/d^ehij  % k %( 3.442*ident) ^^ y & y", true)]
         [InlineData("x = y + 2 ~^ y * 2 > z", true)]
         [InlineData("5!", true)]
+        [InlineData("-5!", true)]
         [InlineData("(x+1)!", true)]
+        [InlineData("-(x+1)!", true)]
         [InlineData("(x = y + 2 ~^ y * 2 > z) * (x+1)!", true)]
         public void ParseString(string input, bool valid)
         {
