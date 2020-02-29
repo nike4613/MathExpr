@@ -16,33 +16,34 @@ namespace MathExpr.Syntax
 
     public enum TokenType
     {
-        [TokenDesc(@"[A-Za-z]+")]   Identifier, //
-        [TokenDesc(@"\d+(\.\d+)?")] Literal, //
-        [TokenDesc("(")]            OpenParen, //
-        [TokenDesc(")")]            CloseParen, //
-        [TokenDesc(",")]            Comma, //
-        [TokenDesc("*")]            Star, //
-        [TokenDesc("/")]            Slash, //
-        [TokenDesc("+")]            Plus, //
-        [TokenDesc("-")]            Minus, //
-        [TokenDesc("^")]            Exponent, //
-        [TokenDesc("=")]            Equals, //
-        [TokenDesc("~=")]           Inequals, //
-        [TokenDesc("<")]            Less, //
-        [TokenDesc(">")]            Greater, //
-        [TokenDesc("<=")]           LessEq, //
-        [TokenDesc(">=")]           GreaterEq, //
-        [TokenDesc("^^")]           Xor, //
-        [TokenDesc("~^")]           XNor, //
-        [TokenDesc("&")]            And, //
-        [TokenDesc("~&")]           NAnd, //
-        [TokenDesc("|")]            Or, //
-        [TokenDesc("~|")]           NOr, //
-        [TokenDesc("!")]            Bang, //
-        [TokenDesc("%")]            Percent, //
-        [TokenDesc("~")]            Tilde, //
-        [TokenDesc("'")]            Prime, //
-        [TokenDesc(";")]            Semicolon, 
+        [TokenDesc(@"[A-Za-z]([A-Za-z]|\d)*")]   Identifier,
+        [TokenDesc(@"\d+(\.\d+)?")] Literal,
+        [TokenDesc("(")]            OpenParen,
+        [TokenDesc(")")]            CloseParen,
+        [TokenDesc(",")]            Comma,
+        [TokenDesc("*")]            Star,
+        [TokenDesc("/")]            Slash,
+        [TokenDesc("+")]            Plus,
+        [TokenDesc("-")]            Minus,
+        [TokenDesc("^")]            Exponent,
+        [TokenDesc("=")]            Equals,
+        [TokenDesc("~=")]           Inequals,
+        [TokenDesc("<")]            Less,
+        [TokenDesc(">")]            Greater,
+        [TokenDesc("<=")]           LessEq,
+        [TokenDesc(">=")]           GreaterEq,
+        [TokenDesc("^^")]           Xor,
+        [TokenDesc("~^")]           XNor,
+        [TokenDesc("&")]            And,
+        [TokenDesc("~&")]           NAnd,
+        [TokenDesc("|")]            Or,
+        [TokenDesc("~|")]           NOr,
+        [TokenDesc("!")]            Bang,
+        [TokenDesc("%")]            Percent,
+        [TokenDesc("~")]            Tilde,
+        [TokenDesc("'")]            Prime,
+        [TokenDesc(";")]            Semicolon,
+        [TokenDesc(".")]            Period,
 
         Error,
     }
@@ -125,7 +126,7 @@ namespace MathExpr.Syntax
                     currentTokenType = TokenType.Identifier;
                     tokenStart = i++;
                     tokenLen = 1;
-                    while (i < text.Length && IsIdentifierChar(text[i]))
+                    while (i < text.Length && (IsIdentifierChar(text[i]) || IsNumberChar(text[i])))
                     {
                         i++;
                         tokenLen++;
@@ -219,6 +220,9 @@ namespace MathExpr.Syntax
                             break;
                         case ';':
                             yield return NewToken(TokenType.Semicolon, ref i);
+                            break;
+                        case '.':
+                            yield return NewToken(TokenType.Period, ref i);
                             break;
                         default:
                             yield return new Token(TokenType.Error, "Unexpected character", i++, 1);

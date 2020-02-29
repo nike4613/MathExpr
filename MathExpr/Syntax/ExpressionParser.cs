@@ -156,10 +156,22 @@ namespace MathExpr.Syntax
 
         private MathExpression ReadFactorialExpr()
         {
-            var arg = ReadParenExpr();
+            var arg = ReadMemberExpr();
             while (TryConsumeToken(TokenType.Bang, out var tok))
                 arg = new UnaryExpression(UnaryExpression.ExpressionType.Factorial, arg);
             return arg;
+        }
+
+        private MathExpression ReadMemberExpr()
+        {
+            var left = ReadParenExpr();
+            while (TryConsumeToken(TokenType.Period, out var tok))
+            {
+                if (!TryConsumeToken(TokenType.Identifier, out tok))
+                    throw new SyntaxException(tok, "Expected Identifier");
+                left = new MemberExpression(left, tok.AsString!);
+            }
+            return left;
         }
 
         private MathExpression ReadParenExpr()

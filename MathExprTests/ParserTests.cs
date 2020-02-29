@@ -57,6 +57,8 @@ namespace MathExprTests
         [InlineData("-(x+1)!", true)]
         [InlineData("(x = y + 2 ~^ y * 2 > z) * (x+1)!", true)]
         [InlineData("f'(x, y) = x^2 + y - 1; f'(2, 3 + z)^2", true)]
+        [InlineData("vec3(a, b, c).x", true)] // ideally this should be able to simplify to just 'a'
+        [InlineData("(vec3(a, b, c) * 13 + vec3(1,2,3)).z", true)]
         public void ParseString(string input, bool valid)
         {
             try
@@ -64,7 +66,7 @@ namespace MathExprTests
                 _ = ExpressionParser.ParseRoot(input);
                 Assert.True(valid, "Parser did not throw when it was supposed to");
             }
-            catch (SyntaxException e)
+            catch (SyntaxException)
             {
                 Assert.False(valid, "Parser threw when it was not supposed to");
             }
