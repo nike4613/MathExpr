@@ -10,13 +10,16 @@ namespace MathExpr.Utilities
         // x^n can be represented as sigma(v=0 -> inf, (n^v * log(x)^v) / v!)
         // ln(x) around 1 is sigma(n=1 -> inf, ((-1)^(n + 1) * (x - 1)^n)/n)
         
-        public static decimal Pow(decimal bas, decimal exponent, int iters = 16, int logIters = 16)
+        public static decimal Pow(decimal bas, decimal exponent, int iters = 6, int logIters = 16)
         {
             if (exponent == 0) return 1;
             if (exponent < 0) return 1m / Pow(bas, -exponent);
             var trunc = decimal.Truncate(exponent);
             if (exponent == trunc)
                 return IntPow(bas, trunc);
+
+            var center = decimal.Round(exponent);
+            var centerC = IntPow(bas, decimal.Truncate(center));
 
             var logVal = Ln(bas, logIters);
             var logPow = 1m;
@@ -25,8 +28,8 @@ namespace MathExpr.Utilities
             var sum = 0m;
             for (int v = 0; v < iters; v++)
             {
-                sum += nPow * logPow / vFac;
-                nPow *= exponent;
+                sum += centerC * nPow * logPow / vFac;
+                nPow *= exponent - center;
                 logPow *= logVal;
                 vFac *= v + 1; // because this is now factorial for the *next* iteration
             }

@@ -22,7 +22,7 @@ jobs:
       - name: Build projects
         run: dotnet build --configuration Release
       - name: Run tests
-        run: dotnet test MathExprTests --collect:"XPlat Code Coverage"
+        run: dotnet test MathExprTests --configuration Release --collect:"XPlat Code Coverage"
       - uses: actions/upload-artifact@v1
         with:
           name: test-results
