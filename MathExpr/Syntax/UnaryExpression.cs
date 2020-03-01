@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MathExpr.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -43,8 +44,7 @@ namespace MathExpr.Syntax
                     case ExpressionType.Not:
                         return new LiteralExpression(l.Value != 0 ? 0 : 1);
                     case ExpressionType.Factorial:
-                        // TODO: because i will implement factorial partially with exponents
-                        break;
+                        return new LiteralExpression(DecimalMath.Factorial(l.Value));
                 }
             }
 

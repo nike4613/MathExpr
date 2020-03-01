@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MathExpr.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -55,6 +56,7 @@ namespace MathExpr.Syntax
             => other is BinaryExpression e
             && Arguments.Count == e.Arguments.Count
             && Arguments.Zip(e.Arguments, (a, b) => Equals(a, b)).All(b => b);
+        // TODO: make Equals not care about order in some cases
 
         protected internal override MathExpression Reduce()
         {
@@ -89,8 +91,7 @@ namespace MathExpr.Syntax
                     ExpressionType.Multiply     => (a, b) => a * b,
                     ExpressionType.Divide       => (a, b) => a / b,
                     ExpressionType.Modulo       => (a, b) => a % b,
-                    ExpressionType.Exponent     => (a, b) => decimal.MinValue, // TODO: because exponents are hard, and i'm working with Decimal which doesn't natively support it
-                    // x^n can be represented as sigma(v=0 -> inf, (n^v * log(x)^v) / v!)
+                    ExpressionType.Exponent     => (a, b) => DecimalMath.Pow(a, b),
                     ExpressionType.And          => (a, b) => a != 0 && b != 0 ? 1 : 0,
                     ExpressionType.NAnd         => (a, b) => a != 0 && b != 0 ? 0 : 1,
                     ExpressionType.Or           => (a, b) => a != 0 || b != 0 ? 1 : 0,
@@ -104,7 +105,7 @@ namespace MathExpr.Syntax
                     ExpressionType.LessEq       => (a, b) => a <= b ? 1 : 0,
                     ExpressionType.GreaterEq    => (a, b) => a >= b ? 1 : 0,
                     _ => throw new InvalidOperationException("Attempting to aggregate unknown operation")
-                });
+                });;
                 foreach (var e in arr)
                     list.Remove(e);
                 list.Add(new LiteralExpression(sum));
