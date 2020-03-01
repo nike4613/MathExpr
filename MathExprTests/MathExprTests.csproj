@@ -5,6 +5,9 @@
 
     <IsPackable>false</IsPackable>
     <Nullable>enable</Nullable>
+    <SignAssembly>true</SignAssembly>
+    <DelaySign>false</DelaySign>
+    <AssemblyOriginatorKeyFile>SingingKey.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <ItemGroup>

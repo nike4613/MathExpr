@@ -4,6 +4,14 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <LangVersion>8.0</LangVersion>
     <Nullable>enable</Nullable>
+    
+    <VersionPrefix>0.0.1</VersionPrefix>
+    <Authors>Anairkoen Schno</Authors>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageDescription>An extensible mathematical expression compiler and evaluator.</PackageDescription>
+    <RepositoryUrl>https://github.com/nike4613/MathExpr</RepositoryUrl>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>SigningKey.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   
 </Project>
