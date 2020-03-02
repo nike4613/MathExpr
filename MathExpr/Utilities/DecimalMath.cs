@@ -53,19 +53,19 @@ namespace MathExpr.Utilities
                 if (dblCount > 0)
                 {
                     dblCount += 32;
-                    bits[2] = (int)((uint)bits[2] - (HighBitM1((uint)bits[2]) + 1));
+                    bits[2] = (int)((uint)bits[2] - HighBit((uint)bits[2]));
                 }
                 else
                 {
                     dblCount = Log2((uint)bits[1]); // mid
-                    if (dblCount > 0) bits[1] = (int)((uint)bits[1] - (HighBitM1((uint)bits[1]) + 1));
+                    if (dblCount > 0) bits[1] = (int)((uint)bits[1] - HighBit((uint)bits[1]));
                 }
                 if (dblCount > 0)
                     dblCount += 32;
                 else
                 {
                     dblCount = Log2((uint)bits[0]); // lo
-                    if (dblCount > 0) bits[0] = (int)((uint)bits[0] - (HighBitM1((uint)bits[0]) + 1));
+                    if (dblCount > 0) bits[0] = (int)((uint)bits[0] - HighBit((uint)bits[0]));
                 }
 
                 var lprod = bas;
@@ -80,6 +80,9 @@ namespace MathExpr.Utilities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static uint Log2(uint n)
             => CountBits(HighBitM1(n));
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static uint HighBit(uint n)
+            => HighBitM1(n) + 1;
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static uint HighBitM1(uint n)
         {
@@ -105,8 +108,13 @@ namespace MathExpr.Utilities
         /// <param name="arg">the argument to <c>ln(x)</c></param>
         /// <param name="iters">the number of terms to use</param>
         /// <returns>the approxamate value of <c>ln(x)</c></returns>
-        public static decimal Ln(decimal arg, int iters = 16)
+        public static decimal Ln(decimal arg, int iters = 1024)
         {
+            if (arg == 1) return 0;
+
+            // TODO: figure out how to center this thing elsewhere (possibly different algo for integer log)
+            if (Math.Abs(1 - arg) > 1) 
+                throw new OverflowException("Series diverges");
             var args1p = arg - 1;
             var pow = args1p;
             var sum = 0m;

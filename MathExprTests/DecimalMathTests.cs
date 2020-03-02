@@ -34,6 +34,30 @@ namespace MathExprTests
             Assert.Equal((decimal)expect, DecimalMath.Pow(bas, exp, iters, logIters));
         }
 
+        [Theory()] // args are decimal bits, being { lo, mid, hi, flags }
+        // ln(1) = 0 (0 error)
+        [InlineData(new[] { 1, 0, 0, 0 }, new[] { 0, 0, 0, 0 }, new[] { 0, 0, 0, 0 }, 16)]
+        // ln(2) = 0.69314718055994530941723212 (4e-5 error)
+        [InlineData(new[] { 2, 0, 0, 0 }, new[] { unchecked((int)0x9DDD624C), 0x6523BB59, 0x3955F6, 0x001A0000 }, new[] { 4, 0, 0, 0x00050000 }, 16384)]
+        // ln(e^2) = ln(7.389056098930650227230427460) = 2 (4e-5 error)
+        [InlineData(new[] { 0x307CC944, unchecked((int)0xC0FF3042), 0x17E0157D, 0x001B0000 }, new[] { 2, 0, 0, 0 }, new[] { 4, 0, 0, 0x00050000 }, 16384)]
+        // TODO: add more test cases
+        public void NaturalLog(int[] arg, int[] expect, int[] error, int iters)
+        {
+            var logArg = new decimal(arg);
+            var dexpect = new decimal(expect);
+            var derror = new decimal(error);
+
+            var actual = DecimalMath.Ln(logArg, iters);
+            var actualError = Math.Abs(dexpect - actual);
+            Assert.True(derror >= Math.Abs(dexpect - actual), $"Error of {actualError}, expected no more than error of {derror}");
+        }
+
+        public void FractionalPower(long bas, int[] exp, int[] expect, int[] error, int iters, int logIters)
+        {
+
+        }
+
         // TODO: come up with a decent way to test fractional exponents, bases, and logs
     }
 }
