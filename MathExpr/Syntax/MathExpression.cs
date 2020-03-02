@@ -22,7 +22,7 @@ namespace MathExpr.Syntax
         public abstract override int GetHashCode();
         public abstract override string ToString();
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => obj is MathExpression e && Equals(e);
     }
 }

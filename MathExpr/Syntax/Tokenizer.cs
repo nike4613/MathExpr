@@ -64,7 +64,7 @@ namespace MathExpr.Syntax
             Type = type; Value = value; Position = pos; Length = len;
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => obj is Token t && this == t;
         public static bool operator ==(Token a, Token b)
             => a.Type == b.Type && Equals(a.Value, b.Value);
@@ -78,7 +78,7 @@ namespace MathExpr.Syntax
         {
             var hashCode = 9789246;
             hashCode = hashCode * -1521134295 + Type.GetHashCode();
-            hashCode = hashCode * -1521134295 + EqualityComparer<object?>.Default.GetHashCode(Value);
+            hashCode = hashCode * -1521134295 + EqualityComparer<object?>.Default.GetHashCode(Value!);
             hashCode = hashCode * -1521134295 + Position.GetHashCode();
             hashCode = hashCode * -1521134295 + Length.GetHashCode();
             return hashCode;
