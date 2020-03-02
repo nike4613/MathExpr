@@ -50,22 +50,24 @@ namespace MathExpr.Utilities
             do
             {
                 dblCount = Log2((uint)bits[2]); // hi
-                if (dblCount > 0)
+                if (dblCount > 0 && dblCount != uint.MaxValue)
                 {
-                    dblCount += 32;
+                    dblCount += 64;
                     bits[2] = (int)((uint)bits[2] - HighBit((uint)bits[2]));
                 }
                 else
                 {
                     dblCount = Log2((uint)bits[1]); // mid
-                    if (dblCount > 0) bits[1] = (int)((uint)bits[1] - HighBit((uint)bits[1]));
-                }
-                if (dblCount > 0)
-                    dblCount += 32;
-                else
-                {
-                    dblCount = Log2((uint)bits[0]); // lo
-                    if (dblCount > 0) bits[0] = (int)((uint)bits[0] - HighBit((uint)bits[0]));
+                    if (dblCount > 0 && dblCount != uint.MaxValue)
+                    {
+                        dblCount += 32;
+                        bits[1] = (int)((uint)bits[1] - HighBit((uint)bits[1]));
+                    }
+                    else
+                    {
+                        dblCount = Log2((uint)bits[0]); // lo
+                        if (dblCount > 0 && dblCount != uint.MaxValue) bits[0] = (int)((uint)bits[0] - HighBit((uint)bits[0]));
+                    }
                 }
 
                 var lprod = bas;
@@ -77,14 +79,37 @@ namespace MathExpr.Utilities
             return prod;
         }
 
+#if NETCOREAPP3_0
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static uint Log2(uint n)
-            => CountBits(HighBitM1(n));
+            => System.Runtime.Intrinsics.X86.Lzcnt.IsSupported
+                ? 31 - System.Runtime.Intrinsics.X86.Lzcnt.LeadingZeroCount(n) // 31 is bitwidth of uint - 1
+                : Log2_CS(n);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static uint HighBit(uint n)
-            => HighBitM1(n) + 1;
+            => System.Runtime.Intrinsics.X86.Lzcnt.IsSupported
+                ? 0x80000000 >> (int)System.Runtime.Intrinsics.X86.Lzcnt.LeadingZeroCount(n)
+                : HighBitM1_CS(n) + 1;
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static uint HighBitM1(uint n)
+        private static uint CountBits(uint n)
+            => System.Runtime.Intrinsics.X86.Popcnt.IsSupported
+               ? System.Runtime.Intrinsics.X86.Popcnt.PopCount(n)
+               : CountBits_CS(n);
+#else
+        // no intrinsics to speak of, forward to CS impl
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static uint Log2(uint n) => Log2_CS(n);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static uint HighBit(uint n) => HighBitM1_CS(n) + 1;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static uint CountBits(uint n) => CountBits_CS(n);
+#endif
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static uint Log2_CS(uint n)
+            => CountBits(HighBitM1_CS(n));
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static uint HighBitM1_CS(uint n)
         {
             n |= n >> 1;
             n |= n >> 2;
@@ -95,7 +120,7 @@ namespace MathExpr.Utilities
         }
         // source: http://graphics.stanford.edu/~seander/bithacks.html#CountBitsSetParallel
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static uint CountBits(uint n)
+        private static uint CountBits_CS(uint n)
         {
             n -= (n >> 1) & 0x55555555;
             n = (n & 0x33333333) + ((n >> 2) & 0x33333333);
