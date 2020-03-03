@@ -22,7 +22,10 @@ namespace MathExprTests
             Assert.Equal((decimal)expect, DecimalMath.Factorial(arg));
         }
 
+        #region Powers
         [Theory]
+        [InlineData(2, 0, 1, 0)]
+        [InlineData(2, 1, 2, 0)]
         [InlineData(2, 2, 4, 0)]
         [InlineData(2, 3, 8, 0)]
         [InlineData(2, 4, 16, 0)]
@@ -33,31 +36,39 @@ namespace MathExprTests
         {
             Assert.Equal((decimal)expect, DecimalMath.Pow(bas, exp, iters));
         }
+        #endregion
 
-        [Theory()] // args are decimal bits, being { lo, mid, hi, flags }
-        // ln(1) = 0 (0 error)
-        [InlineData(new[] { 1, 0, 0, 0 }, new[] { 0, 0, 0, 0 }, new[] { 0, 0, 0, 0 })]
-        // ln(2) = 0.69314718055994530941723212 (2e-27 error)
-        [InlineData(new[] { 2, 0, 0, 0 }, new[] { unchecked((int)0x9DDD624C), 0x6523BB59, 0x3955F6, 0x001A0000 }, new[] { 2, 0, 0, 0x001A0000 })]
-        // ln(e^2) = ln(7.389056098930650227230427460) = 2 (1.1688695634449e-14 error) (error is the actual max error of the approxamation)
-        [InlineData(new[] { 0x307CC944, unchecked((int)0xC0FF3042), 0x17E0157D, 0x001B0000 }, new[] { 2, 0, 0, 0 }, new[] { 0xC8D1A11, 0xAA17, 0, 0x001b0000 })]
-        // TODO: add more test cases
-        public void NaturalLog(int[] arg, int[] expect, int[] error)
+        #region Natural Log
+        [Theory]
+        [MemberData(nameof(NaturalLogTestValues))]
+        public void NaturalLog(decimal arg, decimal expect, decimal error)
         {
-            var logArg = new decimal(arg);
-            var dexpect = new decimal(expect);
-            var derror = new decimal(error);
-
-            var actual = DecimalMath.Ln(logArg);
-            var actualError = Math.Abs(dexpect - actual);
-            Assert.True(derror >= Math.Abs(dexpect - actual), $"Error of {actualError}, expected no more than error of {derror}");
+            var actual = DecimalMath.Ln(arg);
+            var actualError = Math.Abs(expect - actual);
+            Assert.True(error >= actualError, $"Error of {actualError}, expected no more than error of {error}");
         }
 
-        public void FractionalPower(long bas, int[] exp, int[] expect, int[] error, int iters, int logIters)
+        [Theory]
+        [MemberData(nameof(NaturalLogThrowTestValues))]
+        public void NaturalLogThrow(decimal arg)
+            => Assert.Throws<OverflowException>(() => DecimalMath.Ln(arg));
+
+        private const decimal LogMaxError = 1.1688695634449e-14m;
+        public static object[][] NaturalLogTestValues = new[]
         {
-
-        }
-
-        // TODO: come up with a decent way to test fractional exponents, bases, and logs
+            new object[] { 1m, 0m, 0m },
+            new object[] { 2m, DecimalMath.Ln2, 0m },
+            new object[] { 7.389056098930650227230427460m, 2m, LogMaxError },
+            new object[] { 0.5m, -0.69314718055994530941723212145818m, LogMaxError },
+            new object[] { 0.1m, -2.3025850929940456840179914546844m, LogMaxError },
+        };
+        public static object[][] NaturalLogThrowTestValues = new[]
+        {
+            new object[] { 0m },
+            new object[] { -1m },
+            new object[] { -.1m },
+            new object[] { -10m },
+        };
+        #endregion
     }
 }
