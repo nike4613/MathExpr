@@ -151,6 +151,7 @@ namespace MathExpr.Utilities
             var pow = args1p;
             var sum = 0m;
 
+            // TODO: come up with a better way to pick iteration count; this one gives significatly better results for smaller values than larger ones
             var iters = 1m / (arg * arg) * 12;
             for (int n = 1; n <= iters; n++)
             {

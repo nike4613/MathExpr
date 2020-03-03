@@ -59,8 +59,10 @@ namespace MathExprTests
             new object[] { 1m, 0m, 0m },
             new object[] { 2m, DecimalMath.Ln2, 0m },
             new object[] { 7.389056098930650227230427460m, 2m, LogMaxError },
+            new object[] { 0.9m, -0.10536051565782630122750098083931m, LogMaxError },
             new object[] { 0.5m, -0.69314718055994530941723212145818m, LogMaxError },
             new object[] { 0.1m, -2.3025850929940456840179914546844m, LogMaxError },
+            new object[] { 0.01m, -4.6051701859880913680359829093687m, LogMaxError },
         };
         public static object[][] NaturalLogThrowTestValues = new[]
         {
