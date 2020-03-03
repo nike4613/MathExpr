@@ -80,15 +80,16 @@ namespace MathExpr.Utilities
         /// <param name="arg">the argument to <c>ln(x)</c></param>
         /// <param name="iters">the number of terms to use</param>
         /// <returns>the approxamate value of <c>ln(x)</c></returns>
+        [MethodImpl(AggressiveOptimization)]
         public static decimal Ln(decimal arg)
         {
             if (arg <= 0)
-                throw new OverflowException("Ln not defined below 0");
+                throw new OverflowException("Ln not defined at or below 0");
+            if (arg < 1) // pass off to taylor approximation
+                return LnTaylor(arg);
             if (arg == 1) return 0;
             if (arg == 2) return Ln2;
 
-            if (arg < 1)
-                throw new NotImplementedException("approxamations for <0");
 
             // implementation based on https://stackoverflow.com/a/44232045
 
@@ -142,6 +143,23 @@ namespace MathExpr.Utilities
             res += log * Ln2;
 
             return res;
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining | AggressiveOptimization)]
+        private static decimal LnTaylor(decimal arg)
+        {
+            var args1p = arg - 1;
+            var pow = args1p;
+            var sum = 0m;
+
+            var iters = 1m / (arg * arg) * 12;
+            for (int n = 1; n <= iters; n++)
+            {
+                var val = pow / n;
+                pow *= args1p;
+                if (n % 2 == 1) sum += val;
+                else sum -= val;
+            }
+            return sum;
         }
 
         /// <summary>
