@@ -67,7 +67,7 @@ namespace MathExpr.Utilities
                 for (uint i = 0; i < dblCount; i++)
                     lprod *= lprod;
                 prod *= lprod;
-            } while (dblCount > 0 && (bits[0] > 0 || bits[0] > 0 || bits[0] > 0));
+            } while (dblCount > 0 && (bits[0] | bits[1] | bits[2]) != 0);
 
             return prod;
         }
