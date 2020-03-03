@@ -9,7 +9,14 @@ namespace MathExpr.Utilities
     {
         // x^n can be represented as sigma(v=0 -> inf, (n^v * log(x)^v) / v!)
         // ln(x) around 1 is sigma(n=1 -> inf, ((-1)^(n + 1) * (x - 1)^n)/n)
-        
+        private const MethodImplOptions AggressiveOptimization =
+#if NETCOREAPP3_0
+            MethodImplOptions.AggressiveOptimization;
+#else
+            (MethodImplOptions)0;
+#endif
+
+        [MethodImpl(AggressiveOptimization)]
         public static decimal Pow(decimal bas, decimal exponent, int iters = 6)
         {
             if (exponent == 0) return 1;
@@ -35,6 +42,8 @@ namespace MathExpr.Utilities
             }
             return sum;
         }
+
+        [MethodImpl(AggressiveOptimization)]
         private static decimal IntPow(decimal bas, decimal exp)
         { // assumes exp is integer
             if (exp == 0) return 1m;
@@ -61,68 +70,6 @@ namespace MathExpr.Utilities
             } while (dblCount > 0 && (bits[0] > 0 || bits[0] > 0 || bits[0] > 0));
 
             return prod;
-        }
-
-#if NETCOREAPP3_0
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static uint Log2(uint n)
-            => System.Runtime.Intrinsics.X86.Lzcnt.IsSupported
-                ? 31 - System.Runtime.Intrinsics.X86.Lzcnt.LeadingZeroCount(n) // 31 is bitwidth of uint - 1
-                : Log2_CS(n);
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static uint HighBit(uint n)
-            => System.Runtime.Intrinsics.X86.Lzcnt.IsSupported
-                ? 0x80000000 >> (int)System.Runtime.Intrinsics.X86.Lzcnt.LeadingZeroCount(n)
-                : HighBit_CS(n);
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static uint CountBits(uint n)
-            => System.Runtime.Intrinsics.X86.Popcnt.IsSupported
-               ? System.Runtime.Intrinsics.X86.Popcnt.PopCount(n)
-               : CountBits_CS(n);
-#else
-        // no intrinsics to speak of, forward to CS impl
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static uint Log2(uint n) => Log2_CS(n);
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static uint HighBit(uint n) => HighBit_CS(n);
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static uint CountBits(uint n) => CountBits_CS(n);
-#endif
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static uint Log2(int[] din)
-        {
-            if (din[2] != 0) return Log2((uint)din[2]) + 64;
-            if (din[1] != 0) return Log2((uint)din[1]) + 32;
-            return Log2((uint)din[0]);
-        }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static decimal HighBit(int[] din)
-        {
-            if (din[2] != 0) return new decimal(0, 0, (int)HighBit((uint)din[2]), din[3] < 0, 0);
-            if (din[1] != 0) return new decimal(0, (int)HighBit((uint)din[1]), 0, din[3] < 0, 0);
-            return new decimal((int)HighBit((uint)din[0]), 0, 0, din[3] < 0, 0);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static uint Log2_CS(uint n)
-            => CountBits(HighBit(n) - 1);
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static uint HighBit_CS(uint n)
-        {
-            n |= n >> 1;
-            n |= n >> 2;
-            n |= n >> 4;
-            n |= n >> 8;
-            n |= n >> 16;
-            return n ^ (n >> 1);
-        }
-        // source: http://graphics.stanford.edu/~seander/bithacks.html#CountBitsSetParallel
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static uint CountBits_CS(uint n)
-        {
-            n -= (n >> 1) & 0x55555555;
-            n = (n & 0x33333333) + ((n >> 2) & 0x33333333);
-            return ((n + (n >> 4) & 0xF0F0F0F) * 0x1010101) >> 24;
         }
 
         public const decimal Ln2 = 0.693147180559945309417232122m;
@@ -209,6 +156,7 @@ namespace MathExpr.Utilities
         /// <param name="val">the argument to the factorial function</param>
         /// <returns><c>x!</c></returns>
         /// <seealso cref="Gamma(decimal)"/>
+        [MethodImpl(AggressiveOptimization)]
         public static decimal Factorial(decimal val)
         {
             if (val == 0) return 1;
@@ -217,6 +165,7 @@ namespace MathExpr.Utilities
 
             return IntFactorial(decimal.Truncate(val));
         }
+        [MethodImpl(MethodImplOptions.AggressiveInlining | AggressiveOptimization)]
         private static decimal IntFactorial(decimal val)
         { // assumes arg is integer
             if (val == 0) return 1;
@@ -238,6 +187,68 @@ namespace MathExpr.Utilities
         public static decimal Gamma(decimal val)
         {
             throw new NotImplementedException("The gamma function is too complicated for me fam");
+        }
+
+#if NETCOREAPP3_0
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static uint Log2(uint n)
+            => System.Runtime.Intrinsics.X86.Lzcnt.IsSupported
+                ? 31 - System.Runtime.Intrinsics.X86.Lzcnt.LeadingZeroCount(n) // 31 is bitwidth of uint - 1
+                : Log2_CS(n);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static uint HighBit(uint n)
+            => System.Runtime.Intrinsics.X86.Lzcnt.IsSupported
+                ? 0x80000000 >> (int)System.Runtime.Intrinsics.X86.Lzcnt.LeadingZeroCount(n)
+                : HighBit_CS(n);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static uint CountBits(uint n)
+            => System.Runtime.Intrinsics.X86.Popcnt.IsSupported
+               ? System.Runtime.Intrinsics.X86.Popcnt.PopCount(n)
+               : CountBits_CS(n);
+#else
+        // no intrinsics to speak of, forward to CS impl
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static uint Log2(uint n) => Log2_CS(n);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static uint HighBit(uint n) => HighBit_CS(n);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static uint CountBits(uint n) => CountBits_CS(n);
+#endif
+        [MethodImpl(MethodImplOptions.AggressiveInlining | AggressiveOptimization)]
+        private static uint Log2(int[] din)
+        {
+            if (din[2] != 0) return Log2((uint)din[2]) + 64;
+            if (din[1] != 0) return Log2((uint)din[1]) + 32;
+            return Log2((uint)din[0]);
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining | AggressiveOptimization)]
+        private static decimal HighBit(int[] din)
+        {
+            if (din[2] != 0) return new decimal(0, 0, (int)HighBit((uint)din[2]), din[3] < 0, 0);
+            if (din[1] != 0) return new decimal(0, (int)HighBit((uint)din[1]), 0, din[3] < 0, 0);
+            return new decimal((int)HighBit((uint)din[0]), 0, 0, din[3] < 0, 0);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static uint Log2_CS(uint n)
+            => CountBits(HighBit(n) - 1);
+        [MethodImpl(AggressiveOptimization)]
+        private static uint HighBit_CS(uint n)
+        {
+            n |= n >> 1;
+            n |= n >> 2;
+            n |= n >> 4;
+            n |= n >> 8;
+            n |= n >> 16;
+            return n ^ (n >> 1);
+        }
+        // source: http://graphics.stanford.edu/~seander/bithacks.html#CountBitsSetParallel
+        [MethodImpl(AggressiveOptimization)]
+        private static uint CountBits_CS(uint n)
+        {
+            n -= (n >> 1) & 0x55555555;
+            n = (n & 0x33333333) + ((n >> 2) & 0x33333333);
+            return ((n + (n >> 4) & 0xF0F0F0F) * 0x1010101) >> 24;
         }
     }
 }
