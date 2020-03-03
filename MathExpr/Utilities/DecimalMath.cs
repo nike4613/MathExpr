@@ -10,7 +10,7 @@ namespace MathExpr.Utilities
         // x^n can be represented as sigma(v=0 -> inf, (n^v * log(x)^v) / v!)
         // ln(x) around 1 is sigma(n=1 -> inf, ((-1)^(n + 1) * (x - 1)^n)/n)
         
-        public static decimal Pow(decimal bas, decimal exponent, int iters = 6, int logIters = 16)
+        public static decimal Pow(decimal bas, decimal exponent, int iters = 6)
         {
             if (exponent == 0) return 1;
             if (exponent < 0) return 1m / Pow(bas, -exponent);
@@ -21,7 +21,7 @@ namespace MathExpr.Utilities
             var center = decimal.Round(exponent);
             var centerC = IntPow(bas, decimal.Truncate(center));
 
-            var logVal = Ln(bas, logIters);
+            var logVal = Ln(bas);
             var logPow = 1m;
             var nPow = 1m;
             var vFac = 1m;
@@ -49,26 +49,10 @@ namespace MathExpr.Utilities
             uint dblCount;
             do
             {
-                dblCount = Log2((uint)bits[2]); // hi
-                if (dblCount > 0 && dblCount != uint.MaxValue)
-                {
-                    dblCount += 64;
-                    bits[2] = (int)((uint)bits[2] - HighBit((uint)bits[2]));
-                }
-                else
-                {
-                    dblCount = Log2((uint)bits[1]); // mid
-                    if (dblCount > 0 && dblCount != uint.MaxValue)
-                    {
-                        dblCount += 32;
-                        bits[1] = (int)((uint)bits[1] - HighBit((uint)bits[1]));
-                    }
-                    else
-                    {
-                        dblCount = Log2((uint)bits[0]); // lo
-                        if (dblCount > 0 && dblCount != uint.MaxValue) bits[0] = (int)((uint)bits[0] - HighBit((uint)bits[0]));
-                    }
-                }
+                dblCount = Log2(bits);
+                var idx = dblCount / 32;
+                var valat = (uint)bits[idx];
+                bits[idx] = (int)(valat ^ (1 << (int)dblCount));
 
                 var lprod = bas;
                 for (uint i = 0; i < dblCount; i++)
@@ -89,7 +73,7 @@ namespace MathExpr.Utilities
         private static uint HighBit(uint n)
             => System.Runtime.Intrinsics.X86.Lzcnt.IsSupported
                 ? 0x80000000 >> (int)System.Runtime.Intrinsics.X86.Lzcnt.LeadingZeroCount(n)
-                : HighBitM1_CS(n) + 1;
+                : HighBit_CS(n);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static uint CountBits(uint n)
             => System.Runtime.Intrinsics.X86.Popcnt.IsSupported
@@ -100,23 +84,37 @@ namespace MathExpr.Utilities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static uint Log2(uint n) => Log2_CS(n);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static uint HighBit(uint n) => HighBitM1_CS(n) + 1;
+        private static uint HighBit(uint n) => HighBit_CS(n);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static uint CountBits(uint n) => CountBits_CS(n);
 #endif
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static uint Log2(int[] din)
+        {
+            if (din[2] != 0) return Log2((uint)din[2]) + 64;
+            if (din[1] != 0) return Log2((uint)din[1]) + 32;
+            return Log2((uint)din[0]);
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static decimal HighBit(int[] din)
+        {
+            if (din[2] != 0) return new decimal(0, 0, (int)HighBit((uint)din[2]), din[3] < 0, 0);
+            if (din[1] != 0) return new decimal(0, (int)HighBit((uint)din[1]), 0, din[3] < 0, 0);
+            return new decimal((int)HighBit((uint)din[0]), 0, 0, din[3] < 0, 0);
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static uint Log2_CS(uint n)
-            => CountBits(HighBitM1_CS(n));
+            => CountBits(HighBit(n) - 1);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static uint HighBitM1_CS(uint n)
+        private static uint HighBit_CS(uint n)
         {
             n |= n >> 1;
             n |= n >> 2;
             n |= n >> 4;
             n |= n >> 8;
             n |= n >> 16;
-            return n >> 1;
+            return n ^ (n >> 1);
         }
         // source: http://graphics.stanford.edu/~seander/bithacks.html#CountBitsSetParallel
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -127,30 +125,76 @@ namespace MathExpr.Utilities
             return ((n + (n >> 4) & 0xF0F0F0F) * 0x1010101) >> 24;
         }
 
+        public const decimal Ln2 = 0.693147180559945309417232122m;
+
         /// <summary>
         /// The natural logarithm, approxamated by the Taylor series centered around 1.
         /// </summary>
         /// <param name="arg">the argument to <c>ln(x)</c></param>
         /// <param name="iters">the number of terms to use</param>
         /// <returns>the approxamate value of <c>ln(x)</c></returns>
-        public static decimal Ln(decimal arg, int iters = 1024)
+        public static decimal Ln(decimal arg)
         {
+            if (arg <= 0)
+                throw new OverflowException("Ln not defined below 0");
             if (arg == 1) return 0;
+            if (arg == 2) return Ln2;
 
-            // TODO: figure out how to center this thing elsewhere (possibly different algo for integer log)
-            if (Math.Abs(1 - arg) > 1) 
-                throw new OverflowException("Series diverges");
-            var args1p = arg - 1;
-            var pow = args1p;
-            var sum = 0m;
-            for (int n = 1; n <= iters; n++)
-            {
-                var val = pow / n;
-                pow *= args1p;
-                if (n % 2 == 1) sum += val;
-                else sum -= val;
-            }
-            return sum;
+            if (arg < 1)
+                throw new NotImplementedException("approxamations for <0");
+
+            // implementation based on https://stackoverflow.com/a/44232045
+
+            var trunc = decimal.Truncate(arg);
+            var truncBits = decimal.GetBits(trunc);
+
+            var log = Log2(truncBits);
+            var x = arg / HighBit(truncBits);
+
+            #region Approxamation Polynomial
+            // max error 1.1688695634449*10^(-14)
+            /*
+             * with(numapprox);
+             * Digits := 27;
+             * minimax(ln(x), x = 1 .. 2, 16, 1, 'maxerror');
+             */
+            var res = -3.03583533182214479766691286m +
+                (11.3112680075496515844324792m +
+                    (-29.8736012675475577430786512m +
+                        (65.2083453445743710801323715m +
+                            (-111.097825334293759973560852m +
+                                (148.534071386071268988190931m +
+                                    (-157.424462890917507884556818m +
+                                        (133.225172268984311761239366m +
+                                            (-90.2996769820337481793311886m +
+                                                (48.9451340222356623913845767m +
+                                                    (-21.0754655362975101325579042m +
+                                                        (7.11671592394798144753402649m +
+                                                            (-1.84432558485438263660851294m +
+                                                                (0.354147129830249156762711239m +
+                                                                    (-0.0474713112761932027336491138m +
+                                                                        (0.00396558631788738252056417950m -
+                                                                            0.000155430468567553406971315579m
+                                                                            * x)
+                                                                        * x)
+                                                                    * x)
+                                                                * x)
+                                                            * x)
+                                                        * x)
+                                                    * x)
+                                                * x)
+                                            * x)
+                                        * x)
+                                    * x)
+                                * x)
+                            * x)
+                        * x)
+                    * x)
+                * x;
+            #endregion
+            res += log * Ln2;
+
+            return res;
         }
 
         /// <summary>
