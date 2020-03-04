@@ -45,7 +45,7 @@ namespace MathExprTests
         [MemberData(nameof(BinaryExpressionCombinerPassTestData))]
         public void BinaryExpressionCombinerPass(MathExpression input, MathExpression expect)
         {
-            var context = new OptimizationContext<object?>(new[] { new BinaryExpressionCombinerPass() }, null);
+            var context = OptimizationContext.CreateWith(null, new[] { new BinaryExpressionCombinerPass() });
 
             var actual = context.Optimize(input);
             Assert.Equal(expect, actual);
