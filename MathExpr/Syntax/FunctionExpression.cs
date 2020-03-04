@@ -7,6 +7,9 @@ namespace MathExpr.Syntax
 {
     public sealed class FunctionExpression : MathExpression
     {
+        public const string LnName = "ln";
+        public const string ExpName = "exp";
+
         public string Name { get; }
         public IReadOnlyList<MathExpression> Arguments { get; }
         public bool IsPrime { get; }
