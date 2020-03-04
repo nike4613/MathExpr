@@ -16,11 +16,6 @@ namespace MathExpr.Syntax
         public override bool Equals(MathExpression other)
             => other is LiteralExpression l && l.Value == Value;
 
-        protected internal override MathExpression Simplify()
-            => this;
-        protected internal override MathExpression Reduce()
-            => this;
-
         public override string ToString()
             => Value.ToString();
 

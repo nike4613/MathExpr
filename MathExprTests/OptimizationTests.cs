@@ -8,7 +8,7 @@ namespace MathExprTests
 {
     public class OptimizationTests
     {
-        [Theory]
+        /*[Theory]
         [MemberData(nameof(ReduceData))]
         public void Reduce(MathExpression toReduce, MathExpression expect)
         {
@@ -37,6 +37,6 @@ namespace MathExprTests
                     new VariableExpression("c")) },
             new object[] { ExpressionParser.ParseRoot("1 + a + 2 + b"), new BinaryExpression(BinaryExpression.ExpressionType.Add,
                 new MathExpression[] { new VariableExpression("b"), new VariableExpression("a"), new LiteralExpression(3) }) }
-        };
+        };*/
     }
 }

@@ -20,11 +20,6 @@ namespace MathExpr.Syntax
             IsPrime = isPrime;
         }
 
-        protected internal override MathExpression Simplify()
-            => this; // never simplifies (at this stage)
-        protected internal override MathExpression Reduce()
-            => this; // never reduces (at this stage)
-
         public override bool Equals(MathExpression other)
             => other is FunctionExpression f
             && f.Name == Name

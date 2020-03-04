@@ -29,10 +29,12 @@ namespace MathExpr.Syntax
             Arguments = new List<MathExpression> { left, right };
         }
 
-        public BinaryExpression(ExpressionType type, IEnumerable<MathExpression> args) : this(type, args.ToList())
+        public BinaryExpression(ExpressionType type, IReadOnlyList<MathExpression> args)
         {
+            if (args.Count < 2)
+                throw new ArgumentException("A BinaryExpression must have at least 2 arguments", nameof(args));
             if (Arguments.Count > 2)
-                switch (Type)
+                switch (type)
                 {
                     case ExpressionType.Add:
                     case ExpressionType.Multiply:
@@ -42,12 +44,6 @@ namespace MathExpr.Syntax
                     default:
                         throw new ArgumentException("Can only have more than 2 arguments when the type is commutative");
                 }
-        }
-
-        private BinaryExpression(ExpressionType type, IReadOnlyList<MathExpression> args)
-        {
-            if (args.Count < 2)
-                throw new ArgumentException("A BinaryExpression must have at least 2 arguments", nameof(args));
             Type = type;
             Arguments = args;
         }
@@ -57,66 +53,6 @@ namespace MathExpr.Syntax
             && Arguments.Count == e.Arguments.Count
             && Arguments.Zip(e.Arguments, (a, b) => Equals(a, b)).All(b => b);
         // TODO: make Equals not care about order in some cases
-
-        protected internal override MathExpression Reduce()
-        {
-            var list = Arguments.Select(a => a.Reduce()).ToList();
-            switch (Type)
-            {
-                case ExpressionType.Add:
-                case ExpressionType.Multiply:
-                case ExpressionType.And:
-                case ExpressionType.Or:
-                    bool IsCombinableExpression(MathExpression e)
-                        => e is BinaryExpression ex && ex.Type == Type;
-                    if (list.Any(IsCombinableExpression))
-                    {
-                        foreach (var ex in list.ToArray().Where(IsCombinableExpression).Cast<BinaryExpression>())
-                        {
-                            list.Remove(ex);
-                            list.AddRange(ex.Arguments);
-                        }
-                    }
-                    break;
-            }
-            static bool IsValueExpression(MathExpression e)
-                => e is LiteralExpression;
-            if (list.Count(IsValueExpression) > 1)
-            {
-                var arr = list.Where(IsValueExpression).Cast<LiteralExpression>().ToArray();
-                var sum = arr.Select(l => l.Value).Aggregate(Type switch
-                {
-                    ExpressionType.Add          => (a, b) => a + b,
-                    ExpressionType.Subtract     => (a, b) => a - b,
-                    ExpressionType.Multiply     => (a, b) => a * b,
-                    ExpressionType.Divide       => (a, b) => a / b,
-                    ExpressionType.Modulo       => (a, b) => a % b,
-                    ExpressionType.Exponent     => (a, b) => DecimalMath.Pow(a, b),
-                    ExpressionType.And          => (a, b) => a != 0 && b != 0 ? 1 : 0,
-                    ExpressionType.NAnd         => (a, b) => a != 0 && b != 0 ? 0 : 1,
-                    ExpressionType.Or           => (a, b) => a != 0 || b != 0 ? 1 : 0,
-                    ExpressionType.NOr          => (a, b) => a != 0 || b != 0 ? 0 : 1,
-                    ExpressionType.Xor          => (a, b) => a != 0 ^ b != 0 ? 1 : 0,
-                    ExpressionType.XNor         => (a, b) => a != 0 ^ b != 0 ? 0 : 1,
-                    ExpressionType.Equals       => (a, b) => a == b ? 1 : 0,
-                    ExpressionType.Inequals     => (a, b) => a == b ? 0 : 1,
-                    ExpressionType.Less         => (a, b) => a < b ? 1 : 0,
-                    ExpressionType.Greater      => (a, b) => a > b ? 1 : 0,
-                    ExpressionType.LessEq       => (a, b) => a <= b ? 1 : 0,
-                    ExpressionType.GreaterEq    => (a, b) => a >= b ? 1 : 0,
-                    _ => throw new InvalidOperationException("Attempting to aggregate unknown operation")
-                });;
-                foreach (var e in arr)
-                    list.Remove(e);
-                list.Add(new LiteralExpression(sum));
-            }
-            if (list.Count < 2) return list.First();
-            return new BinaryExpression(Type, list);
-        }
-        protected internal override MathExpression Simplify()
-        {
-            return new BinaryExpression(Type, Arguments.Select(a => a.Simplify()).ToList());
-        }
 
         public override string ToString()
             => $"({string.Join($" {Type} ", Arguments)})";

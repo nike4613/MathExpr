@@ -25,12 +25,6 @@ namespace MathExpr.Syntax
         public override string ToString()
             => $"{Target}.{MemberName}";
 
-        protected internal override MathExpression Simplify()
-            => new MemberExpression(Target.Simplify(), MemberName);
-
-        protected internal override MathExpression Reduce()
-            => new MemberExpression(Target.Reduce(), MemberName);
-
         public override int GetHashCode()
         {
             var hashCode = 1134248118;

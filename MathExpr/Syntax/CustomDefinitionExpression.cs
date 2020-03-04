@@ -31,7 +31,7 @@ namespace MathExpr.Syntax
             Value = valueExpr;
         }
 
-        private CustomDefinitionExpression(string name, IReadOnlyList<VariableExpression> args, MathExpression def, MathExpression val)
+        public CustomDefinitionExpression(string name, IReadOnlyList<VariableExpression> args, MathExpression def, MathExpression val)
         {
             FunctionName = name;
             ArgumentList = args;
@@ -48,11 +48,6 @@ namespace MathExpr.Syntax
 
         public override string ToString()
             => $"{FunctionName}'({string.Join(",", ArgumentList)}) = {Definition}; \n{Value}";
-
-        protected internal override MathExpression Simplify()
-            => new CustomDefinitionExpression(FunctionName, ArgumentList, Definition.Simplify(), Value.Simplify());
-        protected internal override MathExpression Reduce()
-            => new CustomDefinitionExpression(FunctionName, ArgumentList, Definition.Reduce(), Value.Reduce());
 
         public override int GetHashCode()
         {
