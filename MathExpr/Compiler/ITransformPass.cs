@@ -5,7 +5,7 @@ using System.Text;
 
 namespace MathExpr.Compiler
 {
-    public interface ITransformPass<TContext, TFrom, TTo>
+    public interface ITransformPass<in TContext, TFrom, TTo>
     {
         TTo ApplyTo(TFrom expr, TContext context);
     }

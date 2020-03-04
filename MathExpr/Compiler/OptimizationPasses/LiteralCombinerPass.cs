@@ -9,7 +9,7 @@ namespace MathExpr.Compiler.OptimizationPasses
 {
     public class LiteralCombinerPass : OptimizationPass
     {
-        public override MathExpression ApplyTo(BinaryExpression expr, OptimizationContext ctx)
+        public override MathExpression ApplyTo(BinaryExpression expr, IOptimizationContext<object> ctx)
         {
             var list = expr.Arguments.Select(e => ApplyTo(e, ctx)).ToList();
             static bool IsValueExpression(MathExpression e)
@@ -46,7 +46,7 @@ namespace MathExpr.Compiler.OptimizationPasses
             if (list.Count < 2) return list.First();
             return new BinaryExpression(expr.Type, list);
         }
-        public override MathExpression ApplyTo(UnaryExpression expr, OptimizationContext ctx)
+        public override MathExpression ApplyTo(UnaryExpression expr, IOptimizationContext<object> ctx)
         {
             var arg = ApplyTo(expr.Argument, ctx);
             if (arg is LiteralExpression l)

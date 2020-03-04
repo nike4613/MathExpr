@@ -33,7 +33,7 @@ namespace MathExpr.Syntax
         {
             if (args.Count < 2)
                 throw new ArgumentException("A BinaryExpression must have at least 2 arguments", nameof(args));
-            if (Arguments.Count > 2)
+            if (args.Count > 2)
                 switch (type)
                 {
                     case ExpressionType.Add:

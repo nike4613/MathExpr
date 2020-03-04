@@ -8,29 +8,26 @@ using System.Text;
 
 namespace MathExpr.Compiler
 {
-    public class OptimizationContext
+    public interface IOptimizationContext<out TSettings>
     {
-        private readonly List<IOptimizationPass> passes;
+        TSettings Settings { get; }
+    }
 
-        public IEnumerable<IOptimizationPass> Passes => passes;
+    public class OptimizationContext<TSettings> : IOptimizationContext<TSettings>
+    {
+        private readonly List<IOptimizationPass<TSettings>> passes;
 
-        // TODO: better interface here
-        public static List<IOptimizationPass> DefaultPasses = new List<IOptimizationPass>
-        {
-            new BinaryExpressionCombinerPass(),
-            new LiteralCombinerPass()
-        };
+        public IEnumerable<IOptimizationPass<TSettings>> Passes => passes;
 
-        public OptimizationContext() : this(DefaultPasses)
-        {
-        }
+        public TSettings Settings { get; set; }
 
-        public OptimizationContext(IEnumerable<IOptimizationPass> passes)
+        public OptimizationContext(IEnumerable<IOptimizationPass<TSettings>> passes, TSettings settings)
         {
             this.passes = passes.ToList();
+            Settings = settings;
         }
 
-        public MathExpression RunOver(MathExpression expr)
+        public MathExpression Optimize(MathExpression expr)
             => expr.PipeThrough(Passes, (p, e) => p.ApplyTo(e, this));
     }
 }

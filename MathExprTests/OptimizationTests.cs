@@ -1,4 +1,6 @@
-﻿using MathExpr.Syntax;
+﻿using MathExpr.Compiler;
+using MathExpr.Compiler.OptimizationPasses;
+using MathExpr.Syntax;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -38,5 +40,28 @@ namespace MathExprTests
             new object[] { ExpressionParser.ParseRoot("1 + a + 2 + b"), new BinaryExpression(BinaryExpression.ExpressionType.Add,
                 new MathExpression[] { new VariableExpression("b"), new VariableExpression("a"), new LiteralExpression(3) }) }
         };*/
+
+        [Theory]
+        [MemberData(nameof(BinaryExpressionCombinerPassTestData))]
+        public void BinaryExpressionCombinerPass(MathExpression input, MathExpression expect)
+        {
+            var context = new OptimizationContext<object?>(new[] { new BinaryExpressionCombinerPass() }, null);
+
+            var actual = context.Optimize(input);
+            Assert.Equal(expect, actual);
+        }
+
+        public static object[][] BinaryExpressionCombinerPassTestData = new []
+        {
+            new object[] { ExpressionParser.ParseRoot("a + b + c"), new BinaryExpression(BinaryExpression.ExpressionType.Add,
+                new [] { new VariableExpression("c"), new VariableExpression("a"), new VariableExpression("b") }) },
+            new object[] { ExpressionParser.ParseRoot("a * b * c"), new BinaryExpression(BinaryExpression.ExpressionType.Multiply,
+                new [] { new VariableExpression("c"), new VariableExpression("a"), new VariableExpression("b") }) },
+            new object[] { ExpressionParser.ParseRoot("a - b - c"), new BinaryExpression(
+                    new BinaryExpression(BinaryExpression.ExpressionType.Subtract,
+                        new [] { new VariableExpression("a"), new VariableExpression("b") }),
+                    BinaryExpression.ExpressionType.Subtract,
+                    new VariableExpression("c")) },
+        };
     }
 }
