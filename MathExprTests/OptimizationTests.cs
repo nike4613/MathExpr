@@ -77,7 +77,6 @@ namespace MathExprTests
         #endregion
 
         #region Exponent Simplification
-
         [Theory]
         [MemberData(nameof(ExponentSimplificationPassTestData))]
         public void ExponentSimplificationPass(MathExpression input, MathExpression expect, MathExpression[] expectRestrictions, bool allowRestrictions)
@@ -103,6 +102,29 @@ namespace MathExprTests
             new object[] { ExpressionParser.ParseRoot("exp(ln(x))"), ExpressionParser.ParseRoot("exp(ln(x))"), Array.Empty<MathExpression>(), false },
             new object[] { ExpressionParser.ParseRoot("exp(ln(x - 2))"), ExpressionParser.ParseRoot("exp(ln(x - 2))"), Array.Empty<MathExpression>(), false },
         };
+
+        [Theory]
+        [MemberData(nameof(ExponentSimplificationAndOtherPassesTestData))]
+        public void ExponentSimplificationAndOtherPasses(MathExpression input, MathExpression expect, MathExpression[] expectRestrictions, bool allowRestrictions)
+        {
+            var context = OptimizationContext.CreateWith(new DefaultOptimizationSettings
+            {
+                AllowDomainChangingOptimizations = allowRestrictions
+            }, new BinaryExpressionCombinerPass(), new ExponentSimplificationPass(), new BinaryExpressionCombinerPass(), new LiteralCombinerPass());
+
+            var actual = context.Optimize(input);
+            Assert.Equal(expect, actual);
+            Assert.Equal(expectRestrictions.Length, context.Settings.DomainRestrictions.Count);
+            foreach (var restrict in expectRestrictions)
+                Assert.Contains(restrict, context.Settings.DomainRestrictions);
+        }
+
+        public static IEnumerable<object[]> ExponentSimplificationAndOtherPassesTestData =
+            ExponentSimplificationPassTestData.Concat(new[]
+            {
+                new object[] { ExpressionParser.ParseRoot("exp(ln(x + 2)) + 5"), ExpressionParser.ParseRoot("x + 7"), new[] { ExpressionParser.ParseRoot("x + 2 <= 0") }, true },
+                new object[] { ExpressionParser.ParseRoot("exp(ln(x + 2)) + 5"), ExpressionParser.ParseRoot("exp(ln(x + 2)) + 5"), Array.Empty<MathExpression>(), false },
+            });
         #endregion
     }
 }
