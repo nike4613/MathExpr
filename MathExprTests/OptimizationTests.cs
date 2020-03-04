@@ -11,12 +11,14 @@ namespace MathExprTests
 {
     public class OptimizationTests
     {
+        // TODO: add tests for ICommutativitySettings.IgnoreCommutativityFor
+
         #region Basic Combiners
         [Theory]
         [MemberData(nameof(BinaryExpressionCombinerPassTestData))]
         public void BinaryExpressionCombinerPass(MathExpression input, MathExpression expect)
         {
-            var context = OptimizationContext.CreateWith(null, new BinaryExpressionCombinerPass());
+            var context = OptimizationContext.CreateWith(new DefaultOptimizationSettings(), new BinaryExpressionCombinerPass());
 
             var actual = context.Optimize(input);
             Assert.Equal(expect, actual);
@@ -61,7 +63,7 @@ namespace MathExprTests
         [MemberData(nameof(BinaryCombinerLiteralCombinerPassesTestData))]
         public void BinaryCombinerLiteralCombinerPasses(MathExpression input, MathExpression expect)
         {
-            var context = OptimizationContext.CreateWith(null, new BinaryExpressionCombinerPass(), new LiteralCombinerPass());
+            var context = OptimizationContext.CreateWith(new DefaultOptimizationSettings(), new BinaryExpressionCombinerPass(), new LiteralCombinerPass());
 
             var actual = context.Optimize(input);
             Assert.Equal(expect, actual);
