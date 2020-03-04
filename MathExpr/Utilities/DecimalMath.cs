@@ -16,6 +16,8 @@ namespace MathExpr.Utilities
             (MethodImplOptions)0;
 #endif
 
+        // TODO: implement and test Exp
+
         [MethodImpl(AggressiveOptimization)]
         public static decimal Pow(decimal bas, decimal exponent)
         {
