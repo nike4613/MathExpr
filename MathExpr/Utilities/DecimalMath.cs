@@ -17,13 +17,16 @@ namespace MathExpr.Utilities
 #endif
 
         [MethodImpl(AggressiveOptimization)]
-        public static decimal Pow(decimal bas, decimal exponent, int iters = 6)
+        public static decimal Pow(decimal bas, decimal exponent)
         {
+            if (bas == 0) return 0;
             if (exponent == 0) return 1;
             if (exponent < 0) return 1m / Pow(bas, -exponent);
             var trunc = decimal.Truncate(exponent);
             if (exponent == trunc)
                 return IntPow(bas, trunc);
+            if (bas < 0)
+                throw new OverflowException("Fractional exponent of a negative is complex");
 
             var center = decimal.Round(exponent);
             var centerC = IntPow(bas, decimal.Truncate(center));
@@ -33,7 +36,11 @@ namespace MathExpr.Utilities
             var nPow = 1m;
             var vFac = 1m;
             var sum = 0m;
-            for (int v = 0; v < iters; v++)
+
+            // capped at 27, because that is where the factorial caps out,
+            //   and each iteration seems to give about another digit of accuracy,
+            //   so given that decimal has a max exponent of 27, it seems reasonable
+            for (int v = 0; v < 27; v++)
             {
                 sum += centerC * nPow * logPow / vFac;
                 nPow *= exponent - center;

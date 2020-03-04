@@ -24,18 +24,52 @@ namespace MathExprTests
 
         #region Powers
         [Theory]
-        [InlineData(2, 0, 1, 0)]
-        [InlineData(2, 1, 2, 0)]
-        [InlineData(2, 2, 4, 0)]
-        [InlineData(2, 3, 8, 0)]
-        [InlineData(2, 4, 16, 0)]
-        [InlineData(2, 16, ushort.MaxValue + 1, 0)]
-        [InlineData(2, 19, 524288, 0)]
-        [InlineData(6, 21, 21936950640377856UL, 0)]
-        public void IntegerPower(long bas, long exp, long expect, int iters)
+        [InlineData(2, 0, 1)]
+        [InlineData(2, 1, 2)]
+        [InlineData(2, 2, 4)]
+        [InlineData(2, 3, 8)]
+        [InlineData(2, 4, 16)]
+        [InlineData(2, 16, ushort.MaxValue + 1)]
+        [InlineData(2, 19, 524288)]
+        [InlineData(6, 21, 21936950640377856UL)]
+        public void IntegerPower(long bas, long exp, long expect)
         {
-            Assert.Equal((decimal)expect, DecimalMath.Pow(bas, exp, iters));
+            Assert.Equal((decimal)expect, DecimalMath.Pow(bas, exp));
         }
+
+        [Theory]
+        [MemberData(nameof(FloatingPowerTestValues))]
+        public void FloatingPower(decimal bas, decimal exp, decimal expect, decimal error)
+        {
+            var actual = DecimalMath.Pow(bas, exp);
+            var actualError = Math.Abs(expect - actual);
+            Assert.True(error >= actualError, $"Error of {actualError}, expected no more than error of {error}");
+        }
+
+        [Theory]
+        [MemberData(nameof(FloatingPowerThrowTestValues))]
+        public void FloatingPowerThrow(decimal bas, decimal exp)
+        {
+            Assert.Throws<OverflowException>(() => DecimalMath.Pow(bas, exp));
+        }
+
+        public static object[][] FloatingPowerTestValues = new[]
+        {
+            new object[] { 4m, 0.5m, 2m, LogMaxError },
+            new object[] { 8m, 1m/3m, 2m, LogMaxError },
+            new object[] { 16m, .25m, 2m, LogMaxError },
+            new object[] { 2m, 1.5m, 2.8284271247461900976033774484193m, LogMaxError },
+            new object[] { 2, -1m, 1m/2m, LogMaxError },
+            new object[] { 2, -2m, 1m/4m, LogMaxError },
+            new object[] { 2.1m, -2m, 0.226757369614512471655328798185m, LogMaxError },
+            new object[] { 2m, -2.1m, 0.233258247884201853995335816537m, LogMaxError },
+        };
+        public static object[][] FloatingPowerThrowTestValues = new[]
+        {
+            new object[] { -2m, 1.1m },
+            new object[] { -7.3m, 9.9m },
+            new object[] { -7.3m, -9.9m },
+        };
         #endregion
 
         #region Natural Log
