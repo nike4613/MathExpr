@@ -12,6 +12,8 @@
     <RepositoryUrl>https://github.com/nike4613/MathExpr</RepositoryUrl>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>SigningKey.snk</AssemblyOriginatorKeyFile>
+    
+    <NoWarn>1701;1702;CA1031</NoWarn>
   </PropertyGroup>
-  
+
 </Project>

@@ -134,7 +134,7 @@ namespace MathExpr.Syntax
         private MathExpression ReadExponentExpr()
         {
             var left = ReadNegateNotExpr();
-            while (TryConsumeToken(TokenType.Exponent, out var tok))
+            while (TryConsumeToken(TokenType.Exponent, out _))
             {
                 var right = ReadNegateNotExpr();
                 left = new BinaryExpression(left, BinaryExpression.ExpressionType.Exponent, right);
@@ -157,7 +157,7 @@ namespace MathExpr.Syntax
         private MathExpression ReadFactorialExpr()
         {
             var arg = ReadMemberExpr();
-            while (TryConsumeToken(TokenType.Bang, out var tok))
+            while (TryConsumeToken(TokenType.Bang, out _))
                 arg = new UnaryExpression(UnaryExpression.ExpressionType.Factorial, arg);
             return arg;
         }
@@ -165,9 +165,9 @@ namespace MathExpr.Syntax
         private MathExpression ReadMemberExpr()
         {
             var left = ReadParenExpr();
-            while (TryConsumeToken(TokenType.Period, out var tok))
+            while (TryConsumeToken(TokenType.Period, out _))
             {
-                if (!TryConsumeToken(TokenType.Identifier, out tok))
+                if (!TryConsumeToken(TokenType.Identifier, out var tok))
                     throw new SyntaxException(tok, "Expected Identifier");
                 left = new MemberExpression(left, tok.AsString!);
             }
