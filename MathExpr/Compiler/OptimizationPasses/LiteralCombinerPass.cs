@@ -38,7 +38,7 @@ namespace MathExpr.Compiler.OptimizationPasses
                     BinaryExpression.ExpressionType.LessEq => (a, b) => a <= b ? 1 : 0,
                     BinaryExpression.ExpressionType.GreaterEq => (a, b) => a >= b ? 1 : 0,
                     _ => throw new InvalidOperationException("Attempting to aggregate unknown operation")
-                }); ;
+                });
                 foreach (var e in arr)
                     list.Remove(e);
                 list.Add(new LiteralExpression(sum));

@@ -17,6 +17,8 @@ namespace MathExpr.Compiler
     {
         public static OptimizationContext<TSettings> CreateWith<TSettings>(TSettings settings, IEnumerable<IOptimizationPass<TSettings>> passes)
             => new OptimizationContext<TSettings>(passes, settings);
+        public static OptimizationContext<TSettings> CreateWith<TSettings>(TSettings settings, params IOptimizationPass<TSettings>[] passes)
+            => new OptimizationContext<TSettings>(passes, settings);
     }
 
     public class OptimizationContext<TSettings> : IOptimizationContext<TSettings>
