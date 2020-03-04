@@ -8,11 +8,6 @@ using System.Text;
 
 namespace MathExpr.Compiler
 {
-    public interface IOptimizationContext<out TSettings>
-    {
-        TSettings Settings { get; }
-    }
-
     public static class OptimizationContext
     {
         public static OptimizationContext<TSettings> CreateWith<TSettings>(TSettings settings, IEnumerable<IOptimizationPass<TSettings>> passes)
@@ -21,7 +16,7 @@ namespace MathExpr.Compiler
             => new OptimizationContext<TSettings>(passes, settings);
     }
 
-    public class OptimizationContext<TSettings> : IOptimizationContext<TSettings>
+    public class OptimizationContext<TSettings> : ITransformContext<TSettings>
     {
         private readonly List<IOptimizationPass<TSettings>> passes;
 
