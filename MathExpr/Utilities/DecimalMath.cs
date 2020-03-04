@@ -16,8 +16,12 @@ namespace MathExpr.Utilities
             (MethodImplOptions)0;
 #endif
 
-        // TODO: implement and test Exp
-
+        /// <summary>
+        /// Raises a base to a power.
+        /// </summary>
+        /// <param name="bas">the base (B)</param>
+        /// <param name="exponent">the exponent (X)</param>
+        /// <returns><c>B^X</c></returns>
         [MethodImpl(AggressiveOptimization)]
         public static decimal Pow(decimal bas, decimal exponent)
         {
@@ -35,6 +39,7 @@ namespace MathExpr.Utilities
 
             var logVal = Ln(bas);
             var logPow = 1m;
+            var expDelta = exponent - center;
             var nPow = 1m;
             var vFac = 1m;
             var sum = 0m;
@@ -45,7 +50,7 @@ namespace MathExpr.Utilities
             for (int v = 0; v < 27; v++)
             {
                 sum += centerC * nPow * logPow / vFac;
-                nPow *= exponent - center;
+                nPow *= expDelta;
                 logPow *= logVal;
                 vFac *= v + 1; // because this is now factorial for the *next* iteration
             }
@@ -81,7 +86,41 @@ namespace MathExpr.Utilities
             return prod;
         }
 
+        [MethodImpl(AggressiveOptimization)]
+        public static decimal Exp(decimal exp)
+        {
+            if (exp == 0) return 1;
+            if (exp == 1) return E;
+            if (exp < 0) return 1m / Exp(-exp);
+            var trunc = decimal.Truncate(exp);
+            if (exp == trunc)
+                return IntPow(E, exp);
+
+            var center = decimal.Round(exp);
+            var centerC = IntPow(E, decimal.Truncate(center));
+
+            var nPow = 1m;
+            var vFac = 1m;
+            var expDelta = exp - center;
+            var sum = 0m;
+
+            // capped at 27, because that is where the factorial caps out,
+            //   and each iteration seems to give about another digit of accuracy,
+            //   so given that decimal has a max exponent of 27, it seems reasonable
+            for (int v = 0; v < 27; v++)
+            {
+                sum += centerC * nPow / vFac;
+                nPow *= expDelta;
+                vFac *= v + 1; // because this is now factorial for the *next* iteration
+            }
+            return sum;
+        }
+
+        public const decimal E = 2.71828182845904523536028747135m;
+        public const decimal Pi = 3.141592653589793238462643383279m;
         public const decimal Ln2 = 0.693147180559945309417232122m;
+        public const decimal EulerGamma = 0.57721566490153286060651209008m;
+        public const decimal Epsilon = 0.0000000000000000000000000001m;
 
         /// <summary>
         /// The natural logarithm, approxamated by the Taylor series centered around 1.
@@ -98,7 +137,7 @@ namespace MathExpr.Utilities
                 return LnTaylor(arg);
             if (arg == 1) return 0;
             if (arg == 2) return Ln2;
-
+            if (arg == E) return 1;
 
             // implementation based on https://stackoverflow.com/a/44232045
 
@@ -188,10 +227,10 @@ namespace MathExpr.Utilities
         public static decimal Factorial(decimal val)
         {
             if (val == 0) return 1;
-            if (val != decimal.Floor(val) || val < 0) // it is not an integral value
-                return Gamma(val + 1);
-
-            return IntFactorial(decimal.Truncate(val));
+            if (val != decimal.Truncate(val) || val < 0) // it is not an integral value
+                throw new InvalidOperationException("");
+            else
+                return IntFactorial(decimal.Truncate(val));
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining | AggressiveOptimization)]
         private static decimal IntFactorial(decimal val)
@@ -201,20 +240,6 @@ namespace MathExpr.Utilities
             while (--val > 0)
                 prod *= val;
             return prod;
-        }
-
-        /// <summary>
-        /// The gamma factorial, an extension of factorial.
-        /// </summary>
-        /// <remarks>
-        /// This function is wierd AF, so I just haven't implemented it.
-        /// </remarks>
-        /// <param name="val">the argument to the gamma function</param>
-        /// <returns><c>gamma(x)</c></returns>
-        /// <seealso cref="Factorial(decimal)"/>
-        public static decimal Gamma(decimal val)
-        {
-            throw new NotImplementedException("The gamma function is too complicated for me fam");
         }
 
 #if NETCOREAPP3_0

@@ -9,6 +9,7 @@ namespace MathExprTests
 {
     public class DecimalMathTests
     {
+        #region Factorial and Gamma
         [Theory]
         [InlineData(0L, 1L)]
         [InlineData(1L, 1L)]
@@ -21,6 +22,7 @@ namespace MathExprTests
         {
             Assert.Equal((decimal)expect, DecimalMath.Factorial(arg));
         }
+        #endregion
 
         #region Powers
         [Theory]
