@@ -30,7 +30,30 @@ namespace MathExpr.Compiler
             Settings = settings;
         }
 
+        /// <summary>
+        /// Runs all optimization passes, in order, until none of them make any
+        /// changes to <see cref="MathExpression.Size"/>.
+        /// </summary>
+        /// <param name="expr">the expression to optimize</param>
+        /// <returns>the optimized expression</returns>
         public MathExpression Optimize(MathExpression expr)
-            => expr.PipeThrough(Passes, (p, e) => p.ApplyTo(e, this));
+        {
+            var lastSize = 0;
+            while (lastSize != expr.Size)
+            {
+                lastSize = expr.Size;
+                expr = expr.PipeThrough(Passes, (p, e) => p.ApplyTo(e, this));
+            }
+            return expr;
+        }
+
+        /// <summary>
+        /// Runs only passes deriving from <typeparamref name="T"/>.
+        /// </summary>
+        /// <typeparam name="T">the type of the passes to run</typeparam>
+        /// <param name="expr">the expression to optimize</param>
+        /// <returns>the optimized expression</returns>
+        public MathExpression RunPass<T>(MathExpression expr) where T : IOptimizationPass<TSettings>
+            => expr.PipeThrough(Passes.Where(p => p is T), (p, e) => p.ApplyTo(e, this));
     }
 }
