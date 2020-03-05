@@ -1,6 +1,7 @@
 ﻿using MathExpr.Compiler;
 using MathExpr.Compiler.OptimizationPasses;
 using MathExpr.Syntax;
+using MathExpr.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -127,6 +128,24 @@ namespace MathExprTests
                 new object[] { ExpressionParser.ParseRoot("exp(ln(x + 2)) + 5"), ExpressionParser.ParseRoot("x + 7"), new[] { ExpressionParser.ParseRoot("x + 2 <= 0") }, true },
                 new object[] { ExpressionParser.ParseRoot("exp(ln(x + 2)) + 5"), ExpressionParser.ParseRoot("exp(ln(x + 2)) + 5"), Array.Empty<MathExpression>(), false },
             });
+        #endregion
+
+        #region Exponent Constant Reduction
+        [Theory]
+        [MemberData(nameof(ExponentConstantReductionPassTestData))]
+        public void ExponentConstantReductionPass(MathExpression input, MathExpression expect)
+        {
+            var context = OptimizationContext.CreateWith(null, new ExponentConstantReductionPass());
+
+            var actual = context.Optimize(input);
+            Assert.Equal(expect, actual);
+        }
+
+        public static object[][] ExponentConstantReductionPassTestData = new[]
+        {
+            new object[] { ExpressionParser.ParseRoot("exp(2)"), new LiteralExpression(DecimalMath.Exp(2)) },
+            new object[] { ExpressionParser.ParseRoot("ln(2)"), new LiteralExpression(DecimalMath.Ln2) },
+        };
         #endregion
     }
 }
