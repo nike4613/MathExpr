@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace MathExpr.Compiler
@@ -31,22 +32,34 @@ namespace MathExpr.Compiler
 
     public static class TranformContext
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static DataProxy<TData> Data<TData>(this ITransformContext ctx)
             => new DataProxy<TData>(ctx);
 
         public struct DataProxy<TData>
         {
             private readonly ITransformContext context;
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             internal DataProxy(ITransformContext ctx) => context = ctx;
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public TData GetOrCreateIn<TScope>(Func<TData> creator) => context.GetOrCreateData<TScope, TData>(creator);
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public TData GetOrCreateIn<TScope>(TScope _, Func<TData> creator) => GetOrCreateIn<TScope>(creator);
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public TData GetOrCreateIn<TScope>(TData defaultValue) => GetOrCreateIn<TScope>(() => defaultValue);
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public TData GetOrCreateIn<TScope>(TScope _, TData defaultValue) => GetOrCreateIn<TScope>(defaultValue);
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public TData GetOrCreateIn<TScope>() => GetOrCreateIn<TScope>(Activator.CreateInstance<TData>);
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public TData GetOrCreateIn<TScope>(TScope _) => GetOrCreateIn<TScope>();
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public TData GetIn<TScope>() => GetOrCreateIn<TScope>(() => default!);
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public TData GetIn<TScope>(TScope _) => GetIn<TScope>();
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void SetIn<TScope>(TData value) => context.SetData<TScope, TData>(value);
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void SetIn<TScope>(TScope _, TData value) => SetIn<TScope>(value);
         }
     }
