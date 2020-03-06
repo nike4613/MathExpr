@@ -38,14 +38,14 @@ namespace MathExpr.Compiler
         {
             private readonly ITransformContext context;
             internal DataProxy(ITransformContext ctx) => context = ctx;
-            public TData GetIn<TScope>() => context.GetOrCreateData<TScope, TData>(() => default!);
-            public TData GetIn<TScope>(TScope _) => GetIn<TScope>();
             public TData GetOrCreateIn<TScope>(Func<TData> creator) => context.GetOrCreateData<TScope, TData>(creator);
             public TData GetOrCreateIn<TScope>(TScope _, Func<TData> creator) => GetOrCreateIn<TScope>(creator);
             public TData GetOrCreateIn<TScope>(TData defaultValue) => GetOrCreateIn<TScope>(() => defaultValue);
             public TData GetOrCreateIn<TScope>(TScope _, TData defaultValue) => GetOrCreateIn<TScope>(defaultValue);
-            public TData GetOrCreateIn<TScope>() => GetOrCreateIn<TScope>(() => default!);
+            public TData GetOrCreateIn<TScope>() => GetOrCreateIn<TScope>(Activator.CreateInstance<TData>);
             public TData GetOrCreateIn<TScope>(TScope _) => GetOrCreateIn<TScope>();
+            public TData GetIn<TScope>() => GetOrCreateIn<TScope>(() => default!);
+            public TData GetIn<TScope>(TScope _) => GetIn<TScope>();
             public void SetIn<TScope>(TData value) => context.SetData<TScope, TData>(value);
             public void SetIn<TScope>(TScope _, TData value) => SetIn<TScope>(value);
         }

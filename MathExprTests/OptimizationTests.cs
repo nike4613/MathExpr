@@ -148,5 +148,24 @@ namespace MathExprTests
             new object[] { ExpressionParser.ParseRoot("ln(2)"), new LiteralExpression(DecimalMath.Ln2) },
         };
         #endregion
+
+        #region Function Inlining
+        [Theory]
+        [MemberData(nameof(FunctionInliningPassTestData))]
+        public void FunctionInliningPass(MathExpression input, MathExpression expect)
+        {
+            var context = OptimizationContext.CreateWith(new DefaultOptimizationSettings(), 
+                new UserFunctionInlinePass(), new BinaryExpressionCombinerPass(), new LiteralCombinerPass());
+
+            var actual = context.Optimize(input);
+            Assert.Equal(expect, actual);
+        }
+
+        public static object[][] FunctionInliningPassTestData = new[]
+        {
+            new object[] { ExpressionParser.ParseRoot("f'(x) = 2*x; 3*f'(2)"), new LiteralExpression(12) },
+            new object[] { ExpressionParser.ParseRoot("f'(x,y) = 2*x + x*y; 3 + f'(6, f'(2, 8))"), new LiteralExpression(135) },
+        };
+        #endregion
     }
 }
