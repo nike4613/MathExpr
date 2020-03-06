@@ -53,12 +53,25 @@ namespace MathExpr.Compiler
 
             public TSettings Settings => owner.Settings;
 
+            private SubContext? _child = null;
+            private SubContext Child
+            {
+                get
+                {
+                    if (_child == null)
+                        _child = new SubContext(this);
+                    else
+                        _child.dataStore.Clear();
+                    return _child;
+                }
+            }
+
             public MathExpression Transform(MathExpression from)
             {
                 if (currentIndex >= owner.passes.Count)
                     return from;
                 else
-                    return owner.passes[currentIndex].ApplyTo(from, new SubContext(this));
+                    return owner.passes[currentIndex].ApplyTo(from, Child);
             }
 
             private static class DataStoreKeyStore<TScope, TData>

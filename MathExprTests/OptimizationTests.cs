@@ -155,7 +155,7 @@ namespace MathExprTests
         public void FunctionInliningPass(MathExpression input, MathExpression expect)
         {
             var context = OptimizationContext.CreateWith(new DefaultOptimizationSettings(), 
-                new UserFunctionInlinePass(), new BinaryExpressionCombinerPass(), new LiteralCombinerPass());
+                new UserFunctionInlinePass(), new LiteralCombinerPass());
 
             var actual = context.Optimize(input);
             Assert.Equal(expect, actual);
