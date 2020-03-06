@@ -39,6 +39,7 @@ namespace MathExpr.Compiler
             private readonly OptimizationContext<TSettings> owner;
             private readonly SubContext? parent = null;
             private readonly int currentIndex;
+            private readonly Dictionary<(Type scope, Type type), object?> dataStore = new Dictionary<(Type, Type), object?>();
 
             public SubContext(OptimizationContext<TSettings> own, int index = 0)
             {
@@ -58,6 +59,51 @@ namespace MathExpr.Compiler
                     return from;
                 else
                     return owner.passes[currentIndex].ApplyTo(from, new SubContext(this));
+            }
+
+            private static class DataStoreKeyStore<TScope, TData>
+            {
+                public static (Type scope, Type type) Key = (typeof(TScope), typeof(TData));
+            }
+
+            private bool TryGetData<TScope, TData>(out TData data)
+            {
+                if (dataStore.TryGetValue(DataStoreKeyStore<TScope, TData>.Key, out var val))
+                {
+                    data = (TData)val!;
+                    return true;
+                }
+                else
+                {
+                    if (parent != null)
+                        return parent.TryGetData<TScope, TData>(out data);
+                    else
+                    {
+                        data = default!;
+                        return false;
+                    }
+                }
+            }
+
+            public TData GetOrCreateData<TScope, TData>(Func<TData> creator)
+            {
+                if (TryGetData<TScope, TData>(out var data))
+                    return data;
+                else
+                {
+                    var val = creator();
+                    dataStore.Add(DataStoreKeyStore<TScope, TData>.Key, val);
+                    return val;
+                }
+            }
+
+            public void SetData<TScope, TData>(TData data)
+            {
+                var key = DataStoreKeyStore<TScope, TData>.Key;
+                if (dataStore.ContainsKey(key))
+                    dataStore[key] = data;
+                else
+                    dataStore.Add(key, data);
             }
         }
 

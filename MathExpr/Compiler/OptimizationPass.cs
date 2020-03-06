@@ -14,6 +14,7 @@ namespace MathExpr.Compiler
     public abstract class OptimizationPass : OptimizationPass<object?> { }
     public abstract class OptimizationPass<TSettings> : IOptimizationPass<TSettings>
     { 
+        // TODO: there has to be some way to reduce the number of traversals of the tree
         public virtual MathExpression ApplyTo(MathExpression expr, IOptimizationContext<TSettings> ctx)
             => ctx.Transform(expr switch
             {
