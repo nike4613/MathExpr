@@ -9,7 +9,7 @@ namespace MathExpr.Compiler.OptimizationPasses
 {
     public class ExponentSimplificationPass : OptimizationPass<IDomainRestrictionSettings>
     {
-        public override MathExpression ApplyTo(BinaryExpression expr, ITransformContext<IDomainRestrictionSettings> ctx)
+        public override MathExpression ApplyTo(BinaryExpression expr, IOptimizationContext<IDomainRestrictionSettings> ctx)
         {
             switch (expr.Type)
             {
@@ -23,7 +23,7 @@ namespace MathExpr.Compiler.OptimizationPasses
             }
             return base.ApplyTo(expr, ctx);
         }
-        public override MathExpression ApplyTo(FunctionExpression f, ITransformContext<IDomainRestrictionSettings> ctx)
+        public override MathExpression ApplyTo(FunctionExpression f, IOptimizationContext<IDomainRestrictionSettings> ctx)
         {
             if (!f.IsPrime && f.Name == FunctionExpression.ExpName)
             { // exp(x)

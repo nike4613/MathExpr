@@ -113,7 +113,7 @@ namespace MathExprTests
             var context = OptimizationContext.CreateWith(new DefaultOptimizationSettings
             {
                 AllowDomainChangingOptimizations = allowRestrictions
-            }, new BinaryExpressionCombinerPass(), new ExponentSimplificationPass(), new BinaryExpressionCombinerPass(), new LiteralCombinerPass());
+            }, new ExponentSimplificationPass(), new BinaryExpressionCombinerPass(), new LiteralCombinerPass());
 
             var actual = context.Optimize(input);
             Assert.Equal(expect, actual);

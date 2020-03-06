@@ -9,7 +9,7 @@ namespace MathExpr.Compiler.OptimizationPasses
 {
     public class ExponentConstantReductionPass : OptimizationPass<object?>
     {
-        public override MathExpression ApplyTo(FunctionExpression expr, ITransformContext<object?> ctx)
+        public override MathExpression ApplyTo(FunctionExpression expr, IOptimizationContext<object?> ctx)
         {
             if (!expr.IsPrime && (expr.Name == FunctionExpression.ExpName || expr.Name == FunctionExpression.LnName))
             { // exp(x)

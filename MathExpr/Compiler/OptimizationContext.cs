@@ -16,7 +16,11 @@ namespace MathExpr.Compiler
             => new OptimizationContext<TSettings>(passes, settings);
     }
 
-    public class OptimizationContext<TSettings> : ITransformContext<TSettings>
+    public interface IOptimizationContext<out TSettings> : ITransformContext<TSettings, MathExpression, MathExpression>
+    {
+    }
+
+    public class OptimizationContext<TSettings>
     {
         private readonly List<IOptimizationPass<TSettings>> passes;
 
@@ -30,30 +34,39 @@ namespace MathExpr.Compiler
             Settings = settings;
         }
 
+        private class SubContext : IOptimizationContext<TSettings>
+        {
+            private readonly OptimizationContext<TSettings> owner;
+            private readonly SubContext? parent = null;
+            private readonly int currentIndex;
+
+            public SubContext(OptimizationContext<TSettings> own, int index = 0)
+            {
+                owner = own;
+                currentIndex = index;
+            }
+            private SubContext(SubContext parent) : this(parent.owner, parent.currentIndex + 1)
+            {
+                this.parent = parent;
+            }
+
+            public TSettings Settings => owner.Settings;
+
+            public MathExpression Transform(MathExpression from)
+            {
+                if (currentIndex >= owner.passes.Count)
+                    return from;
+                else
+                    return owner.passes[currentIndex].ApplyTo(from, new SubContext(this));
+            }
+        }
+
         /// <summary>
-        /// Runs all optimization passes, in order, until none of them make any
-        /// changes to <see cref="MathExpression.Size"/>.
+        /// Runs the expression through all optimization passes.
         /// </summary>
         /// <param name="expr">the expression to optimize</param>
         /// <returns>the optimized expression</returns>
         public MathExpression Optimize(MathExpression expr)
-        {
-            var lastSize = 0;
-            while (lastSize != expr.Size)
-            {
-                lastSize = expr.Size;
-                expr = expr.PipeThrough(Passes, (p, e) => p.ApplyTo(e, this));
-            }
-            return expr;
-        }
-
-        /// <summary>
-        /// Runs only passes deriving from <typeparamref name="T"/>.
-        /// </summary>
-        /// <typeparam name="T">the type of the passes to run</typeparam>
-        /// <param name="expr">the expression to optimize</param>
-        /// <returns>the optimized expression</returns>
-        public MathExpression RunPass<T>(MathExpression expr) where T : IOptimizationPass<TSettings>
-            => expr.PipeThrough(Passes.Where(p => p is T), (p, e) => p.ApplyTo(e, this));
+            => new SubContext(this).Transform(expr);
     }
 }

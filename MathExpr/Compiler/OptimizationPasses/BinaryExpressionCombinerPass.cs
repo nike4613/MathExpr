@@ -9,7 +9,7 @@ namespace MathExpr.Compiler.OptimizationPasses
 {
     public class BinaryExpressionCombinerPass : OptimizationPass<ICommutativitySettings>
     {
-        public override MathExpression ApplyTo(BinaryExpression expr, ITransformContext<ICommutativitySettings> ctx)
+        public override MathExpression ApplyTo(BinaryExpression expr, IOptimizationContext<ICommutativitySettings> ctx)
         {
             var list = expr.Arguments.Select(e => ApplyTo(e, ctx)).ToList();
             if (!ctx.Settings.IgnoreCommutativityFor.Contains(expr.Type))
