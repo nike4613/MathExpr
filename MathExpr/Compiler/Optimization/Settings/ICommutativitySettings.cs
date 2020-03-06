@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace MathExpr.Compiler
+namespace MathExpr.Compiler.Optimization.Settings
 {
     public interface ICommutativitySettings
     {

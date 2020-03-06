@@ -1,11 +1,12 @@
 ﻿using MathExpr.Syntax;
 using MathExpr.Utilities;
+using MathExpr.Compiler.Optimization.Settings;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MathExpr.Compiler.OptimizationPasses
+namespace MathExpr.Compiler.Optimization.Passes
 {
     public class ExponentSimplificationPass : OptimizationPass<IDomainRestrictionSettings>
     {
