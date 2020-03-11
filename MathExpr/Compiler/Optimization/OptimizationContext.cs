@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MathExpr.Compiler
+namespace MathExpr.Compiler.Optimization
 {
     public static class OptimizationContext
     {
@@ -34,21 +34,21 @@ namespace MathExpr.Compiler
             Settings = settings;
         }
 
-        private class SubContext : IOptimizationContext<TSettings>
+        private class SubContext : DataProvidingTransformContext, IOptimizationContext<TSettings>
         {
             private readonly OptimizationContext<TSettings> owner;
-            private readonly SubContext? parent = null;
             private readonly int currentIndex;
-            private readonly Dictionary<(Type scope, Type type), object?> dataStore = new Dictionary<(Type, Type), object?>();
 
-            public SubContext(OptimizationContext<TSettings> own, int index = 0)
+            public SubContext(OptimizationContext<TSettings> own, int index = 0) : this(null, own, index)
+            {
+            }
+            private SubContext(SubContext parent) : this(parent, parent.owner, parent.currentIndex + 1)
+            {
+            }
+            private SubContext(SubContext? parent, OptimizationContext<TSettings> own, int index = 0) : base(parent)
             {
                 owner = own;
                 currentIndex = index;
-            }
-            private SubContext(SubContext parent) : this(parent.owner, parent.currentIndex + 1)
-            {
-                this.parent = parent;
             }
 
             public TSettings Settings => owner.Settings;
@@ -61,7 +61,7 @@ namespace MathExpr.Compiler
                     if (_child == null)
                         _child = new SubContext(this);
                     else
-                        _child.dataStore.Clear();
+                        _child.DataStore.Clear();
                     return _child;
                 }
             }
@@ -72,51 +72,6 @@ namespace MathExpr.Compiler
                     return from;
                 else
                     return owner.passes[currentIndex].ApplyTo(from, Child);
-            }
-
-            private static class DataStoreKeyStore<TScope, TData>
-            {
-                public static (Type scope, Type type) Key = (typeof(TScope), typeof(TData));
-            }
-
-            private bool TryGetData<TScope, TData>(out TData data)
-            {
-                if (dataStore.TryGetValue(DataStoreKeyStore<TScope, TData>.Key, out var val))
-                {
-                    data = (TData)val!;
-                    return true;
-                }
-                else
-                {
-                    if (parent != null)
-                        return parent.TryGetData<TScope, TData>(out data);
-                    else
-                    {
-                        data = default!;
-                        return false;
-                    }
-                }
-            }
-
-            public TData GetOrCreateData<TScope, TData>(Func<TData> creator)
-            {
-                if (TryGetData<TScope, TData>(out var data))
-                    return data;
-                else
-                {
-                    var val = creator();
-                    dataStore.Add(DataStoreKeyStore<TScope, TData>.Key, val);
-                    return val;
-                }
-            }
-
-            public void SetData<TScope, TData>(TData data)
-            {
-                var key = DataStoreKeyStore<TScope, TData>.Key;
-                if (dataStore.ContainsKey(key))
-                    dataStore[key] = data;
-                else
-                    dataStore.Add(key, data);
             }
         }
 

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MathExpr.Compiler
+namespace MathExpr.Compiler.Optimization
 {
     public interface IOptimizationPass<in TSettings> 
         : ITransformPass<IOptimizationContext<TSettings>, MathExpression, MathExpression>

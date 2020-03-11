@@ -1,4 +1,4 @@
-﻿using MathExpr.Compiler;
+﻿using MathExpr.Compiler.Optimization;
 using MathExpr.Compiler.Optimization.Passes;
 using MathExpr.Compiler.Optimization.Settings;
 using MathExpr.Syntax;
