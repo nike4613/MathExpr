@@ -165,6 +165,10 @@ namespace MathExprTests
         {
             new object[] { ExpressionParser.ParseRoot("f'(x) = 2*x; 3*f'(2)"), new LiteralExpression(12) },
             new object[] { ExpressionParser.ParseRoot("f'(x,y) = 2*x + x*y; 3 + f'(6, f'(2, 8))"), new LiteralExpression(135) },
+            new object[] { ExpressionParser.ParseRoot("a'(x) = x;" +
+                "b'(x) = a'(a'(a'(a'(a'(a'(a'(x)))))));" +
+                "c'(x) = b'(b'(b'(b'(b'(b'(b'(x)))))));" +
+                "c'(x)"), new VariableExpression("x") }
         };
         #endregion
     }

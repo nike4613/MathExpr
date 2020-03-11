@@ -53,7 +53,8 @@ namespace MathExpr.Compiler.Optimization.Passes
 
                         variableSubs.Clear();
 
-                        return ApplyTo(value, ctx); // handle recursive calls
+                        // this could very easily create dangerously deep callstacks
+                        return ApplyTo(value, ctx); // handle nested calls
                     }
                 }
             }
@@ -65,7 +66,7 @@ namespace MathExpr.Compiler.Optimization.Passes
         {
             var variableSubs = GetVariableSubstitutions(ctx);
             if (variableSubs.TryGetValue(expr, out var replaceWith))
-                return ApplyTo(replaceWith, ctx);
+                return replaceWith;
 
             return base.ApplyTo(expr, ctx);
         }
