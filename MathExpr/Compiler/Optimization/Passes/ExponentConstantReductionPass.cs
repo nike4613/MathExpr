@@ -10,7 +10,7 @@ namespace MathExpr.Compiler.Optimization.Passes
 {
     public class ExponentConstantReductionPass : OptimizationPass<object?>
     {
-        public override MathExpression ApplyTo(FunctionExpression expr, IOptimizationContext<object?> ctx)
+        public override MathExpression ApplyTo(FunctionExpression expr, IOptimizationContext<object?> ctx, out bool transformResult)
         {
             if (!expr.IsPrime && (expr.Name == FunctionExpression.ExpName || expr.Name == FunctionExpression.LnName))
             { // exp(x)
@@ -19,6 +19,7 @@ namespace MathExpr.Compiler.Optimization.Passes
                     var arg = ApplyTo(expr.Arguments.First(), ctx);
                     if (arg is LiteralExpression lit)
                     {
+                        transformResult = true;
                         if (expr.Name == FunctionExpression.ExpName)
                             return new LiteralExpression(DecimalMath.Exp(lit.Value));
                         if (expr.Name == FunctionExpression.LnName)
@@ -27,7 +28,7 @@ namespace MathExpr.Compiler.Optimization.Passes
                 }
             }
 
-            return base.ApplyTo(expr, ctx);
+            return base.ApplyTo(expr, ctx, out transformResult);
         }
     }
 }

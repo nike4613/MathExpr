@@ -13,7 +13,7 @@ namespace MathExpr.Compiler.Optimization.Passes
         private Dictionary<string, (CustomDefinitionExpression func, bool hasNotInlinedUses)> GetDefinedFunctions(IOptimizationContext<IFunctionInlineSettings> ctx)
             => ctx.Data<Dictionary<string, (CustomDefinitionExpression func, bool hasNotInlinedUses)>>().GetOrCreateIn(ctx.Settings);
 
-        public override MathExpression ApplyTo(CustomDefinitionExpression expr, IOptimizationContext<IFunctionInlineSettings> ctx)
+        public override MathExpression ApplyTo(CustomDefinitionExpression expr, IOptimizationContext<IFunctionInlineSettings> ctx, out bool transformResult)
         {
             if (ctx.Settings.ShouldInline && expr.DefinitionSize <= ctx.Settings.DoNotInlineAfterSize)
             {
@@ -23,19 +23,20 @@ namespace MathExpr.Compiler.Optimization.Passes
                 definedFunctions.Add(expr.FunctionName, (expr, false));
 
                 var value = ApplyTo(expr.Value, ctx);
+                transformResult = false; // because the resulting value has already been fully transformed
                 if (definedFunctions[expr.FunctionName].hasNotInlinedUses)
                     return new CustomDefinitionExpression(expr.FunctionName, expr.ArgumentList, expr.Definition, value);
                 else
                     return value;
             }
 
-            return base.ApplyTo(expr, ctx);
+            return base.ApplyTo(expr, ctx, out transformResult);
         }
 
         private Dictionary<VariableExpression, MathExpression> GetVariableSubstitutions(IOptimizationContext<IFunctionInlineSettings> ctx)
             => ctx.Data<Dictionary<VariableExpression, MathExpression>>().GetOrCreateIn(this);
 
-        public override MathExpression ApplyTo(FunctionExpression expr, IOptimizationContext<IFunctionInlineSettings> ctx)
+        public override MathExpression ApplyTo(FunctionExpression expr, IOptimizationContext<IFunctionInlineSettings> ctx, out bool transformResult)
         {
             if (expr.IsPrime)
             {
@@ -53,22 +54,24 @@ namespace MathExpr.Compiler.Optimization.Passes
 
                         variableSubs.Clear();
 
+                        transformResult = false; // because we have applied all transformations by definition with the following call
                         // this could very easily create dangerously deep callstacks
                         return ApplyTo(value, ctx); // handle nested calls
                     }
                 }
             }
 
-            return base.ApplyTo(expr, ctx);
+            return base.ApplyTo(expr, ctx, out transformResult);
         }
 
-        public override MathExpression ApplyTo(VariableExpression expr, IOptimizationContext<IFunctionInlineSettings> ctx)
+        public override MathExpression ApplyTo(VariableExpression expr, IOptimizationContext<IFunctionInlineSettings> ctx, out bool transformResult)
         {
             var variableSubs = GetVariableSubstitutions(ctx);
+            transformResult = true;
             if (variableSubs.TryGetValue(expr, out var replaceWith))
                 return replaceWith;
 
-            return base.ApplyTo(expr, ctx);
+            return base.ApplyTo(expr, ctx, out transformResult);
         }
     }
 }
