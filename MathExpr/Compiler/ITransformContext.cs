@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Text;
 
@@ -36,6 +37,8 @@ namespace MathExpr.Compiler
         public static DataProxy<TData> Data<TData>(this ITransformContext ctx)
             => new DataProxy<TData>(ctx);
 
+        [SuppressMessage("Design", "CA1034:Nested types should not be visible", Justification = "Only used as a proxy here, that can be inlined well.")]
+        [SuppressMessage("Performance", "CA1815:Override equals and operator equals on value types", Justification = "Should never be explicitly stored or compared.")]
         public struct DataProxy<TData>
         {
             private readonly ITransformContext context;
