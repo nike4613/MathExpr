@@ -57,9 +57,9 @@ namespace MathExpr.Compiler
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public TData GetOrCreateIn<TScope>(TScope _) => GetOrCreateIn<TScope>();
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public TData GetIn<TScope>() => GetOrCreateIn<TScope>(() => default!);
+            public TData GetOrDefaultIn<TScope>() => GetOrCreateIn<TScope>(() => default!);
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public TData GetIn<TScope>(TScope _) => GetIn<TScope>();
+            public TData GetOrDefaultIn<TScope>(TScope _) => GetOrDefaultIn<TScope>();
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void SetIn<TScope>(TData value) => context.SetData<TScope, TData>(value);
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
