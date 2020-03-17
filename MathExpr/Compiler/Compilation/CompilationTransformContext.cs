@@ -2,23 +2,24 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq.Expressions;
 
 namespace MathExpr.Compiler.Compilation
 {
-    public interface ICompilationTransformContext<out TSettings, TTo> : ITransformContext<TSettings, MathExpression, TTo>
+    public interface ICompilationTransformContext<out TSettings> : ITransformContext<TSettings, MathExpression, Expression>
     { }
 
     public static class CompilationTransformContext
     {
-        public static CompilationTransformContext<TSettings, TTo> CreateWith<TSettings, TTo>(TSettings settings, ICompilationTransformPass<TSettings, TTo> pass)
-            => new CompilationTransformContext<TSettings, TTo>(settings, pass);
+        public static CompilationTransformContext<TSettings> CreateWith<TSettings>(TSettings settings, ICompilationTransformPass<TSettings> pass)
+            => new CompilationTransformContext<TSettings>(settings, pass);
     }
 
-    public class CompilationTransformContext<TSettings, TTo> : DataProvidingTransformContext, ICompilationTransformContext<TSettings, TTo>
+    public class CompilationTransformContext<TSettings> : DataProvidingTransformContext, ICompilationTransformContext<TSettings>
     {
-        public ICompilationTransformPass<TSettings, TTo> Transformer { get; }
+        public ICompilationTransformPass<TSettings> Transformer { get; }
 
-        public CompilationTransformContext(TSettings settings, ICompilationTransformPass<TSettings, TTo> transform) : base(null)
+        public CompilationTransformContext(TSettings settings, ICompilationTransformPass<TSettings> transform) : base(null)
         {
             Settings = settings;
             Transformer = transform;
@@ -26,7 +27,7 @@ namespace MathExpr.Compiler.Compilation
 
         public TSettings Settings { get; }
 
-        public TTo Transform(MathExpression from)
+        public Expression Transform(MathExpression from)
             => Transformer.ApplyTo(from, this);
     }
 }

@@ -2,22 +2,23 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq.Expressions;
 
 namespace MathExpr.Compiler.Compilation
 {
-    public interface ICompilationTransformPass<in TSettings, TTo>
-           : ITransformPass<ICompilationTransformContext<TSettings, TTo>, MathExpression, TTo>
+    public interface ICompilationTransformPass<in TSettings>
+           : ITransformPass<ICompilationTransformContext<TSettings>, MathExpression, Expression>
     {
     }
 
-    public abstract class CompilationTransformPass<TSettings, TTo> : ICompilationTransformPass<TSettings, TTo>
+    public abstract class CompilationTransformPass<TSettings> : ICompilationTransformPass<TSettings>
     {
-        public virtual TTo ApplyTo(MathExpression expr, ICompilationTransformContext<TSettings, TTo> ctx)
+        public virtual Expression ApplyTo(MathExpression expr, ICompilationTransformContext<TSettings> ctx)
             => expr switch
             {
-                BinaryExpression b => ApplyTo(b, ctx),
-                UnaryExpression b => ApplyTo(b, ctx),
-                MemberExpression b => ApplyTo(b, ctx),
+                Syntax.BinaryExpression b => ApplyTo(b, ctx),
+                Syntax.UnaryExpression b => ApplyTo(b, ctx),
+                Syntax.MemberExpression b => ApplyTo(b, ctx),
                 VariableExpression b => ApplyTo(b, ctx),
                 FunctionExpression b => ApplyTo(b, ctx),
                 LiteralExpression b => ApplyTo(b, ctx),
@@ -25,12 +26,12 @@ namespace MathExpr.Compiler.Compilation
                 _ => throw new ArgumentException("Unknown expression type", nameof(expr))
             };
 
-        public abstract TTo ApplyTo(BinaryExpression expr, ICompilationTransformContext<TSettings, TTo> ctx);
-        public abstract TTo ApplyTo(UnaryExpression expr, ICompilationTransformContext<TSettings, TTo> ctx);
-        public abstract TTo ApplyTo(MemberExpression expr, ICompilationTransformContext<TSettings, TTo> ctx);
-        public abstract TTo ApplyTo(VariableExpression expr, ICompilationTransformContext<TSettings, TTo> ctx);
-        public abstract TTo ApplyTo(FunctionExpression expr, ICompilationTransformContext<TSettings, TTo> ctx);
-        public abstract TTo ApplyTo(LiteralExpression expr, ICompilationTransformContext<TSettings, TTo> ctx);
-        public abstract TTo ApplyTo(CustomDefinitionExpression expr, ICompilationTransformContext<TSettings, TTo> ctx);
+        public abstract Expression ApplyTo(Syntax.BinaryExpression expr, ICompilationTransformContext<TSettings> ctx);
+        public abstract Expression ApplyTo(Syntax.UnaryExpression expr, ICompilationTransformContext<TSettings> ctx);
+        public abstract Expression ApplyTo(Syntax.MemberExpression expr, ICompilationTransformContext<TSettings> ctx);
+        public abstract Expression ApplyTo(VariableExpression expr, ICompilationTransformContext<TSettings> ctx);
+        public abstract Expression ApplyTo(FunctionExpression expr, ICompilationTransformContext<TSettings> ctx);
+        public abstract Expression ApplyTo(LiteralExpression expr, ICompilationTransformContext<TSettings> ctx);
+        public abstract Expression ApplyTo(CustomDefinitionExpression expr, ICompilationTransformContext<TSettings> ctx);
     }
 }

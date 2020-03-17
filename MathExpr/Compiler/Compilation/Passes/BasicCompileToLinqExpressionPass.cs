@@ -10,7 +10,7 @@ using System.Text;
 namespace MathExpr.Compiler.Compilation.Passes
 {
 
-    public class BasicCompileToLinqExpressionPass : CompilationTransformPass<ICompileToLinqExpressionSettings, Expression>
+    public class BasicCompileToLinqExpressionPass : CompilationTransformPass<ICompileToLinqExpressionSettings>
     {
         private sealed class HasParentWithRoot { }
         private sealed class TypeHint { }
@@ -25,7 +25,7 @@ namespace MathExpr.Compiler.Compilation.Passes
         private void SetTypeHint(ITransformContext ctx, Type? hint)
             => ctx.Data<Type?>().SetIn<TypeHint>(hint);
 
-        public override Expression ApplyTo(MathExpression expr, ICompilationTransformContext<ICompileToLinqExpressionSettings, Expression> ctx)
+        public override Expression ApplyTo(MathExpression expr, ICompilationTransformContext<ICompileToLinqExpressionSettings> ctx)
         {
             if (!IsRootExpression(ctx))
                 return base.ApplyTo(expr, ctx);
@@ -42,32 +42,32 @@ namespace MathExpr.Compiler.Compilation.Passes
             return subexpr;
         }
 
-        public override Expression ApplyTo(Syntax.BinaryExpression expr, ICompilationTransformContext<ICompileToLinqExpressionSettings, Expression> ctx)
+        public override Expression ApplyTo(Syntax.BinaryExpression expr, ICompilationTransformContext<ICompileToLinqExpressionSettings> ctx)
         {
             throw new NotImplementedException();
         }
 
-        public override Expression ApplyTo(Syntax.UnaryExpression expr, ICompilationTransformContext<ICompileToLinqExpressionSettings, Expression> ctx)
+        public override Expression ApplyTo(Syntax.UnaryExpression expr, ICompilationTransformContext<ICompileToLinqExpressionSettings> ctx)
         {
             throw new NotImplementedException();
         }
 
-        public override Expression ApplyTo(Syntax.MemberExpression expr, ICompilationTransformContext<ICompileToLinqExpressionSettings, Expression> ctx)
+        public override Expression ApplyTo(Syntax.MemberExpression expr, ICompilationTransformContext<ICompileToLinqExpressionSettings> ctx)
         {
             throw new NotImplementedException();
         }
 
-        public override Expression ApplyTo(VariableExpression expr, ICompilationTransformContext<ICompileToLinqExpressionSettings, Expression> ctx)
+        public override Expression ApplyTo(VariableExpression expr, ICompilationTransformContext<ICompileToLinqExpressionSettings> ctx)
         {
             throw new NotImplementedException();
         }
 
-        public override Expression ApplyTo(FunctionExpression expr, ICompilationTransformContext<ICompileToLinqExpressionSettings, Expression> ctx)
+        public override Expression ApplyTo(FunctionExpression expr, ICompilationTransformContext<ICompileToLinqExpressionSettings> ctx)
         {
             throw new NotImplementedException();
         }
 
-        public override Expression ApplyTo(LiteralExpression expr, ICompilationTransformContext<ICompileToLinqExpressionSettings, Expression> ctx)
+        public override Expression ApplyTo(LiteralExpression expr, ICompilationTransformContext<ICompileToLinqExpressionSettings> ctx)
         {
             var hint = GetTypeHint(ctx);
             if (hint != null)
@@ -76,7 +76,7 @@ namespace MathExpr.Compiler.Compilation.Passes
                 return Expression.Constant(expr.Value);
         }
 
-        public override Expression ApplyTo(CustomDefinitionExpression expr, ICompilationTransformContext<ICompileToLinqExpressionSettings, Expression> ctx)
+        public override Expression ApplyTo(CustomDefinitionExpression expr, ICompilationTransformContext<ICompileToLinqExpressionSettings> ctx)
         {
             throw new NotImplementedException();
         }
