@@ -47,12 +47,12 @@ namespace MathExpr.Compiler.Compilation.Passes
 
         private Expression AsBoolean(Expression arg)
             => Expression.NotEqual(arg, ConstantOfType(arg.Type, 0));
-        private Expression BoolToNumBool(Expression arg, bool inverse = false)
+        private Expression BoolToNumBool(Expression arg, Type type, bool inverse = false)
             => Expression.Condition(arg,
-                    ConstantOfType(arg.Type, inverse ? 0 : 1),
-                    ConstantOfType(arg.Type, inverse ? 1 : 0));
+                    ConstantOfType(type, inverse ? 0 : 1),
+                    ConstantOfType(type, inverse ? 1 : 0));
         private Expression CoerceNumBoolean(Expression arg, bool inverse = false)
-            => BoolToNumBool(AsBoolean(arg), inverse);
+            => BoolToNumBool(AsBoolean(arg), arg.Type, inverse);
 
         private Func<Expression, Expression, Expression> SpecialBinaryAggregator(IEnumerable<ISpecialBinaryOperationCompiler> set)
             => (a, b) =>
@@ -63,51 +63,55 @@ namespace MathExpr.Compiler.Compilation.Passes
                 if (result == null) throw new InvalidOperationException("No exponent implementation for types");
                 return result!;
             };
-        
+
         public override Expression ApplyTo(Syntax.BinaryExpression expr, ICompilationTransformContext<ICompileToLinqExpressionSettings> ctx)
-            => expr.Type switch
+        {
+            var args = expr.Arguments.Select(m => ApplyTo(m, ctx));
+            var boolResType = GetTypeHint(ctx);
+            return expr.Type switch
             {
-                Syntax.BinaryExpression.ExpressionType.Add 
-                    => expr.Arguments.Select(m => ApplyTo(m, ctx)).Aggregate(Expression.Add),
-                Syntax.BinaryExpression.ExpressionType.Subtract 
-                    => expr.Arguments.Select(m => ApplyTo(m, ctx)).Aggregate(Expression.Subtract),
-                Syntax.BinaryExpression.ExpressionType.Multiply 
-                    => expr.Arguments.Select(m => ApplyTo(m, ctx)).Aggregate(Expression.Multiply),
-                Syntax.BinaryExpression.ExpressionType.Divide 
-                    => expr.Arguments.Select(m => ApplyTo(m, ctx)).Aggregate(Expression.Divide),
-                Syntax.BinaryExpression.ExpressionType.Modulo 
-                    => expr.Arguments.Select(m => ApplyTo(m, ctx)).Aggregate(Expression.Modulo),
-                Syntax.BinaryExpression.ExpressionType.Power 
-                    => expr.Arguments.Select(m => ApplyTo(m, ctx)).Aggregate(SpecialBinaryAggregator(ctx.Settings.PowerCompilers)),
+                Syntax.BinaryExpression.ExpressionType.Add
+                    => args.Aggregate(Expression.Add),
+                Syntax.BinaryExpression.ExpressionType.Subtract
+                    => args.Aggregate(Expression.Subtract),
+                Syntax.BinaryExpression.ExpressionType.Multiply
+                    => args.Aggregate(Expression.Multiply),
+                Syntax.BinaryExpression.ExpressionType.Divide
+                    => args.Aggregate(Expression.Divide),
+                Syntax.BinaryExpression.ExpressionType.Modulo
+                    => args.Aggregate(Expression.Modulo),
+                Syntax.BinaryExpression.ExpressionType.Power
+                    => args.Aggregate(SpecialBinaryAggregator(ctx.Settings.PowerCompilers)),
 
-                Syntax.BinaryExpression.ExpressionType.And 
-                    => BoolToNumBool(expr.Arguments.Select(m => AsBoolean(ApplyTo(m, ctx))).Aggregate(Expression.AndAlso)),
-                Syntax.BinaryExpression.ExpressionType.NAnd 
-                    => BoolToNumBool(Expression.IsFalse(expr.Arguments.Select(m => AsBoolean(ApplyTo(m, ctx))).Aggregate(Expression.AndAlso))),
-                Syntax.BinaryExpression.ExpressionType.Or 
-                    => BoolToNumBool(expr.Arguments.Select(m => AsBoolean(ApplyTo(m, ctx))).Aggregate(Expression.OrElse)),
-                Syntax.BinaryExpression.ExpressionType.NOr 
-                    => BoolToNumBool(Expression.IsFalse(expr.Arguments.Select(m => AsBoolean(ApplyTo(m, ctx))).Aggregate(Expression.OrElse))),
-                Syntax.BinaryExpression.ExpressionType.Xor 
-                    => BoolToNumBool(expr.Arguments.Select(m => AsBoolean(ApplyTo(m, ctx))).Aggregate(Expression.NotEqual)),
-                Syntax.BinaryExpression.ExpressionType.XNor 
+                Syntax.BinaryExpression.ExpressionType.And
+                    => BoolToNumBool(args.Select(m => AsBoolean(m)).Aggregate(Expression.AndAlso), boolResType),
+                Syntax.BinaryExpression.ExpressionType.NAnd
+                    => BoolToNumBool(Expression.IsFalse(args.Select(m => AsBoolean(m)).Aggregate(Expression.AndAlso)), boolResType),
+                Syntax.BinaryExpression.ExpressionType.Or
+                    => BoolToNumBool(args.Select(m => AsBoolean(m)).Aggregate(Expression.OrElse), boolResType),
+                Syntax.BinaryExpression.ExpressionType.NOr
+                    => BoolToNumBool(Expression.IsFalse(args.Select(m => AsBoolean(m)).Aggregate(Expression.OrElse)), boolResType),
+                Syntax.BinaryExpression.ExpressionType.Xor
+                    => BoolToNumBool(args.Select(m => AsBoolean(m)).Aggregate(Expression.NotEqual), boolResType),
+                Syntax.BinaryExpression.ExpressionType.XNor
+                    => BoolToNumBool(args.Select(m => AsBoolean(m)).Aggregate(Expression.Equal), boolResType),
 
-                    => BoolToNumBool(expr.Arguments.Select(m => AsBoolean(ApplyTo(m, ctx))).Aggregate(Expression.Equal)),
-                Syntax.BinaryExpression.ExpressionType.Equals 
-                    => BoolToNumBool(expr.Arguments.Select(m => ApplyTo(m, ctx)).Aggregate(Expression.Equal)),
-                Syntax.BinaryExpression.ExpressionType.Inequals 
-                    => BoolToNumBool(expr.Arguments.Select(m => ApplyTo(m, ctx)).Aggregate(Expression.NotEqual)),
-                Syntax.BinaryExpression.ExpressionType.Less 
-                    => BoolToNumBool(expr.Arguments.Select(m => ApplyTo(m, ctx)).Aggregate(Expression.LessThan)),
-                Syntax.BinaryExpression.ExpressionType.LessEq 
-                    => BoolToNumBool(expr.Arguments.Select(m => ApplyTo(m, ctx)).Aggregate(Expression.LessThanOrEqual)),
-                Syntax.BinaryExpression.ExpressionType.Greater 
-                    => BoolToNumBool(expr.Arguments.Select(m => ApplyTo(m, ctx)).Aggregate(Expression.GreaterThan)),
-                Syntax.BinaryExpression.ExpressionType.GreaterEq 
-                    => BoolToNumBool(expr.Arguments.Select(m => ApplyTo(m, ctx)).Aggregate(Expression.GreaterThanOrEqual)),
+                Syntax.BinaryExpression.ExpressionType.Equals
+                    => BoolToNumBool(args.Aggregate(Expression.Equal), boolResType),
+                Syntax.BinaryExpression.ExpressionType.Inequals
+                    => BoolToNumBool(args.Aggregate(Expression.NotEqual), boolResType),
+                Syntax.BinaryExpression.ExpressionType.Less
+                    => BoolToNumBool(args.Aggregate(Expression.LessThan), boolResType),
+                Syntax.BinaryExpression.ExpressionType.LessEq
+                    => BoolToNumBool(args.Aggregate(Expression.LessThanOrEqual), boolResType),
+                Syntax.BinaryExpression.ExpressionType.Greater
+                    => BoolToNumBool(args.Aggregate(Expression.GreaterThan), boolResType),
+                Syntax.BinaryExpression.ExpressionType.GreaterEq
+                    => BoolToNumBool(args.Aggregate(Expression.GreaterThanOrEqual), boolResType),
 
                 _ => throw new InvalidOperationException("Invalid type of binary expression"),
             };
+        }
 
         public override Expression ApplyTo(Syntax.UnaryExpression expr, ICompilationTransformContext<ICompileToLinqExpressionSettings> ctx)
         {

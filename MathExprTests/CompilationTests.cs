@@ -175,5 +175,34 @@ namespace MathExprTests
                 return true;
             }
         }
+
+
+        [Theory]
+        [MemberData(nameof(CompileBinaryTestValues))]
+        public void CompileBinary(MathExpression expr, Type expectType, object result)
+        {
+            var context = CompilationTransformContext.CreateWith(new DefaultBasicCompileToLinqExpressionSettings
+            {
+                ExpectReturn = expectType,
+            }, new BasicCompileToLinqExpressionPass());
+
+            var fn = Expression.Lambda<Func<object>>(Expression.Convert(
+                    context.Transform(expr),
+                    typeof(object)
+                )).Compile();
+            Assert.Equal(fn(), result);
+        }
+
+        public static object[][] CompileBinaryTestValues = new[]
+        {
+            new object[] { ExpressionParser.ParseRoot("4 + 5"),      typeof(int), 9 },
+            new object[] { ExpressionParser.ParseRoot("4 + 5 + 6"),  typeof(int), 15 },
+            new object[] { ExpressionParser.ParseRoot("9 + 5 + -4"), typeof(int), 10 },
+            new object[] { ExpressionParser.ParseRoot("9 + 5 - 4"),  typeof(int), 10 },
+            new object[] { ExpressionParser.ParseRoot("5 > 4"),      typeof(int), 1 },
+            new object[] { ExpressionParser.ParseRoot("5 < 4"),      typeof(int), 0 },
+            new object[] { ExpressionParser.ParseRoot("4 * 5"),      typeof(int), 20 },
+            new object[] { ExpressionParser.ParseRoot("4 * -5"),     typeof(int), -20 },
+        };
     }
 }
