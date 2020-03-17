@@ -70,7 +70,16 @@ namespace MathExpr.Compiler.Compilation.Passes
 
         public override Expression ApplyTo(Syntax.MemberExpression expr, ICompilationTransformContext<ICompileToLinqExpressionSettings> ctx)
         {
-            throw new NotImplementedException();
+            var arg = ApplyTo(expr.Target, ctx);
+            var name = expr.MemberName;
+
+            var type = arg.Type;
+            if (type.GetProperty(name) is PropertyInfo prop)
+                return Expression.MakeMemberAccess(arg, prop);
+            if (type.GetField(name) is FieldInfo field)
+                return Expression.MakeMemberAccess(arg, field);
+
+            throw new MemberAccessException($"Expression of type {type} does not have member '{name}'");
         }
 
         public override Expression ApplyTo(VariableExpression expr, ICompilationTransformContext<ICompileToLinqExpressionSettings> ctx)
