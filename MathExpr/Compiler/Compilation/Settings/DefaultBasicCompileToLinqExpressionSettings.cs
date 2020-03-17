@@ -14,6 +14,9 @@ namespace MathExpr.Compiler.Compilation.Settings
 
         public IDictionary<VariableExpression, ParameterExpression> ParameterMap { get; } = new Dictionary<VariableExpression, ParameterExpression>();
 
+        public IDictionary<(string name, int argcount), IBuiltinFunction<ICompileToLinqExpressionSettings>> BuiltinFunctions { get; }
+            = new Dictionary<(string name, int argcount), IBuiltinFunction<ICompileToLinqExpressionSettings>>();
+
         #region Domain Restrictions
         public bool IgnoreDomainRestrictions { get; set; } = false;
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
 namespace MathExpr.Compiler
@@ -17,7 +18,7 @@ namespace MathExpr.Compiler
             public static (Type scope, Type type) Key = (typeof(TScope), typeof(TData));
         }
 
-        protected bool TryGetData<TScope, TData>(out TData data)
+        protected bool TryGetData<TScope, TData>([MaybeNullWhen(false)] out TData data)
         {
             if (DataStore.TryGetValue(DataStoreKeyStore<TScope, TData>.Key, out var val))
             {

@@ -16,4 +16,8 @@
     <NoWarn>1701;1702;CA1031</NoWarn>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="Compiler\Compilation\Builtins\" />
+  </ItemGroup>
+
 </Project>

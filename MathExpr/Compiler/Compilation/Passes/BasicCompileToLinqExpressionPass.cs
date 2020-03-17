@@ -92,7 +92,22 @@ namespace MathExpr.Compiler.Compilation.Passes
 
         public override Expression ApplyTo(FunctionExpression expr, ICompilationTransformContext<ICompileToLinqExpressionSettings> ctx)
         {
-            throw new NotImplementedException();
+            if (expr.IsPrime)
+                throw new InvalidOperationException("Default compiler does not support un-inlined user functions");
+
+            var name = expr.Name;
+            var args = expr.Arguments;
+
+            if (ctx.Settings.BuiltinFunctions.TryGetValue((name, args.Count), out var builtin))
+            {
+                var hint = GetTypeHint(ctx);
+                if (!builtin.TryCompile(args, ctx, SetTypeHint, out var outexpr))
+                    throw new InvalidOperationException($"Function '{name}' coult not compile with the given arguments");
+                SetTypeHint(ctx, hint);
+                return outexpr;
+            }
+            else
+                throw new InvalidOperationException($"Builtin function named '{name}' with {args.Count} arguments does not exist");
         }
 
         private Expression ConstantOfType(Type type, object? val)
@@ -119,7 +134,7 @@ namespace MathExpr.Compiler.Compilation.Passes
 
         public override Expression ApplyTo(CustomDefinitionExpression expr, ICompilationTransformContext<ICompileToLinqExpressionSettings> ctx)
         {
-            throw new InvalidOperationException("Default compiler does not support un-inlined custom functions");
+            throw new InvalidOperationException("Default compiler does not support un-inlined user functions");
         }
     }
 }
