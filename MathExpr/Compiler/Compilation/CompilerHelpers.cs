@@ -9,7 +9,7 @@ namespace MathExpr.Compiler.Compilation
     {
         private static void Assert(bool cond, string message, string arg)
         {
-            if (cond) throw new ArgumentException(message, arg);
+            if (!cond) throw new ArgumentException(message, arg);
         }
 
         public static Expression AsBoolean(Expression arg)

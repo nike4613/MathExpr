@@ -204,5 +204,38 @@ namespace MathExprTests
             new object[] { ExpressionParser.ParseRoot("4 * 5"),      typeof(int), 20 },
             new object[] { ExpressionParser.ParseRoot("4 * -5"),     typeof(int), -20 },
         };
+
+        [Theory]
+        [MemberData(nameof(CompileIfTestValues))]
+        public void CompileIf(MathExpression expr, Type expectType, object xarg, object result)
+        {
+            var context = CompilationTransformContext.CreateWith(new DefaultBasicCompileToLinqExpressionSettings
+            {
+                ExpectReturn = expectType,
+            }, new BasicCompileToLinqExpressionPass());
+
+            var objParam = Expression.Parameter(typeof(object));
+            var var = Expression.Variable(expectType);
+            context.Settings.ParameterMap.Add(new VariableExpression("x"), var);
+
+            var fn = Expression.Lambda<Func<object, object>>(
+                Expression.Block(
+                    new[] { var },
+                    Expression.Assign(var, Expression.Convert(objParam, expectType)),
+                    Expression.Convert(
+                        context.Transform(expr),
+                        typeof(object)
+                    )
+                ),
+                objParam
+            ).Compile();
+            Assert.Equal(fn(xarg), result);
+        }
+
+        public static object[][] CompileIfTestValues = new[]
+        {
+            new object[] { ExpressionParser.ParseRoot("if(x > 5, 15, 25)"), typeof(int), 6, 15 },
+            new object[] { ExpressionParser.ParseRoot("if(x > 5, 15, 25)"), typeof(int), 4, 15 },
+        };
     }
 }
