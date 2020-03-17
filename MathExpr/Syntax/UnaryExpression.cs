@@ -29,7 +29,7 @@ namespace MathExpr.Syntax
             && Equals(Argument, e.Argument);
 
         public override string ToString()
-            => $"({Type} {Argument.ToString()}";
+            => $"({Type} {Argument})";
 
         public override int GetHashCode()
         {
