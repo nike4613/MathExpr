@@ -8,7 +8,7 @@ using System.Text;
 
 namespace MathExpr.Compiler.Optimization.Passes
 {
-    public class ExponentConstantReductionPass : OptimizationPass<object?>
+    public class BuiltinExponentConstantReductionPass : OptimizationPass<object?>
     {
         public override MathExpression ApplyTo(FunctionExpression expr, IOptimizationContext<object?> ctx, out bool transformResult)
         {
