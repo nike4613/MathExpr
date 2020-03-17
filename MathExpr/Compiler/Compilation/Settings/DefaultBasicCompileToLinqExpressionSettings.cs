@@ -1,4 +1,5 @@
-﻿using MathExpr.Syntax;
+﻿using MathExpr.Compiler.Compilation.Builtins;
+using MathExpr.Syntax;
 using MathExpr.Utilities;
 using System;
 using System.Collections.Generic;
@@ -50,6 +51,15 @@ namespace MathExpr.Compiler.Compilation.Settings
                 { typeof(decimal), e => Expression.Call(DecimalFactorialMethod, e) },
                 { typeof(double), TypedFloatingFactorialCompiler<double> },
                 { typeof(float), TypedFloatingFactorialCompiler<float> },
+            };
+        #endregion
+
+        #region Exponent Compilers
+        public IList<ISpecialBinaryOperationCompiler> PowerCompilers { get; set; }
+            = new List<ISpecialBinaryOperationCompiler>
+            {
+                new FloaingPointPowerCompiler(),
+                new OtherNumericPowerCompiler(),
             };
         #endregion
     }

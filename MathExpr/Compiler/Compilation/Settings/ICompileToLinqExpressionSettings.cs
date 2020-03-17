@@ -17,5 +17,6 @@ namespace MathExpr.Compiler.Compilation.Settings
 
         
         IDictionary<Type, TypedFactorialCompiler> TypedFactorialCompilers { get; }
+        IList<ISpecialBinaryOperationCompiler> PowerCompilers { get; }
     }
 }

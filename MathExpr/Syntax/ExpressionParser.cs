@@ -137,7 +137,7 @@ namespace MathExpr.Syntax
             while (TryConsumeToken(TokenType.Exponent, out _))
             {
                 var right = ReadNegateNotExpr();
-                left = new BinaryExpression(left, BinaryExpression.ExpressionType.Exponent, right);
+                left = new BinaryExpression(left, BinaryExpression.ExpressionType.Power, right);
             }
             return left;
         }

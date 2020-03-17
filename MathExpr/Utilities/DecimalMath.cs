@@ -44,7 +44,7 @@ namespace MathExpr.Utilities
             var vFac = 1m;
             var sum = 0m;
 
-            // capped at 27, because that is where the factorial caps out,
+            // capped at 27, because that is where the power caps out,
             //   and each iteration seems to give about another digit of accuracy,
             //   so given that decimal has a max exponent of 27, it seems reasonable
             for (int v = 0; v < 27; v++)

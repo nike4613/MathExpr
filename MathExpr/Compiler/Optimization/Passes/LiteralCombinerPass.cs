@@ -26,7 +26,7 @@ namespace MathExpr.Compiler.Optimization.Passes
                     BinaryExpression.ExpressionType.Multiply => (a, b) => a * b,
                     BinaryExpression.ExpressionType.Divide => (a, b) => a / b,
                     BinaryExpression.ExpressionType.Modulo => (a, b) => a % b,
-                    BinaryExpression.ExpressionType.Exponent => (a, b) => DecimalMath.Pow(a, b),
+                    BinaryExpression.ExpressionType.Power => (a, b) => DecimalMath.Pow(a, b),
                     BinaryExpression.ExpressionType.And => (a, b) => a != 0 && b != 0 ? 1 : 0,
                     BinaryExpression.ExpressionType.NAnd => (a, b) => a != 0 && b != 0 ? 0 : 1,
                     BinaryExpression.ExpressionType.Or => (a, b) => a != 0 || b != 0 ? 1 : 0,

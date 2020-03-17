@@ -14,7 +14,7 @@ namespace MathExpr.Compiler.Optimization.Passes
         {
             switch (expr.Type)
             {
-                case BinaryExpression.ExpressionType.Exponent:
+                case BinaryExpression.ExpressionType.Power:
                     if (expr.Left is LiteralExpression l && l.Value == DecimalMath.E)
                     {
                         transformResult = false; // because we will have already applied to our target
