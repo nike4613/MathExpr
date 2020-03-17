@@ -7,14 +7,18 @@ using System.Text;
 
 namespace MathExpr.Compiler.Compilation
 {
-    public delegate void SetTypeHintDelegate(ITransformContext ctx, Type? type);
+    public interface ITypeHintHandler
+    {
+        Expression TransformWithHint<TSettings>(MathExpression expr, Type hint, ICompilationTransformContext<TSettings> ctx);
+    }
+
     public interface IBuiltinFunction<in TSettings>
     {
         string Name { get; }
         int ParamCount { get; }
         bool TryCompile(IReadOnlyList<MathExpression> arguments, 
-            ICompilationTransformContext<TSettings> context, 
-            SetTypeHintDelegate setTypeHint, out Expression expr);
+            ICompilationTransformContext<TSettings> context,
+            ITypeHintHandler typeHintHandler, out Expression expr);
     }
 
     public abstract class SimpleBuiltinFunction<TSettings> : IBuiltinFunction<TSettings>
@@ -24,7 +28,7 @@ namespace MathExpr.Compiler.Compilation
 
         bool IBuiltinFunction<TSettings>.TryCompile(IReadOnlyList<MathExpression> arguments,
             ICompilationTransformContext<TSettings> context,
-            SetTypeHintDelegate setTypeHint, out Expression expr)
+            ITypeHintHandler typeHintHandler, out Expression expr)
             => TryCompile(arguments, context, out expr);
 
         public abstract bool TryCompile(IReadOnlyList<MathExpression> arguments,

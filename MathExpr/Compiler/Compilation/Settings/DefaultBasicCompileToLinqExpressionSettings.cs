@@ -18,6 +18,11 @@ namespace MathExpr.Compiler.Compilation.Settings
         public IDictionary<(string name, int argcount), IBuiltinFunction<ICompileToLinqExpressionSettings>> BuiltinFunctions { get; }
             = new Dictionary<(string name, int argcount), IBuiltinFunction<ICompileToLinqExpressionSettings>>();
 
+        public DefaultBasicCompileToLinqExpressionSettings()
+        {
+            this.AddBuiltin().OfType<BuiltinFunctionIf>();
+        }
+
         #region Domain Restrictions
         public bool IgnoreDomainRestrictions { get; set; } = false;
 
