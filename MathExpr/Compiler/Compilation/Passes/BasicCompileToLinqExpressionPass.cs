@@ -127,9 +127,16 @@ namespace MathExpr.Compiler.Compilation.Passes
         {
             var hint = GetTypeHint(ctx);
             if (hint != null)
-                return ConstantOfType(hint, expr.Value);
-            else
-                return Expression.Constant(expr.Value);
+                try
+                {
+                    return ConstantOfType(hint, expr.Value);
+                }
+                catch (Exception)
+                {
+                    // ignore, fall through to regular constant expr
+                }
+
+            return Expression.Constant(expr.Value);
         }
 
         public override Expression ApplyTo(CustomDefinitionExpression expr, ICompilationTransformContext<ICompileToLinqExpressionSettings> ctx)

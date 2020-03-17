@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Reflection;
+using System.Linq.Expressions;
 
 namespace MathExpr.Utilities
 {
@@ -14,5 +16,8 @@ namespace MathExpr.Utilities
                 prod *= val;
             return prod;
         }
+
+        public static MethodInfo? GetMethod<TDel>(Expression<TDel> expr) where TDel : Delegate
+            => (expr.Body as MethodCallExpression)?.Method;
     }
 }

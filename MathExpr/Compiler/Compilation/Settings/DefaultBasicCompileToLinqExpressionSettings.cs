@@ -26,10 +26,8 @@ namespace MathExpr.Compiler.Compilation.Settings
         #endregion
 
         #region Factorial Compilers
-        private static readonly Expression<Func<ulong, ulong>> IntFactorialExpr = a => Helpers.IntegerFactorial(a);
-        private static readonly MethodInfo IntFactorialMethod = (IntFactorialExpr.Body as MethodCallExpression)!.Method;
-        private static readonly Expression<Func<decimal, decimal>> DecimalFactorialExpr = a => DecimalMath.Factorial(a);
-        private static readonly MethodInfo DecimalFactorialMethod = (DecimalFactorialExpr.Body as MethodCallExpression)!.Method;
+        private static readonly MethodInfo IntFactorialMethod = Helpers.GetMethod<Func<ulong, ulong>>(a => Helpers.IntegerFactorial(a))!;
+        private static readonly MethodInfo DecimalFactorialMethod = Helpers.GetMethod<Func<decimal, decimal>>(a => DecimalMath.Factorial(a))!;
 
         // the resulting expression returns a long 
         private static Expression TypedIntegerFactorialCompiler<T>(Expression arg)

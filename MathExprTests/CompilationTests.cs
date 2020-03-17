@@ -7,6 +7,8 @@ using System.Collections.Generic;
 using System.Text;
 using Xunit;
 using System.Linq.Expressions;
+using System.Linq;
+using MathExpr.Utilities;
 
 namespace MathExprTests
 {
@@ -125,5 +127,53 @@ namespace MathExprTests
             new object[] { ExpressionParser.ParseRoot("abc!"), typeof(int), "abc", 2, 2 },
             new object[] { ExpressionParser.ParseRoot("abc!"), typeof(int), "abc", 3, 6 },
         };
+
+        [Theory]
+        [MemberData(nameof(CompileBuiltinFunctionTestValues))]
+        public void CompileBuiltinFunction(MathExpression expr, Type expectType, string paramName, object parameter, object result)
+        {
+            var context = CompilationTransformContext.CreateWith(new DefaultBasicCompileToLinqExpressionSettings
+            {
+                ExpectReturn = expectType,
+            }, new BasicCompileToLinqExpressionPass());
+
+            var objParam = Expression.Parameter(typeof(object));
+            var var = Expression.Variable(parameter.GetType());
+            context.Settings.ParameterMap.Add(new VariableExpression(paramName), var);
+
+            context.Settings.AddBuiltin().OfType<StringifyBuiltin>();
+
+            var fn = Expression.Lambda<Func<object, object>>(
+                Expression.Block(
+                    new[] { var },
+                    Expression.Assign(var, Expression.Convert(objParam, parameter.GetType())),
+                    Expression.Convert(
+                        context.Transform(expr),
+                        typeof(object)
+                    )
+                ),
+                objParam
+            ).Compile();
+            Assert.Equal(fn(parameter), result);
+        }
+
+        public static readonly object[][] CompileBuiltinFunctionTestValues = new[]
+        {
+            new object[] { ExpressionParser.ParseRoot("toString(x)"), typeof(string), "x", 1, "hello 1" },
+        };
+
+        private class StringifyBuiltin : SimpleBuiltinFunction<object?>
+        {
+            public override string Name => "toString";
+            public override int ParamCount => 1;
+            public override bool TryCompile(IReadOnlyList<MathExpression> arguments, ICompilationTransformContext<object?> context, out Expression expr)
+            {
+                var arg = arguments.First();
+                var concatMethod = Helpers.GetMethod<Action<string>>(a => string.Concat(a, a))!;
+                expr = Expression.Call(typeof(Convert), nameof(Convert.ToString), null, context.Transform(arg));
+                expr = Expression.Call(concatMethod, Expression.Constant("hello "), expr);
+                return true;
+            }
+        }
     }
 }
