@@ -75,7 +75,10 @@ namespace MathExpr.Compiler.Compilation.Passes
 
         public override Expression ApplyTo(VariableExpression expr, ICompilationTransformContext<ICompileToLinqExpressionSettings> ctx)
         {
-            throw new NotImplementedException();
+            if (ctx.Settings.ParameterMap.TryGetValue(expr, out var param))
+                return param;
+            else
+                throw new InvalidOperationException($"Variable '{expr.Name}' does not have an associated ParameterExpression");
         }
 
         public override Expression ApplyTo(FunctionExpression expr, ICompilationTransformContext<ICompileToLinqExpressionSettings> ctx)

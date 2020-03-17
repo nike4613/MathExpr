@@ -76,5 +76,54 @@ namespace MathExprTests
             new object[] { ExpressionParser.ParseRoot("2!"), typeof(decimal), 2m },
             new object[] { ExpressionParser.ParseRoot("3!"), typeof(decimal), 6m },
         };
+
+        [Theory]
+        [MemberData(nameof(CompileVariableTestValues))]
+        public void CompileVariable(MathExpression expr, Type expectType, string paramName, object parameter, object result)
+        {
+            var context = CompilationTransformContext.CreateWith(new DefaultBasicCompileToLinqExpressionSettings
+            {
+                ExpectReturn = expectType,
+            }, new BasicCompileToLinqExpressionPass());
+
+            var objParam = Expression.Parameter(typeof(object));
+            var var = Expression.Variable(expectType);
+            context.Settings.ParameterMap.Add(new VariableExpression(paramName), var);
+
+            var fn = Expression.Lambda<Func<object, object>>(
+                Expression.Block(
+                    new[] { var },
+                    Expression.Assign(var, Expression.Convert(objParam, expectType)),
+                    Expression.Convert(
+                        context.Transform(expr),
+                        typeof(object)
+                    )
+                ), 
+                objParam
+            ).Compile();
+            Assert.Equal(fn(parameter), result);
+        }
+
+        public static readonly object[][] CompileVariableTestValues = new[]
+        {
+            new object[] { ExpressionParser.ParseRoot("x"), typeof(int), "x", 1, 1 },
+            new object[] { ExpressionParser.ParseRoot("x"), typeof(int), "x", 2, 2 },
+            new object[] { ExpressionParser.ParseRoot("x"), typeof(int), "x", 3, 3 },
+            new object[] { ExpressionParser.ParseRoot("-x"), typeof(int), "x", 1, -1 },
+            new object[] { ExpressionParser.ParseRoot("-x"), typeof(int), "x", 2, -2 },
+            new object[] { ExpressionParser.ParseRoot("-x"), typeof(int), "x", 3, -3 },
+            new object[] { ExpressionParser.ParseRoot("x!"), typeof(int), "x", 1, 1 },
+            new object[] { ExpressionParser.ParseRoot("x!"), typeof(int), "x", 2, 2 },
+            new object[] { ExpressionParser.ParseRoot("x!"), typeof(int), "x", 3, 6 },
+            new object[] { ExpressionParser.ParseRoot("abc"), typeof(int), "abc", 1, 1 },
+            new object[] { ExpressionParser.ParseRoot("abc"), typeof(int), "abc", 2, 2 },
+            new object[] { ExpressionParser.ParseRoot("abc"), typeof(int), "abc", 3, 3 },
+            new object[] { ExpressionParser.ParseRoot("-abc"), typeof(int), "abc", 1, -1 },
+            new object[] { ExpressionParser.ParseRoot("-abc"), typeof(int), "abc", 2, -2 },
+            new object[] { ExpressionParser.ParseRoot("-abc"), typeof(int), "abc", 3, -3 },
+            new object[] { ExpressionParser.ParseRoot("abc!"), typeof(int), "abc", 1, 1 },
+            new object[] { ExpressionParser.ParseRoot("abc!"), typeof(int), "abc", 2, 2 },
+            new object[] { ExpressionParser.ParseRoot("abc!"), typeof(int), "abc", 3, 6 },
+        };
     }
 }

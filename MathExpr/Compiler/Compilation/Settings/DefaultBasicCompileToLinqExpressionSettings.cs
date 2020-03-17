@@ -14,11 +14,13 @@ namespace MathExpr.Compiler.Compilation.Settings
 
         public IDictionary<VariableExpression, ParameterExpression> ParameterMap { get; } = new Dictionary<VariableExpression, ParameterExpression>();
 
+        #region Domain Restrictions
         public bool IgnoreDomainRestrictions { get; set; } = false;
 
         public bool AllowDomainChangingOptimizations { get; set; } = true;
 
         public IList<MathExpression> DomainRestrictions { get; } = new List<MathExpression>();
+        #endregion
 
         #region Factorial Compilers
         private static readonly Expression<Func<ulong, ulong>> IntFactorialExpr = a => Helpers.IntegerFactorial(a);
