@@ -18,6 +18,9 @@ namespace MathExpr.Compiler.Optimization
 
         public static OptimizationContext<DefaultOptimizationSettings> CreateDefault(DefaultOptimizationSettings? createdOverride = null,
             params IOptimizationPass<DefaultOptimizationSettings>[] morePasses)
+            => CreateDefault(createdOverride, morePasses.AsEnumerable());
+        public static OptimizationContext<DefaultOptimizationSettings> CreateDefault(DefaultOptimizationSettings? createdOverride,
+            IEnumerable<IOptimizationPass<DefaultOptimizationSettings>> morePasses)
         {
             createdOverride ??= new DefaultOptimizationSettings();
             return CreateWith(createdOverride, morePasses

@@ -1,6 +1,7 @@
 ﻿using MathExpr.Compiler.Compilation;
 using MathExpr.Compiler.Compilation.Passes;
 using MathExpr.Compiler.Compilation.Settings;
+using MathExpr.Compiler.Optimization;
 using MathExpr.Compiler.Optimization.Settings;
 using MathExpr.Syntax;
 using MathExpr.Utilities;
@@ -23,7 +24,13 @@ namespace MathExpr.Compiler
         {
         }
 
-        public new Expression CompileToExpression(MathExpression expr, bool optimize = true)
+        public override MathExpression Optimize(MathExpression expr)
+        {
+            var ctx = OptimizationContext.CreateDefault(OptimizerSettings, OptimizerPasses);
+            return ctx.Optimize(expr);
+        }
+
+        public override Expression CompileToExpression(MathExpression expr, bool optimize = true)
         {
             if (optimize)
             {

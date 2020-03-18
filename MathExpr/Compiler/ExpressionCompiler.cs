@@ -11,7 +11,7 @@ namespace MathExpr.Compiler
 {
     public static class ExpressionCompiler
     {
-        public static DefaultExpressionCompiler Default { get; } = new DefaultExpressionCompiler();
+        public static DefaultExpressionCompiler Default => new DefaultExpressionCompiler();
     }
 
     public class ExpressionCompiler<TOptimizerSettings, TCompilerSettings>
@@ -29,13 +29,13 @@ namespace MathExpr.Compiler
             Compiler = compiler;
         }
 
-        public MathExpression Optimize(MathExpression expr)
+        public virtual MathExpression Optimize(MathExpression expr)
         {
             var ctx = OptimizationContext.CreateWith(OptimizerSettings, OptimizerPasses);
             return ctx.Optimize(expr);
         }
 
-        public Expression CompileToExpression(MathExpression expr, bool optimize = true)
+        public virtual Expression CompileToExpression(MathExpression expr, bool optimize = true)
         {
             if (optimize) expr = Optimize(expr);
             var ctx = CompilationTransformContext.CreateWith(CompilerSettings, Compiler);
