@@ -39,7 +39,7 @@ namespace MathExpr.Compiler.Compilation.Passes
             SetTypeHint(ctx, ctx.Settings.ExpectReturn);
             var subexpr = base.ApplyTo(expr, ctx);
             if (subexpr.Type != ctx.Settings.ExpectReturn)
-                subexpr = Expression.Convert(subexpr, ctx.Settings.ExpectReturn);
+                subexpr = CompilerHelpers.ConvertToType(subexpr, ctx.Settings.ExpectReturn);
 
             // TODO: use subexpr
 
