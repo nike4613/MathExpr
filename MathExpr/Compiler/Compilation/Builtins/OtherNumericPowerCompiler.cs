@@ -8,20 +8,6 @@ namespace MathExpr.Compiler.Compilation.Builtins
 {
     public class OtherNumericPowerCompiler : ISpecialBinaryOperationCompiler
     {
-        private static bool IsIntegral(Type ty)
-            => ty == typeof(long)
-            || ty == typeof(ulong)
-            || ty == typeof(int)
-            || ty == typeof(uint)
-            || ty == typeof(short)
-            || ty == typeof(ushort)
-            || ty == typeof(byte)
-            || ty == typeof(sbyte);
-        private static bool IsSigned(Type ty)
-            => ty == typeof(long)
-            || ty == typeof(int)
-            || ty == typeof(short)
-            || ty == typeof(sbyte);
 
         public bool TryCompile(Expression bas, Expression exp, out Expression result)
         {
@@ -30,8 +16,10 @@ namespace MathExpr.Compiler.Compilation.Builtins
             var powMethod = Helpers.GetMethod<Action<decimal>>(a => DecimalMath.Pow(a, a))!;
 
             Type outType = typeof(decimal);
-            if (IsIntegral(bas.Type) && IsIntegral(exp.Type) && !IsSigned(exp.Type)) 
-                outType = IsSigned(bas.Type) ? typeof(long) : typeof(ulong);
+            if (CompilerHelpers.IsIntegral(bas.Type) 
+             && CompilerHelpers.IsIntegral(exp.Type) 
+             && !CompilerHelpers.IsSigned(exp.Type)) 
+                outType = CompilerHelpers.IsSigned(bas.Type) ? typeof(long) : typeof(ulong);
             try
             {
                 if (bas.Type != typeof(decimal))

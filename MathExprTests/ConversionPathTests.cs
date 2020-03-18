@@ -11,9 +11,12 @@ namespace MathExprTests
         [Theory]
         [InlineData(typeof(decimal), typeof(int), new[] { typeof(int) })]
         [InlineData(typeof(int), typeof(decimal), new[] { typeof(decimal) })]
+        [InlineData(typeof(int), typeof(long), new[] { typeof(long) })]
         [InlineData(typeof(A), typeof(C), new[] { typeof(B), typeof(C) })]
         [InlineData(typeof(A), typeof(D), new[] { typeof(B), typeof(D) })]
         [InlineData(typeof(C), typeof(A), new[] { typeof(D), typeof(A) })]
+        [InlineData(typeof(A), typeof(E), new[] { typeof(B), typeof(D), typeof(E) })]
+        [InlineData(typeof(E), typeof(A), null)]
         public void TestFindConversion(Type from, Type to, Type[]? path)
         {
             Assert.Equal(path, CompilerHelpers.FindConversionPathTo(from, to));
@@ -35,6 +38,10 @@ namespace MathExprTests
         private class D
         {
             public static implicit operator D(B _) => new D();
+        }
+        private class E
+        { 
+            public static implicit operator E(D _) => new E();
         }
     }
 }

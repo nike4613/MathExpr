@@ -235,7 +235,7 @@ namespace MathExprTests
         public static object[][] CompileIfTestValues = new[]
         {
             new object[] { ExpressionParser.ParseRoot("if(x > 5, 15, 25)"), typeof(int), 6, 15 },
-            new object[] { ExpressionParser.ParseRoot("if(x > 5, 15, 25)"), typeof(int), 4, 15 },
+            new object[] { ExpressionParser.ParseRoot("if(x > 5, 15, 25)"), typeof(int), 4, 25 },
         };
     }
 }
