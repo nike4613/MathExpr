@@ -1,7 +1,7 @@
-name: Build and test master
+name: Publish tag
 on: 
   push:
-    branches: [ master ]
+    tags: [ '**' ]
 
 jobs:
   build:
@@ -27,6 +27,6 @@ jobs:
           path: MathExprTests/TestResults
       - name: Pack Nuget package
         shell: pwsh
-        run: dotnet pack --configuration Release MathExpr --version-suffix "ghi$(Get-Date -Format "yyyyMMddHH+\b\u\i\l\dmmss")" -p:InformationalVersion="GitHub Actions CI"
+        run: dotnet pack --configuration Release MathExpr -p:InformationalVersion="GitHub Actions CI"
       - name: Publish Nuget package to GitHub Packages
         run: dotnet nuget push MathExpr/bin/Release/*.nupkg

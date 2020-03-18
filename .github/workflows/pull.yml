@@ -1,7 +1,9 @@
-name: Build and test master
+name: Build and test branch or PR
 on: 
   push:
-    branches: [ master ]
+    branches-ignore: [ master ]
+  pull_request:
+    branches: [ '**' ]
 
 jobs:
   build:
@@ -14,9 +16,6 @@ jobs:
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: '3.1.101' # SDK Version to use.
-          source-url: https://nuget.pkg.github.com/nike4613/index.json
-        env:
-          NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
       - name: Build projects
         run: dotnet build --configuration Release
       - name: Run tests
@@ -25,8 +24,3 @@ jobs:
         with:
           name: test-results
           path: MathExprTests/TestResults
-      - name: Pack Nuget package
-        shell: pwsh
-        run: dotnet pack --configuration Release MathExpr --version-suffix "ghi$(Get-Date -Format "yyyyMMddHH+\b\u\i\l\dmmss")" -p:InformationalVersion="GitHub Actions CI"
-      - name: Publish Nuget package to GitHub Packages
-        run: dotnet nuget push MathExpr/bin/Release/*.nupkg
