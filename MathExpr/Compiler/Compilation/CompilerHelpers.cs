@@ -75,8 +75,8 @@ namespace MathExpr.Compiler.Compilation
 
         public static bool HasConversionPathTo(Type from, Type to) => FindConversionPathTo(from, to) != null;
 
-        const BindingFlags OperatorFlags = BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly;
-        private static Dictionary<Type, MethodInfo[]> ConversionOperatorCache = new Dictionary<Type, MethodInfo[]>();
+        const BindingFlags OperatorFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.DeclaredOnly;
+        private static readonly Dictionary<Type, MethodInfo[]> ConversionOperatorCache = new Dictionary<Type, MethodInfo[]>();
         private static MethodInfo[] GetConversionOperators(Type ty)
         {
             if (!ConversionOperatorCache.TryGetValue(ty, out var values))
@@ -86,7 +86,15 @@ namespace MathExpr.Compiler.Compilation
                                .ToArray());
             return values;
         }
+
+        private static readonly Dictionary<(Type from, Type to), Type[]?> ConversionPathCache = new Dictionary<(Type from, Type to), Type[]?>();
         public static IEnumerable<Type>? FindConversionPathTo(Type from, Type to)
+        {
+            if (!ConversionPathCache.TryGetValue((from, to), out var path))
+                ConversionPathCache.Add((from, to), path = FindConversionPathToInternal(from, to)?.ToArray());
+            return path;
+        }
+        private static IEnumerable<Type>? FindConversionPathToInternal(Type from, Type to)
         {
             if (from == to) return Enumerable.Empty<Type>();
             if (to.IsAssignableFrom(from)) return Enumerable.Empty<Type>();
