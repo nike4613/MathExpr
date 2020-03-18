@@ -88,7 +88,7 @@ namespace MathExprTests
             var context = OptimizationContext.CreateWith(new DefaultOptimizationSettings 
             { 
                 AllowDomainChangingOptimizations = allowRestrictions 
-            }, new BuiltinExponentSimplificationFunction());
+            }, new BuiltinExponentSimplificationPass());
 
             var actual = context.Optimize(input);
             Assert.Equal(expect, actual);
@@ -114,7 +114,7 @@ namespace MathExprTests
             var context = OptimizationContext.CreateWith(new DefaultOptimizationSettings
             {
                 AllowDomainChangingOptimizations = allowRestrictions
-            }, new BuiltinExponentSimplificationFunction(), new BinaryExpressionCombinerPass(), new LiteralCombinerPass());
+            }, new BuiltinExponentSimplificationPass(), new BinaryExpressionCombinerPass(), new LiteralCombinerPass());
 
             var actual = context.Optimize(input);
             Assert.Equal(expect, actual);

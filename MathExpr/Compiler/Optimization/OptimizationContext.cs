@@ -1,4 +1,5 @@
 ﻿using MathExpr.Compiler.Optimization.Passes;
+using MathExpr.Compiler.Optimization.Settings;
 using MathExpr.Syntax;
 using MathExpr.Utilities;
 using System;
@@ -14,6 +15,18 @@ namespace MathExpr.Compiler.Optimization
             => new OptimizationContext<TSettings>(passes, settings);
         public static OptimizationContext<TSettings> CreateWith<TSettings>(TSettings settings, params IOptimizationPass<TSettings>[] passes)
             => new OptimizationContext<TSettings>(passes, settings);
+
+        public static OptimizationContext<DefaultOptimizationSettings> CreateDefault(DefaultOptimizationSettings? createdOverride = null,
+            params IOptimizationPass<DefaultOptimizationSettings>[] morePasses)
+        {
+            createdOverride ??= new DefaultOptimizationSettings();
+            return CreateWith(createdOverride, morePasses
+                .Append(new UserFunctionInlinePass())
+                .Append(new BuiltinExponentSimplificationPass())
+                .Append(new BinaryExpressionCombinerPass())
+                .Append(new BuiltinExponentConstantReductionPass())
+                .Append(new LiteralCombinerPass()));
+        }
     }
 
     public interface IOptimizationContext<out TSettings> : ITransformContext<TSettings, MathExpression, MathExpression>

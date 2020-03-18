@@ -8,7 +8,7 @@ using System.Text;
 
 namespace MathExpr.Compiler.Optimization.Passes
 {
-    public class BuiltinExponentSimplificationFunction : OptimizationPass<IDomainRestrictionSettings>
+    public class BuiltinExponentSimplificationPass : OptimizationPass<IDomainRestrictionSettings>
     {
         public override MathExpression ApplyTo(BinaryExpression expr, IOptimizationContext<IDomainRestrictionSettings> ctx, out bool transformResult)
         {
