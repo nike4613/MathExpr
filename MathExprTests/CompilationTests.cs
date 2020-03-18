@@ -236,6 +236,9 @@ namespace MathExprTests
         {
             new object[] { ExpressionParser.ParseRoot("if(x > 5, 15, 25)"), typeof(int), 6, 15 },
             new object[] { ExpressionParser.ParseRoot("if(x > 5, 15, 25)"), typeof(int), 4, 25 },
+            new object[] { ExpressionParser.ParseRoot("if(x > 5, x*2, x*3)"), typeof(int), 6, 12 },
+            new object[] { ExpressionParser.ParseRoot("if(x > 5, x*2, x*3)"), typeof(int), 5, 15 },
+            new object[] { ExpressionParser.ParseRoot("if(x > 5, x*2, x*3)"), typeof(int), 4, 12 },
         };
     }
 }
