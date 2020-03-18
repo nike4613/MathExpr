@@ -242,5 +242,52 @@ namespace MathExprTests
             new object[] { ExpressionParser.ParseRoot("if(x < 0.5, 8 * x^4, -8 * (x-1)^4 + 1)"), typeof(decimal), 0.7m, 0.9352m },
             new object[] { ExpressionParser.ParseRoot("if(x < 0.5, 8 * x^4, -8 * (x-1)^4 + 1)"), typeof(decimal), 0.3m, 0.0648m },
         };
+
+        [Theory]
+        [MemberData(nameof(CompileDomainRestrictionTestValues))]
+        public void CompileDomainRestriction(MathExpression expr, MathExpression restrict, Type expectType, object xarg, object result, bool shouldThrow)
+        {
+            var context = CompilationTransformContext.CreateWith(new DefaultBasicCompileToLinqExpressionSettings
+            {
+                ExpectReturn = expectType,
+                IgnoreDomainRestrictions = false,
+            }, new BasicCompileToLinqExpressionPass());
+
+            var objParam = Expression.Parameter(typeof(object));
+            var var = Expression.Variable(expectType);
+            context.Settings.ParameterMap.Add(new VariableExpression("x"), var);
+
+            context.Settings.DomainRestrictions.Add(restrict);
+
+            var fn = Expression.Lambda<Func<object, object>>(
+                Expression.Block(
+                    new[] { var },
+                    Expression.Assign(var, Expression.Convert(objParam, expectType)),
+                    Expression.Convert(
+                        context.Transform(expr),
+                        typeof(object)
+                    )
+                ),
+                objParam
+            ).Compile();
+
+            try
+            {
+                Assert.Equal(fn(xarg), result);
+                Assert.False(shouldThrow, "Function should have thrown");
+            }
+            catch (Exception e)
+            {
+                Assert.True(shouldThrow, $"Function threw when it shouldn't have {e}");
+            }
+        }
+
+        public static object[][] CompileDomainRestrictionTestValues = new[]
+        {
+            new object[] { ExpressionParser.ParseRoot("1 / (2*x)"), ExpressionParser.ParseRoot("x = 0"), typeof(decimal), 2m, 1m/4m, false },
+            new object[] { ExpressionParser.ParseRoot("1 / (2*x)"), ExpressionParser.ParseRoot("x = 0"), typeof(decimal), 0m, 1m, true},
+            new object[] { ExpressionParser.ParseRoot("1 / (2*x + 1)"), ExpressionParser.ParseRoot("2*x+1 = 0"), typeof(decimal), 2m, 1m/5m, false },
+            new object[] { ExpressionParser.ParseRoot("1 / (2*x + 1)"), ExpressionParser.ParseRoot("2*x+1 = 0"), typeof(decimal), -1m/2m, 1m, true},
+        };
     }
 }

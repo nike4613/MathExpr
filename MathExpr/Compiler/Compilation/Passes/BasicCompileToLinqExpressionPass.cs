@@ -43,6 +43,21 @@ namespace MathExpr.Compiler.Compilation.Passes
 
             // TODO: use subexpr
 
+            if (!ctx.Settings.IgnoreDomainRestrictions)
+            {
+                var overflowCtor = Helpers.GetConstructor<Action>(() => new OverflowException(""));
+                subexpr = ctx.Settings.DomainRestrictions
+                    .Select(e =>
+                    {
+                        SetTypeHint(ctx, typeof(bool));
+                        return (x: CompilerHelpers.ConvertToType(base.ApplyTo(e, ctx), typeof(bool)), e);
+                    })
+                    .Aggregate(subexpr, (start, restrict) =>
+                        Expression.Condition(restrict.x,
+                            Expression.Throw(Expression.New(overflowCtor, Expression.Constant($"{restrict.e} not in domain")), start.Type),
+                            start));
+            }
+
             return subexpr;
         }
 

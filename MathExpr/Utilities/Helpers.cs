@@ -19,6 +19,8 @@ namespace MathExpr.Utilities
 
         public static MethodInfo? GetMethod<TDel>(Expression<TDel> expr) where TDel : Delegate
             => (expr.Body as MethodCallExpression)?.Method;
+        public static ConstructorInfo? GetConstructor<TDel>(Expression<TDel> expr) where TDel : Delegate
+            => (expr.Body as NewExpression)?.Constructor;
 
         public static IEnumerable<T> Single<T>(T val)
         {
