@@ -16,7 +16,7 @@ namespace MathExpr.Syntax
 
     public enum TokenType
     {
-        [TokenDesc(@"[A-Za-z]([A-Za-z]|\d)*")]   Identifier,
+        [TokenDesc(@"[A-Za-z_]([A-Za-z_]|\d)*")] Identifier,
         [TokenDesc(@"\d+(\.\d+)?")] Literal,
         [TokenDesc("(")]            OpenParen,
         [TokenDesc(")")]            CloseParen,
