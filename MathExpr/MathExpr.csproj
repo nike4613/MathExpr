@@ -14,8 +14,8 @@
     <AssemblyOriginatorKeyFile>SigningKey.snk</AssemblyOriginatorKeyFile>
     
     <NoWarn>1701;1702;CA1031</NoWarn>
-
-    <DocumentationFile>$(TargetDir)MathExpr.xml</DocumentationFile>
+    
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
 </Project>
