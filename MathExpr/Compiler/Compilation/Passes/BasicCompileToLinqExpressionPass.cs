@@ -1,6 +1,7 @@
 ﻿using MathExpr.Compiler.Compilation.Settings;
 using MathExpr.Compiler.Optimization.Settings;
 using MathExpr.Syntax;
+using MathExpr.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -204,24 +205,28 @@ namespace MathExpr.Compiler.Compilation.Passes
 
         public override Expression ApplyTo(LiteralExpression expr, ICompilationTransformContext<ICompileToLinqExpressionSettings> ctx)
         {
+            var val = expr.Value;
+
             var hint = GetTypeHint(ctx);
             if (hint != null)
-                try
-                {
-                    return CompilerHelpers.ConstantOfType(hint, expr.Value);
-                }
-                catch (Exception)
-                {
-                    // ignore, fall through to regular constant expr
-                }
-
-            var val = expr.Value;
-            if (val == decimal.Truncate(val)) // is an integer
             {
-                if (val <= long.MaxValue && val >= long.MinValue)
-                    return Expression.Constant((long)val);
+                //
+                if ((CompilerHelpers.IsIntegral(hint) && DecimalMath.IsIntegral(val))
+                  || !CompilerHelpers.IsIntegral(hint))
+                    try
+                    {
+                        return CompilerHelpers.ConstantOfType(hint, expr.Value);
+                    }
+                    catch (Exception)
+                    {
+                        // ignore, fall through to regular constant expr
+                    }
             }
 
+            // if the value is an integer that falls into the long range, then encode it as that
+            if (DecimalMath.IsIntegral(val) && val <= long.MaxValue && val >= long.MinValue)
+                return Expression.Constant((long)val);
+            // otherwise just give the decimal for the best accuracy
             return Expression.Constant(expr.Value);
         }
 

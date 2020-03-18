@@ -17,6 +17,15 @@ namespace MathExpr.Utilities
 #endif
 
         /// <summary>
+        /// Checks whether a given <see cref="decimal"/> represents an integer or not.
+        /// </summary>
+        /// <param name="val">the value to check</param>
+        /// <returns><see langword="true"/> if <paramref name="val"/> is an integer, otherwise <see langword="false"/></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining | AggressiveOptimization)]
+        public static bool IsIntegral(decimal val)
+            => val == decimal.Truncate(val);
+
+        /// <summary>
         /// Raises a base to a power.
         /// </summary>
         /// <param name="bas">the base (B)</param>
