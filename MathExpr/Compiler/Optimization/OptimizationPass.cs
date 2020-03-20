@@ -16,6 +16,9 @@ namespace MathExpr.Compiler.Optimization
     {
     }
 
+    /// <summary>
+    /// A basic specialization of <see cref="OptimizationPass{TSettings}"/> that doesn't need any settings.
+    /// </summary>
     public abstract class OptimizationPass : OptimizationPass<object?> { }
     /// <summary>
     /// A stub implementation of <see cref="IOptimizationPass{TSettings}"/> that visits and reconstructs the entire expression tree,
