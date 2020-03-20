@@ -5,6 +5,9 @@ using System.Text;
 
 namespace MathExpr.Utilities
 {
+    /// <summary>
+    /// A static class containing implementations of several math functions for the <see cref="decimal"/> type.
+    /// </summary>
     public static class DecimalMath
     {
         // x^n can be represented as sigma(v=0 -> inf, (n^v * log(x)^v) / v!)
@@ -95,6 +98,11 @@ namespace MathExpr.Utilities
             return prod;
         }
 
+        /// <summary>
+        /// Raises Euler's constant to the power <paramref name="exp"/>.
+        /// </summary>
+        /// <param name="exp">the power to raise <see cref="E"/> to</param>
+        /// <returns><c>e^exp</c></returns>
         [MethodImpl(AggressiveOptimization)]
         public static decimal Exp(decimal exp)
         {
@@ -125,10 +133,25 @@ namespace MathExpr.Utilities
             return sum;
         }
 
+        /// <summary>
+        /// Euler's constant.
+        /// </summary>
         public const decimal E = 2.71828182845904523536028747135m;
+        /// <summary>
+        /// Pi.
+        /// </summary>
         public const decimal Pi = 3.141592653589793238462643383279m;
+        /// <summary>
+        /// The natural log of 2.
+        /// </summary>
         public const decimal Ln2 = 0.693147180559945309417232122m;
+        /// <summary>
+        /// The Euler gamma (γ) constant.
+        /// </summary>
         public const decimal EulerGamma = 0.57721566490153286060651209008m;
+        /// <summary>
+        /// The smallest positive value that <see cref="decimal"/> can represent.
+        /// </summary>
         public const decimal Epsilon = 0.0000000000000000000000000001m;
 
         /// <summary>
