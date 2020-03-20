@@ -9,7 +9,8 @@ namespace MathExpr.Compiler.Compilation
 {
     public interface ITypeHintHandler
     {
-        Expression TransformWithHint<TSettings>(MathExpression expr, Type hint, ICompilationTransformContext<TSettings> ctx);
+        Type? CurrentHint<TSettings>(ICompilationTransformContext<TSettings> ctx);
+        Expression TransformWithHint<TSettings>(MathExpression expr, Type? hint, ICompilationTransformContext<TSettings> ctx);
     }
 
     public interface IBuiltinFunction<in TSettings>

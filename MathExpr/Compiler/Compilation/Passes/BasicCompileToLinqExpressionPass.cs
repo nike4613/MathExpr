@@ -191,7 +191,9 @@ namespace MathExpr.Compiler.Compilation.Passes
                 throw new InvalidOperationException($"Variable '{expr.Name}' does not have an associated ParameterExpression");
         }
 
-        Expression ITypeHintHandler.TransformWithHint<TSettings>(MathExpression expr, Type hint, ICompilationTransformContext<TSettings> ctx)
+        Type? ITypeHintHandler.CurrentHint<TSettings>(ICompilationTransformContext<TSettings> ctx)
+            => GetTypeHint(ctx);
+        Expression ITypeHintHandler.TransformWithHint<TSettings>(MathExpression expr, Type? hint, ICompilationTransformContext<TSettings> ctx)
         {
             var savedHint = GetTypeHint(ctx);
             SetTypeHint(ctx, hint);
