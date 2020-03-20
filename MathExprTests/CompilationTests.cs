@@ -162,11 +162,10 @@ namespace MathExprTests
             new object[] { ExpressionParser.ParseRoot("toString(x)"), typeof(string), "x", 1, "hello 1" },
         };
 
-        private class StringifyBuiltin : SimpleBuiltinFunction<object?>
+        private class StringifyBuiltin : IBuiltinFunction<object?>
         {
-            public override string Name => "toString";
-            public override int ParamCount => 1;
-            public override bool TryCompile(IReadOnlyList<MathExpression> arguments, ICompilationTransformContext<object?> context, out Expression expr)
+            public string Name => "toString";
+            public bool TryCompile(IReadOnlyList<MathExpression> arguments, ICompilationTransformContext<object?> context, ITypeHintHandler hinting, out Expression expr)
             {
                 var arg = arguments.First();
                 var concatMethod = Helpers.GetMethod<Action<string>>(a => string.Concat(a, a))!;
