@@ -135,7 +135,6 @@ namespace MathExpr.Utilities
         /// The natural logarithm, approxamated by the Taylor series centered around 1.
         /// </summary>
         /// <param name="arg">the argument to <c>ln(x)</c></param>
-        /// <param name="iters">the number of terms to use</param>
         /// <returns>the approxamate value of <c>ln(x)</c></returns>
         [MethodImpl(AggressiveOptimization)]
         public static decimal Ln(decimal arg)
@@ -226,12 +225,11 @@ namespace MathExpr.Utilities
         /// <remarks>
         /// Classically, factorial is not defined for non-integers, nor for values less than zero.
         /// However, there exists a gamma function such that <c>x! = gamma(x + 1)</c> and can be
-        /// used as an extension. This implementation automatically forwards to <see cref="Gamma(decimal)"/>
-        /// for all inputs that are not positive integers.
+        /// used as an extension. This implementation automatically forwards to the gamma function
+        /// (not currently implemented) for all inputs that are not positive integers.
         /// </remarks>
         /// <param name="val">the argument to the factorial function</param>
         /// <returns><c>x!</c></returns>
-        /// <seealso cref="Gamma(decimal)"/>
         [MethodImpl(AggressiveOptimization)]
         public static decimal Factorial(decimal val)
         {

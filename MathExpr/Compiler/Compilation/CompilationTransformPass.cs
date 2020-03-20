@@ -49,6 +49,7 @@ namespace MathExpr.Compiler.Compilation
                 _ => throw new ArgumentException("Unknown expression type", nameof(expr))
             };
 
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
         public abstract Expression ApplyTo(Syntax.BinaryExpression expr, ICompilationTransformContext<TSettings> ctx);
         public abstract Expression ApplyTo(Syntax.UnaryExpression expr, ICompilationTransformContext<TSettings> ctx);
         public abstract Expression ApplyTo(Syntax.MemberExpression expr, ICompilationTransformContext<TSettings> ctx);
@@ -56,5 +57,6 @@ namespace MathExpr.Compiler.Compilation
         public abstract Expression ApplyTo(FunctionExpression expr, ICompilationTransformContext<TSettings> ctx);
         public abstract Expression ApplyTo(LiteralExpression expr, ICompilationTransformContext<TSettings> ctx);
         public abstract Expression ApplyTo(CustomDefinitionExpression expr, ICompilationTransformContext<TSettings> ctx);
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
     }
 }
