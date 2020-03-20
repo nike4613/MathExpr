@@ -5,7 +5,7 @@ using System.Text;
 
 namespace MathExpr.Compiler
 {
-    public abstract class DataProvidingTransformContext : ITransformContext
+    public abstract class DataProvidingTransformContext : IDataContext
     {
         private readonly DataProvidingTransformContext? parent;
         protected readonly Dictionary<(Type scope, Type type), object?> DataStore = new Dictionary<(Type, Type), object?>();

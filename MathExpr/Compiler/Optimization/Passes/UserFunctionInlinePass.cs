@@ -19,7 +19,6 @@ namespace MathExpr.Compiler.Optimization.Passes
             {
                 var definedFunctions = GetDefinedFunctions(ctx);
 
-                // TODO: track overloads with different arg count
                 definedFunctions.Add(expr.FunctionName, (expr, false));
 
                 var value = ApplyTo(expr.Value, ctx);

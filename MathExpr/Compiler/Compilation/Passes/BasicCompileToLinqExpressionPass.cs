@@ -21,14 +21,14 @@ namespace MathExpr.Compiler.Compilation.Passes
         private sealed class HasParentWithRoot { }
         private sealed class TypeHint { }
 
-        private bool IsRootExpression(ITransformContext ctx)
+        private bool IsRootExpression(IDataContext ctx)
             => !ctx.Data<bool>().GetOrCreateIn<HasParentWithRoot>(false);
-        private void SetRootExpression(ITransformContext ctx)
+        private void SetRootExpression(IDataContext ctx)
             => ctx.Data<bool>().SetIn<HasParentWithRoot>(true);
 
-        private Type? GetTypeHint(ITransformContext ctx)
+        private Type? GetTypeHint(IDataContext ctx)
             => ctx.Data<Type?>().GetOrDefaultIn<TypeHint>();
-        private void SetTypeHint(ITransformContext ctx, Type? hint)
+        private void SetTypeHint(IDataContext ctx, Type? hint)
             => ctx.Data<Type?>().SetIn<TypeHint>(hint);
 
         /// <summary>

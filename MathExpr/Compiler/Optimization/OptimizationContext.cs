@@ -9,16 +9,54 @@ using System.Text;
 
 namespace MathExpr.Compiler.Optimization
 {
+    /// <summary>
+    /// A specialization of <see cref="ITransformContext{TSettings, TFrom, TTo}"/> for transforming a <see cref="MathExpression"/>
+    /// to itself as an optimizer.
+    /// </summary>
+    /// <typeparam name="TSettings"></typeparam>
+    public interface IOptimizationContext<out TSettings> : ITransformContext<TSettings, MathExpression, MathExpression>
+    {
+    }
+
+    /// <summary>
+    /// A helper class with utilities to more easily create <see cref="OptimizationContext{TSettings}"/>s with type deduction.
+    /// </summary>
     public static class OptimizationContext
     {
+        /// <summary>
+        /// Creates a <see cref="OptimizationContext{TSettings}"/> with the given settings and optimization passes.
+        /// </summary>
+        /// <typeparam name="TSettings">the type of settings for the new context</typeparam>
+        /// <param name="settings">the settings to initialize the context with</param>
+        /// <param name="passes">the set of passes to initialize the context with</param>
+        /// <returns>the new context</returns>
+        public static OptimizationContext<TSettings> CreateWith<TSettings>(TSettings settings, params IOptimizationPass<TSettings>[] passes)
+            => CreateWith(settings, passes.AsEnumerable());
+        /// <summary>
+        /// Creates a <see cref="OptimizationContext{TSettings}"/> with the given settings and optimization passes.
+        /// </summary>
+        /// <typeparam name="TSettings">the type of settings for the new context</typeparam>
+        /// <param name="settings">the settings to initialize the context with</param>
+        /// <param name="passes">the set of passes to initialize the context with</param>
+        /// <returns>the new context</returns>
         public static OptimizationContext<TSettings> CreateWith<TSettings>(TSettings settings, IEnumerable<IOptimizationPass<TSettings>> passes)
             => new OptimizationContext<TSettings>(passes, settings);
-        public static OptimizationContext<TSettings> CreateWith<TSettings>(TSettings settings, params IOptimizationPass<TSettings>[] passes)
-            => new OptimizationContext<TSettings>(passes, settings);
 
+        /// <summary>
+        /// Creates a <see cref="OptimizationContext{TSettings}"/> with the given settings and optimization passes, alongside default passes.
+        /// </summary>
+        /// <param name="createdOverride">the settings to initialize the context with, or <see langword="null"/> to use a new settings object</param>
+        /// <param name="morePasses">the set of passes to initialize the context with</param>
+        /// <returns>the new context</returns>
         public static OptimizationContext<DefaultOptimizationSettings> CreateDefault(DefaultOptimizationSettings? createdOverride = null,
             params IOptimizationPass<DefaultOptimizationSettings>[] morePasses)
             => CreateDefault(createdOverride, morePasses.AsEnumerable());
+        /// <summary>
+        /// Creates a <see cref="OptimizationContext{TSettings}"/> with the given settings and optimization passes, alongside default passes.
+        /// </summary>
+        /// <param name="createdOverride">the settings to initialize the context with, or <see langword="null"/> to use a new settings object</param>
+        /// <param name="morePasses">the set of passes to initialize the context with</param>
+        /// <returns>the new context</returns>
         public static OptimizationContext<DefaultOptimizationSettings> CreateDefault(DefaultOptimizationSettings? createdOverride,
             IEnumerable<IOptimizationPass<DefaultOptimizationSettings>> morePasses)
         {
@@ -32,18 +70,29 @@ namespace MathExpr.Compiler.Optimization
         }
     }
 
-    public interface IOptimizationContext<out TSettings> : ITransformContext<TSettings, MathExpression, MathExpression>
-    {
-    }
-
+    /// <summary>
+    /// An optimization context for easily running multiple optimization passes on expressions.
+    /// </summary>
+    /// <typeparam name="TSettings"></typeparam>
     public class OptimizationContext<TSettings>
     {
         private readonly List<IOptimizationPass<TSettings>> passes;
 
+        /// <summary>
+        /// The passes registered to be used.
+        /// </summary>
         public IEnumerable<IOptimizationPass<TSettings>> Passes => passes;
 
+        /// <summary>
+        /// The settings being provided.
+        /// </summary>
         public TSettings Settings { get; set; }
 
+        /// <summary>
+        /// Creates a new context with the given passes and settings.
+        /// </summary>
+        /// <param name="passes">the passes to initialize whit</param>
+        /// <param name="settings">the settings to initialize with</param>
         public OptimizationContext(IEnumerable<IOptimizationPass<TSettings>> passes, TSettings settings)
         {
             this.passes = passes.ToList();
