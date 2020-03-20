@@ -11,7 +11,9 @@ using System.Text;
 
 namespace MathExpr.Compiler.Compilation.Passes
 {
-
+    /// <summary>
+    /// A compiler that compiles a <see cref="MathExpression"/> to a <see cref="Expression"/>, using type hinting.
+    /// </summary>
     public class BasicCompileToLinqExpressionPass : CompilationTransformPass<ICompileToLinqExpressionSettings>, ITypeHintHandler
     {
         private sealed class HasParentWithRoot { }
@@ -27,6 +29,12 @@ namespace MathExpr.Compiler.Compilation.Passes
         private void SetTypeHint(ITransformContext ctx, Type? hint)
             => ctx.Data<Type?>().SetIn<TypeHint>(hint);
 
+        /// <summary>
+        /// Compiles the given expression using the provided context.
+        /// </summary>
+        /// <param name="expr">the <see cref="MathExpression"/> to compile</param>
+        /// <param name="ctx">the context to compile in</param>
+        /// <returns>the compiled <see cref="Expression"/></returns>
         public override Expression ApplyTo(MathExpression expr, ICompilationTransformContext<ICompileToLinqExpressionSettings> ctx)
         {
             if (!IsRootExpression(ctx))

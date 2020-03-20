@@ -6,9 +6,19 @@ using System.Text;
 
 namespace MathExpr.Compiler.Compilation.Builtins
 {
+    /// <summary>
+    /// A compiler for the Pow operator for arguments that are not <see cref="double"/> and <see cref="float"/>.
+    /// </summary>
     public class OtherNumericPowerCompiler : ISpecialBinaryOperationCompiler
     {
-
+        // TODO: incorporate hinting here
+        /// <summary>
+        /// Attempts to compile the operation with the given arguments.
+        /// </summary>
+        /// <param name="bas">the base of the operation</param>
+        /// <param name="exp">the exponent of the operation</param>
+        /// <param name="result">the result of the compilation</param>
+        /// <returns><see langword="true"/> if it was compiled, <see langword="false"/> otherwise.</returns>
         public bool TryCompile(Expression bas, Expression exp, out Expression result)
         {
             result = null!;
