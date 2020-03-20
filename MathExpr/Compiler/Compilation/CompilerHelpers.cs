@@ -9,6 +9,9 @@ using System.Runtime.InteropServices;
 
 namespace MathExpr.Compiler.Compilation
 {
+    /// <summary>
+    /// Helper functions for compilation.
+    /// </summary>
     public static class CompilerHelpers
     {
         private static void Assert(bool cond, string message, string arg)
@@ -16,11 +19,27 @@ namespace MathExpr.Compiler.Compilation
             if (!cond) throw new ArgumentException(message, arg);
         }
 
+        /// <summary>
+        /// Coerces the argument to a boolean, by effectively doing <c>arg != 0</c>.
+        /// </summary>
+        /// <param name="arg">the argument to coerce to a boolean type</param>
+        /// <returns>an <see cref="Expression"/> coerced to a booelan</returns>
         public static Expression AsBoolean(Expression arg)
         {
             if (arg.Type == typeof(bool)) return arg;
             return Expression.NotEqual(arg, ConstantOfType(arg.Type, 0));
         }
+        /// <summary>
+        /// Coerces a boolean expression to a numeric expression, optionally as an inverse.
+        /// </summary>
+        /// <remarks>
+        /// For the purposes of MathExpr, a value of zero is considered 'falsey', and anything nonzero
+        /// is 'truthy'.
+        /// </remarks>
+        /// <param name="arg">the boolean expression to convert</param>
+        /// <param name="type">the type to convert it to</param>
+        /// <param name="inverse">whether or not to reat it as an inverse</param>
+        /// <returns><paramref name="arg"/> as a numeric boolean.</returns>
         public static Expression BoolToNumBool(Expression arg, Type type, bool inverse = false)
         {
             Assert(arg.Type == typeof(bool), "Expression type must be boolean", nameof(arg));
@@ -29,9 +48,28 @@ namespace MathExpr.Compiler.Compilation
                     ConstantOfType(type, inverse ? 0 : 1),
                     ConstantOfType(type, inverse ? 1 : 0));
         }
+        /// <summary>
+        /// Coerces a numeric argument to either 1 or 0 representing <see langword="true"/> or <see langword="false"/>.
+        /// </summary>
+        /// <remarks>
+        /// This effectively calls <c><see cref="BoolToNumBool"/>(<see cref="AsBoolean"/>(<paramref name="arg"/>)</c>.
+        /// </remarks>
+        /// <param name="arg">the value to coerce to a numeric boolean value</param>
+        /// <param name="inverse">whether or not to invert the result</param>
+        /// <returns>the coerced value</returns>
         public static Expression CoerceNumBoolean(Expression arg, bool inverse = false)
             => BoolToNumBool(AsBoolean(arg), arg.Type, inverse);
-
+        /// <summary>
+        /// Emits a constant of the given type, if at all possible.
+        /// </summary>
+        /// <remarks>
+        /// First this tries to use <see cref="Convert.ChangeType(object?, Type)"/> and embed the result.
+        /// If that fails, it then embeds the passed value, and invokes <see cref="ConvertToType(Expression, Type)"/>
+        /// on it.
+        /// </remarks>
+        /// <param name="type">the type of the constant to emit</param>
+        /// <param name="val">the value to embed</param>
+        /// <returns>a constant expression of type <paramref name="type"/></returns>
         public static Expression ConstantOfType(Type type, object? val)
         {
             try
@@ -41,10 +79,21 @@ namespace MathExpr.Compiler.Compilation
             catch (InvalidCastException)
             {
                 // fallback to runtime conversion if possible
-                return Expression.Convert(Expression.Constant(val), type);
+                return ConvertToType(Expression.Constant(val), type);
             }
         }
-        
+        /// <summary>
+        /// Attempts to convert an expression to a particular type, using the shortest implicit and explicit conversion
+        /// path between them.
+        /// </summary>
+        /// <remarks>
+        /// Internally, this calls <see cref="FindConversionPathTo(Type, Type)"/> to determine the shortest path from
+        /// one type to another, then uses <see cref="Expression.Convert(Expression, Type)"/> in sequence to convert the
+        /// value.
+        /// </remarks>
+        /// <param name="expr">the expression to convert</param>
+        /// <param name="type">the type to convert it to</param>
+        /// <returns>the value after having gone through conversions</returns>
         public static Expression ConvertToType(Expression expr, Type type)
         {
             var path = FindConversionPathTo(expr.Type, type);
@@ -52,6 +101,12 @@ namespace MathExpr.Compiler.Compilation
             return path.Aggregate(expr, Expression.Convert);
         }
 
+        /// <summary>
+        /// Checks if the provided type is a primitive integral type.
+        /// </summary>
+        /// <param name="ty">the type to check</param>
+        /// <returns><see langword="true"/> if <paramref name="ty"/> is a primitive integral type, <see langword="false"/>
+        /// otherwise</returns>
         public static bool IsIntegral(Type ty)
             => ty.IsPrimitive
             && (ty == typeof(long)
@@ -62,10 +117,22 @@ namespace MathExpr.Compiler.Compilation
             || ty == typeof(ushort)
             || ty == typeof(byte)
             || ty == typeof(sbyte));
+        /// <summary>
+        /// Checks if the provided type is a built-in floating point type.
+        /// </summary>
+        /// <param name="ty">the type to check</param>
+        /// <returns><see langword="true"/> if <paramref name="ty"/> is <see cref="float"/>, <see cref="double"/>, or
+        /// <see cref="decimal"/>, and <see langword="false"/> otherwise</returns>
         public static bool IsFloating(Type ty)
             => ty == typeof(float)
             || ty == typeof(double)
             || ty == typeof(decimal);
+        /// <summary>
+        /// Checks if the provided type is a primitive signed integer type.
+        /// </summary>
+        /// <param name="ty">the type to check</param>
+        /// <returns><see langword="true"/> if <paramref name="ty"/> is a primitive signed integer type, 
+        /// <see langword="false"/> otherwise</returns>
         public static bool IsSigned(Type ty)
             => ty.IsPrimitive
             && (ty == typeof(long)
@@ -73,6 +140,12 @@ namespace MathExpr.Compiler.Compilation
             || ty == typeof(short)
             || ty == typeof(sbyte));
 
+        /// <summary>
+        /// Checks if there exists a conversion path from any type to any other type.
+        /// </summary>
+        /// <param name="from">the type to start from</param>
+        /// <param name="to">the type to end at</param>
+        /// <returns><see langword="true"/> if there is a conversion path, <see langword="false"/> otherwise.</returns>
         public static bool HasConversionPathTo(Type from, Type to) => FindConversionPathTo(from, to) != null;
 
         const BindingFlags OperatorFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.DeclaredOnly;
@@ -88,6 +161,16 @@ namespace MathExpr.Compiler.Compilation
         }
 
         private static readonly Dictionary<(Type from, Type to), Type[]?> ConversionPathCache = new Dictionary<(Type from, Type to), Type[]?>();
+        /// <summary>
+        /// Attempts to find a conversion path from any type to any other type.
+        /// </summary>
+        /// <remarks>
+        /// This function is cached, so only the first call with any given pair of types will run a full resolution.
+        /// </remarks>
+        /// <param name="from">the type to start from</param>
+        /// <param name="to">the type to end at</param>
+        /// <returns>an enumerable of types to cast to in order, excluding the starting type while including the ending type,
+        /// or <see langword="null"/> if there is no such path</returns>
         public static IEnumerable<Type>? FindConversionPathTo(Type from, Type to)
         {
             if (!ConversionPathCache.TryGetValue((from, to), out var path))
@@ -135,6 +218,21 @@ namespace MathExpr.Compiler.Compilation
         }
 
         private static readonly MethodInfo MarshalSizeOfMethod = Helpers.GetMethod<Action>(() => Marshal.SizeOf<int>())!.GetGenericMethodDefinition();
+        /// <summary>
+        /// Attempts to estimate the size and precision of a given type.
+        /// </summary>
+        /// <remarks>
+        /// For all of the types that there is a unique <see cref="TypeCode"/> for, this returns <c>sizeof(type)</c>.
+        /// For both <see cref="float"/> and <see cref="double"/>, that size is incremented by 1 to indicate higher precision
+        /// than the integers of the same size.
+        /// 
+        /// For all other value types, this returns the result of <see cref="Marshal.SizeOf{T}()"/> using <paramref name="type"/>
+        /// as the type parameter.
+        /// 
+        /// For all reference types, this returns <see cref="int.MaxValue"/>.
+        /// </remarks>
+        /// <param name="type">the type to estimate the size and precision of</param>
+        /// <returns>the estimated size</returns>
         public static int EstimateTypeSize(Type type)
         {
             switch (Type.GetTypeCode(type))
