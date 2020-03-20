@@ -16,6 +16,8 @@ namespace MathExpr.Compiler.Compilation.Passes
     /// </summary>
     public class BasicCompileToLinqExpressionPass : CompilationTransformPass<ICompileToLinqExpressionSettings>, ITypeHintHandler
     {
+        // TODO: completely redo the compiler-side architecture, because the fundamental extension point is now builtin implementations
+
         private sealed class HasParentWithRoot { }
         private sealed class TypeHint { }
 
@@ -79,6 +81,7 @@ namespace MathExpr.Compiler.Compilation.Passes
                 return result!;
             };
 
+        /// <inheritdoc/>
         public override Expression ApplyTo(Syntax.BinaryExpression expr, ICompilationTransformContext<ICompileToLinqExpressionSettings> ctx)
         {
             var args = expr.Arguments.Select(m =>
@@ -161,6 +164,7 @@ namespace MathExpr.Compiler.Compilation.Passes
                 _ => throw new InvalidOperationException("Invalid type of binary expression"),
             };
 
+        /// <inheritdoc/>
         public override Expression ApplyTo(Syntax.UnaryExpression expr, ICompilationTransformContext<ICompileToLinqExpressionSettings> ctx)
         {
             var arg = ApplyTo(expr.Argument, ctx);
@@ -177,6 +181,7 @@ namespace MathExpr.Compiler.Compilation.Passes
             };
         }
 
+        /// <inheritdoc/>
         public override Expression ApplyTo(Syntax.MemberExpression expr, ICompilationTransformContext<ICompileToLinqExpressionSettings> ctx)
         {
             var arg = ApplyTo(expr.Target, ctx);
@@ -191,6 +196,7 @@ namespace MathExpr.Compiler.Compilation.Passes
             throw new MemberAccessException($"Expression of type {type} does not have member '{name}'");
         }
 
+        /// <inheritdoc/>
         public override Expression ApplyTo(VariableExpression expr, ICompilationTransformContext<ICompileToLinqExpressionSettings> ctx)
         {
             if (ctx.Settings.ParameterMap.TryGetValue(expr, out var param))
@@ -210,6 +216,7 @@ namespace MathExpr.Compiler.Compilation.Passes
             return outExpr;
         }
 
+        /// <inheritdoc/>
         public override Expression ApplyTo(FunctionExpression expr, ICompilationTransformContext<ICompileToLinqExpressionSettings> ctx)
         {
             if (expr.IsPrime)
@@ -218,16 +225,18 @@ namespace MathExpr.Compiler.Compilation.Passes
             var name = expr.Name;
             var args = expr.Arguments;
 
-            if (ctx.Settings.BuiltinFunctions.TryGetValue((name, args.Count), out var builtin))
+            if (ctx.Settings.BuiltinFunctions.TryGetValue(name, out var impls))
             {
-                if (!builtin.TryCompile(args, ctx, this, out var outexpr))
-                    throw new InvalidOperationException($"Function '{name}' coult not compile with the given arguments");
-                return outexpr;
+                foreach (var impl in impls)
+                    if (impl.TryCompile(args, ctx, this, out var outexpr))
+                        return outexpr;
+                throw new InvalidOperationException($"Function '{name}' coult not compile with the given arguments");
             }
             else
                 throw new InvalidOperationException($"Builtin function named '{name}' with {args.Count} arguments does not exist");
         }
 
+        /// <inheritdoc/>
         public override Expression ApplyTo(LiteralExpression expr, ICompilationTransformContext<ICompileToLinqExpressionSettings> ctx)
         {
             var val = expr.Value;
@@ -255,6 +264,7 @@ namespace MathExpr.Compiler.Compilation.Passes
             return Expression.Constant(expr.Value);
         }
 
+        /// <inheritdoc/>
         public override Expression ApplyTo(CustomDefinitionExpression expr, ICompilationTransformContext<ICompileToLinqExpressionSettings> ctx)
         {
             throw new InvalidOperationException("Default compiler does not support un-inlined user functions");

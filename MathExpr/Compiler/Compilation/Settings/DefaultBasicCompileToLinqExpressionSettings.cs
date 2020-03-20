@@ -9,25 +9,37 @@ using System.Text;
 
 namespace MathExpr.Compiler.Compilation.Settings
 {
+    /// <summary>
+    /// A default implementation of <see cref="ICompileToLinqExpressionSettings"/>
+    /// </summary>
     public class DefaultBasicCompileToLinqExpressionSettings : ICompileToLinqExpressionSettings
     {
+        /// <inheritdoc/>
         public Type ExpectReturn { get; set; } = typeof(decimal);
 
+        /// <inheritdoc/>
         public IDictionary<VariableExpression, ParameterExpression> ParameterMap { get; } = new Dictionary<VariableExpression, ParameterExpression>();
 
-        public IDictionary<(string name, int argcount), IBuiltinFunction<ICompileToLinqExpressionSettings>> BuiltinFunctions { get; }
-            = new Dictionary<(string name, int argcount), IBuiltinFunction<ICompileToLinqExpressionSettings>>();
-
+        /// <inheritdoc/>
+        public IDictionary<string, IList<IBuiltinFunction<ICompileToLinqExpressionSettings>>> BuiltinFunctions { get; }
+            = new Dictionary<string, IList<IBuiltinFunction<ICompileToLinqExpressionSettings>>>();
+        
+        /// <summary>
+        /// Initializes a default configuration.
+        /// </summary>
         public DefaultBasicCompileToLinqExpressionSettings()
         {
             this.AddBuiltin().OfType<BuiltinFunctionIf>();
         }
 
         #region Domain Restrictions
+        /// <inheritdoc/>
         public bool IgnoreDomainRestrictions { get; set; } = false;
 
+        /// <inheritdoc/>
         public bool AllowDomainChangingOptimizations { get; set; } = true;
 
+        /// <inheritdoc/>
         public IList<MathExpression> DomainRestrictions { get; } = new List<MathExpression>();
         #endregion
 
@@ -41,6 +53,7 @@ namespace MathExpr.Compiler.Compilation.Settings
         private static Expression TypedFloatingFactorialCompiler<T>(Expression arg)
             => Expression.ConvertChecked(Expression.Call(DecimalFactorialMethod, Expression.ConvertChecked(arg, typeof(decimal))), typeof(T));
 
+        /// <inheritdoc/>
         public IDictionary<Type, TypedFactorialCompiler> TypedFactorialCompilers { get; }
             = new Dictionary<Type, TypedFactorialCompiler>
             {
@@ -60,6 +73,7 @@ namespace MathExpr.Compiler.Compilation.Settings
         #endregion
 
         #region Exponent Compilers
+        /// <inheritdoc/>
         public IList<ISpecialBinaryOperationCompiler> PowerCompilers { get; set; }
             = new List<ISpecialBinaryOperationCompiler>
             {
