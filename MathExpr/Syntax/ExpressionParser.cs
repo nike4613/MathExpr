@@ -218,11 +218,23 @@ namespace MathExpr.Syntax
         }
     }
 
+    /// <summary>
+    /// An exception thrown when the parser fails to parse the input for any reason.
+    /// </summary>
     public class SyntaxException : Exception
     {
-        public Token Token { get; }
+        /// <summary>
+        /// The token that caused the error, if any.
+        /// </summary>
+        public Token? Token { get; }
 
-        public SyntaxException(Token token, string message) : base($"{message} at token {token} at {token.Position}:{token.Length}")
+        /// <summary>
+        /// Constructs a new instance of the exception with a token and a message.
+        /// </summary>
+        /// <param name="token">the token that caused the error, if any</param>
+        /// <param name="message">the message relating to the error</param>
+        public SyntaxException(Token? token, string message) 
+            : base(message + (token == null ? "" : $" at token {token.Value} at {token.Value.Position}:{token.Value.Length}"))
         {
             Token = token;
         }
