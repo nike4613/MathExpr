@@ -47,7 +47,7 @@ namespace MathExpr.Syntax
                 var right = ReadDefinition();
                 try
                 {
-                    return new CustomDefinitionExpression(left, right);
+                    return new CustomDefinitionExpression((BinaryExpression)left, right);
                 }
                 catch (ArgumentException e)
                 {
