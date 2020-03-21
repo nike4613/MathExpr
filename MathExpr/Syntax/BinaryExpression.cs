@@ -23,6 +23,7 @@ namespace MathExpr.Syntax
         [SuppressMessage("Documentation", "CS1591", Justification = "The names are self-explanatory.")]
         public enum ExpressionType
         {
+#pragma warning disable 1591 // Missing XML comment for publicly visible type or member
             Add, Subtract, Multiply, Divide, Modulo, Power,
             [Boolean] And, [Boolean] NAnd, 
             [Boolean] Or, [Boolean] NOr, 
@@ -30,8 +31,9 @@ namespace MathExpr.Syntax
             [Comparison] Equals, [Comparison] Inequals, 
             [Comparison] Less, [Comparison] LessEq,
             [Comparison] Greater, [Comparison] GreaterEq,
+#pragma warning restore 1591 // Missing XML comment for publicly visible type or member
         }
-        
+
         /// <summary>
         /// The type of this expression.
         /// </summary>

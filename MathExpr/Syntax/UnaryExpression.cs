@@ -17,7 +17,9 @@ namespace MathExpr.Syntax
         [SuppressMessage("Documentation", "CS1591", Justification = "The names are self-explanatory.")]
         public enum ExpressionType
         {
+#pragma warning disable 1591 // Missing XML comment for publicly visible type or member
             Negate, Not, Factorial
+#pragma warning restore 1591 // Missing XML comment for publicly visible type or member
         }
 
         /// <summary>

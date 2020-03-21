@@ -21,6 +21,7 @@ namespace MathExpr.Syntax
     [SuppressMessage("Documentation", "CS1591", Justification = "The names are self-explanatory.")]
     public enum TokenType
     {
+#pragma warning disable 1591 // Missing XML comment for publicly visible type or member
         [TokenDesc(@"[A-Za-z_]([A-Za-z_]|\d)*")] Identifier,
         [TokenDesc(@"\d+(\.\d+)?")] Literal,
         [TokenDesc("(")]            OpenParen,
@@ -49,6 +50,7 @@ namespace MathExpr.Syntax
         [TokenDesc("'")]            Prime,
         [TokenDesc(";")]            Semicolon,
         [TokenDesc(".")]            Period,
+#pragma warning restore 1591 // Missing XML comment for publicly visible type or member
 
         /// <summary>
         /// A token type that is emitted only when there is a parser error.
