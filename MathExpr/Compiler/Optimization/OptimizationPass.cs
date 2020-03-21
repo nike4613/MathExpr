@@ -65,20 +65,25 @@ namespace MathExpr.Compiler.Optimization
 
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
         public virtual MathExpression ApplyTo(BinaryExpression expr, IOptimizationContext<TSettings> ctx, out bool transformResult)
-            => SequenceExpressions(transformResult = true, new BinaryExpression(expr.Type, expr.Arguments.Select(e => ApplyTo(e, ctx)).ToList()));
+            => SequenceExpressions(transformResult = true, new BinaryExpression(expr.Type, expr.Arguments.Select(e => ApplyTo(e, ctx)).ToList()))
+                .WithToken(expr.Token);
         public virtual MathExpression ApplyTo(UnaryExpression expr, IOptimizationContext<TSettings> ctx, out bool transformResult)
-            => SequenceExpressions(transformResult = true, new UnaryExpression(expr.Type, ApplyTo(expr.Argument, ctx)));
+            => SequenceExpressions(transformResult = true, new UnaryExpression(expr.Type, ApplyTo(expr.Argument, ctx)))
+                .WithToken(expr.Token);
         public virtual MathExpression ApplyTo(MemberExpression expr, IOptimizationContext<TSettings> ctx, out bool transformResult)
-            => SequenceExpressions(transformResult = true, new MemberExpression(ApplyTo(expr.Target, ctx), expr.MemberName));
+            => SequenceExpressions(transformResult = true, new MemberExpression(ApplyTo(expr.Target, ctx), expr.MemberName))
+                .WithToken(expr.Token);
         public virtual MathExpression ApplyTo(VariableExpression expr, IOptimizationContext<TSettings> ctx, out bool transformResult) 
             => SequenceExpressions(transformResult = true, expr);
         public virtual MathExpression ApplyTo(FunctionExpression expr, IOptimizationContext<TSettings> ctx, out bool transformResult)
-            => SequenceExpressions(transformResult = true, new FunctionExpression(expr.Name, expr.Arguments.Select(e => ApplyTo(e, ctx)).ToList(), expr.IsUserDefined));
+            => SequenceExpressions(transformResult = true, new FunctionExpression(expr.Name, expr.Arguments.Select(e => ApplyTo(e, ctx)).ToList(), expr.IsUserDefined))
+                .WithToken(expr.Token);
         public virtual MathExpression ApplyTo(LiteralExpression expr, IOptimizationContext<TSettings> ctx, out bool transformResult) 
             => SequenceExpressions(transformResult = true, expr);
         public virtual MathExpression ApplyTo(CustomDefinitionExpression expr, IOptimizationContext<TSettings> ctx, out bool transformResult)
             => SequenceExpressions(transformResult = true, 
-                new CustomDefinitionExpression(expr.FunctionName, expr.ArgumentList, ApplyTo(expr.Definition, ctx), ApplyTo(expr.Value, ctx)));
+                new CustomDefinitionExpression(expr.FunctionName, expr.ArgumentList, ApplyTo(expr.Definition, ctx), ApplyTo(expr.Value, ctx)))
+                .WithToken(expr.Token);
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
     }
 }

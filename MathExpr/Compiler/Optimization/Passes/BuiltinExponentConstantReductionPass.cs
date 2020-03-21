@@ -25,9 +25,9 @@ namespace MathExpr.Compiler.Optimization.Passes
                     {
                         transformResult = true;
                         if (expr.Name == FunctionExpression.ExpName)
-                            return new LiteralExpression(DecimalMath.Exp(lit.Value));
+                            return new LiteralExpression(DecimalMath.Exp(lit.Value)).WithToken(expr.Token);
                         if (expr.Name == FunctionExpression.LnName)
-                            return new LiteralExpression(DecimalMath.Ln(lit.Value));
+                            return new LiteralExpression(DecimalMath.Ln(lit.Value)).WithToken(expr.Token);
                     }
                 }
             }

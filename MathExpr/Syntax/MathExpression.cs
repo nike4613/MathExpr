@@ -20,6 +20,12 @@ namespace MathExpr.Syntax
         public static MathExpression Parse(string expr)
             => ExpressionParser.ParseRoot(expr);
 
+        private Token? identificationToken;
+        /// <summary>
+        /// Gets a token that can be used to identify where in the source this expression exists.
+        /// </summary>
+        public virtual Token? Token => identificationToken;
+
         /// <summary>
         /// The size of the expression. This is roughly the number of operations it contains
         /// </summary>
@@ -44,5 +50,27 @@ namespace MathExpr.Syntax
         /// <inheritdoc/>
         public override bool Equals(object? obj)
             => obj is MathExpression e && Equals(e);
+
+        internal virtual void WithTokenInternal(Token? tok)
+            => identificationToken = tok;
+    }
+
+    /// <summary>
+    /// Extension methods for <see cref="MathExpression"/>s.
+    /// </summary>
+    public static class MathExpressionExtensions
+    {
+        /// <summary>
+        /// Associates a token with an expression in a way that is non-intrusive to implementations.
+        /// </summary>
+        /// <typeparam name="T">the type of the expression</typeparam>
+        /// <param name="expr">the expression to associate with</param>
+        /// <param name="tok">the token to associate</param>
+        /// <returns><paramref name="expr"/></returns>
+        public static T WithToken<T>(this T expr, Token? tok) where T : MathExpression
+        {
+            expr.WithTokenInternal(tok);
+            return expr;
+        }
     }
 }

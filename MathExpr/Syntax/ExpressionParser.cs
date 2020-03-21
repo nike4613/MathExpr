@@ -44,10 +44,12 @@ namespace MathExpr.Syntax
             var left = ReadLogicExpr();
             if (TryConsumeToken(TokenType.Semicolon, out var tok))
             {
+                if (!(left is BinaryExpression bleft))
+                    throw new SyntaxException(left.Token, $"Left hand of semicolon must be a custom function definition");
                 var right = ReadDefinition();
                 try
                 {
-                    return new CustomDefinitionExpression((BinaryExpression)left, right);
+                    return new CustomDefinitionExpression(bleft, right).WithToken(left.Token);
                 }
                 catch (ArgumentException e)
                 {
@@ -73,7 +75,7 @@ namespace MathExpr.Syntax
                     TokenType.Xor => BinaryExpression.ExpressionType.Xor,
                     TokenType.XNor => BinaryExpression.ExpressionType.XNor,
                     _ => throw new SyntaxException(tok, "Unexpected token type")
-                });
+                }).WithToken(tok);
             }
             return left;
         }
@@ -94,7 +96,7 @@ namespace MathExpr.Syntax
                     TokenType.LessEq => BinaryExpression.ExpressionType.LessEq,
                     TokenType.GreaterEq => BinaryExpression.ExpressionType.GreaterEq,
                     _ => throw new SyntaxException(tok, "Unexpected token type")
-                });
+                }).WithToken(tok);
             }
             return left;
         }
@@ -109,7 +111,7 @@ namespace MathExpr.Syntax
                     TokenType.Plus => BinaryExpression.ExpressionType.Add,
                     TokenType.Minus => BinaryExpression.ExpressionType.Subtract,
                     _ => throw new SyntaxException(tok, "Unexpected token type")
-                });
+                }).WithToken(tok);
             }
             return left;
         }
@@ -126,7 +128,7 @@ namespace MathExpr.Syntax
                     TokenType.Slash => BinaryExpression.ExpressionType.Divide,
                     TokenType.Percent => BinaryExpression.ExpressionType.Modulo,
                     _ => throw new SyntaxException(tok, "Unexpected token type")
-                });
+                }).WithToken(tok);
             }
             return left;
         }
@@ -134,10 +136,10 @@ namespace MathExpr.Syntax
         private MathExpression ReadExponentExpr()
         {
             var left = ReadNegateNotExpr();
-            while (TryConsumeToken(TokenType.Exponent, out _))
+            while (TryConsumeToken(TokenType.Exponent, out var tok))
             {
                 var right = ReadNegateNotExpr();
-                left = new BinaryExpression(left, right, BinaryExpression.ExpressionType.Power);
+                left = new BinaryExpression(left, right, BinaryExpression.ExpressionType.Power).WithToken(tok);
             }
             return left;
         }
@@ -150,26 +152,26 @@ namespace MathExpr.Syntax
                     TokenType.Not => UnaryExpression.ExpressionType.Not,
                     TokenType.Minus => UnaryExpression.ExpressionType.Negate,
                     _ => throw new SyntaxException(tok, "Unexpected token type")
-                }, ReadFactorialExpr());
+                }, ReadFactorialExpr()).WithToken(tok);
             else return ReadFactorialExpr();
         }
 
         private MathExpression ReadFactorialExpr()
         {
             var arg = ReadMemberExpr();
-            while (TryConsumeToken(TokenType.Factorial, out _))
-                arg = new UnaryExpression(UnaryExpression.ExpressionType.Factorial, arg);
+            while (TryConsumeToken(TokenType.Factorial, out var tok))
+                arg = new UnaryExpression(UnaryExpression.ExpressionType.Factorial, arg).WithToken(tok);
             return arg;
         }
 
         private MathExpression ReadMemberExpr()
         {
             var left = ReadParenExpr();
-            while (TryConsumeToken(TokenType.Period, out _))
+            while (TryConsumeToken(TokenType.Period, out var dotTok))
             {
                 if (!TryConsumeToken(TokenType.Identifier, out var tok))
                     throw new SyntaxException(tok, "Expected Identifier");
-                left = new MemberExpression(left, tok.AsString!);
+                left = new MemberExpression(left, tok.AsString!).WithToken(dotTok);
             }
             return left;
         }
@@ -190,14 +192,14 @@ namespace MathExpr.Syntax
         private MathExpression ReadVarFuncLitExpr()
         {
             if (TryConsumeToken(TokenType.Literal, out var tok))
-                return new LiteralExpression(tok.AsDecimal!.Value);
+                return new LiteralExpression(tok.AsDecimal!.Value).WithToken(tok);
             else if (TryConsumeToken(TokenType.Identifier, out tok))
             {
                 if (TryConsumeToken(TokenType.Prime, out _)) // a prime function
-                    return new FunctionExpression(tok.AsString!, ReadCallParamList().ToList(), true);
+                    return new FunctionExpression(tok.AsString!, ReadCallParamList().ToList(), true).WithToken(tok);
                 else if (CheckNextToken(TokenType.OpenParen, out _)) // a normal function
-                    return new FunctionExpression(tok.AsString!, ReadCallParamList().ToList(), false);
-                else return new VariableExpression(tok.AsString!);
+                    return new FunctionExpression(tok.AsString!, ReadCallParamList().ToList(), false).WithToken(tok);
+                else return new VariableExpression(tok.AsString!).WithToken(tok);
             }
             else
                 throw new SyntaxException(tok, "Unexpected token");

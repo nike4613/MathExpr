@@ -28,7 +28,7 @@ namespace MathExpr.Compiler.Optimization.Passes
                 var value = ApplyTo(expr.Value, ctx);
                 transformResult = false; // because the resulting value has already been fully transformed
                 if (definedFunctions[expr.FunctionName].hasNotInlinedUses)
-                    return new CustomDefinitionExpression(expr.FunctionName, expr.ArgumentList, expr.Definition, value);
+                    return new CustomDefinitionExpression(expr.FunctionName, expr.ArgumentList, expr.Definition, value).WithToken(expr.Token);
                 else
                     return value;
             }

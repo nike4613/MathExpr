@@ -23,7 +23,7 @@ namespace MathExpr.Compiler.Optimization.Passes
                     {
                         transformResult = false; // because we will have already applied to our target
                         //  transform into call to `exp` function, then apply to that
-                        return ApplyTo(new FunctionExpression(FunctionExpression.ExpName, new[] { ApplyTo(expr.Right, ctx) }.ToList(), false), ctx);
+                        return ApplyTo(new FunctionExpression(FunctionExpression.ExpName, new[] { ApplyTo(expr.Right, ctx) }.ToList(), false).WithToken(expr.Token), ctx);
                     }
                     break;
             }

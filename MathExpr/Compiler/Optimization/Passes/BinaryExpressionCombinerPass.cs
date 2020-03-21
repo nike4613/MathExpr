@@ -40,7 +40,7 @@ namespace MathExpr.Compiler.Optimization.Passes
                         break;
                 }
             }
-            return new BinaryExpression(expr.Type, list);
+            return new BinaryExpression(expr.Type, list).WithToken(expr.Token);
         }
     }
 }

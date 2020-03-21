@@ -47,10 +47,10 @@ namespace MathExpr.Compiler.Optimization.Passes
                 });
                 foreach (var e in arr)
                     list.Remove(e);
-                list.Add(new LiteralExpression(sum));
+                list.Add(new LiteralExpression(sum).WithToken(expr.Token));
             }
             if (list.Count < 2) return list.First();
-            return new BinaryExpression(expr.Type, list);
+            return new BinaryExpression(expr.Type, list).WithToken(expr.Token);
         }
         /// <inheritdoc/>
         public override MathExpression ApplyTo(UnaryExpression expr, IOptimizationContext<object?> ctx, out bool transformResult)
@@ -62,13 +62,13 @@ namespace MathExpr.Compiler.Optimization.Passes
                 switch (expr.Type)
                 {
                     case UnaryExpression.ExpressionType.Negate:
-                        return new LiteralExpression(-l.Value);
+                        return new LiteralExpression(-l.Value).WithToken(expr.Token);
                     case UnaryExpression.ExpressionType.Not:
-                        return new LiteralExpression(l.Value != 0 ? 0 : 1);
+                        return new LiteralExpression(l.Value != 0 ? 0 : 1).WithToken(expr.Token);
                     case UnaryExpression.ExpressionType.Factorial:
                         try
                         {
-                            return new LiteralExpression(DecimalMath.Factorial(l.Value));
+                            return new LiteralExpression(DecimalMath.Factorial(l.Value)).WithToken(expr.Token);
                         }
                         catch (InvalidOperationException)
                         {
@@ -83,7 +83,7 @@ namespace MathExpr.Compiler.Optimization.Passes
                 }
             }
 
-            return new UnaryExpression(expr.Type, arg);
+            return new UnaryExpression(expr.Type, arg).WithToken(expr.Token);
         }
     }
 }
