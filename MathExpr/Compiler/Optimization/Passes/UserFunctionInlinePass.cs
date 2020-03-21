@@ -7,12 +7,16 @@ using System.Text;
 
 namespace MathExpr.Compiler.Optimization.Passes
 {
+    /// <summary>
+    /// An optimization that inlines user functions at their callsites.
+    /// </summary>
     public class UserFunctionInlinePass : OptimizationPass<IFunctionInlineSettings>
     {
         // name -> function info
         private Dictionary<string, (CustomDefinitionExpression func, bool hasNotInlinedUses)> GetDefinedFunctions(IOptimizationContext<IFunctionInlineSettings> ctx)
             => ctx.Data<Dictionary<string, (CustomDefinitionExpression func, bool hasNotInlinedUses)>>().GetOrCreateIn(ctx.Settings);
 
+        /// <inheritdoc/>
         public override MathExpression ApplyTo(CustomDefinitionExpression expr, IOptimizationContext<IFunctionInlineSettings> ctx, out bool transformResult)
         {
             if (ctx.Settings.ShouldInline && expr.DefinitionSize <= ctx.Settings.DoNotInlineAfterSize)
@@ -35,6 +39,7 @@ namespace MathExpr.Compiler.Optimization.Passes
         private Dictionary<VariableExpression, MathExpression> GetVariableSubstitutions(IOptimizationContext<IFunctionInlineSettings> ctx)
             => ctx.Data<Dictionary<VariableExpression, MathExpression>>().GetOrCreateIn(this);
 
+        /// <inheritdoc/>
         public override MathExpression ApplyTo(FunctionExpression expr, IOptimizationContext<IFunctionInlineSettings> ctx, out bool transformResult)
         {
             if (expr.IsPrime)
@@ -63,6 +68,7 @@ namespace MathExpr.Compiler.Optimization.Passes
             return base.ApplyTo(expr, ctx, out transformResult);
         }
 
+        /// <inheritdoc/>
         public override MathExpression ApplyTo(VariableExpression expr, IOptimizationContext<IFunctionInlineSettings> ctx, out bool transformResult)
         {
             var variableSubs = GetVariableSubstitutions(ctx);

@@ -8,8 +8,12 @@ using System.Text;
 
 namespace MathExpr.Compiler.Optimization.Passes
 {
+    /// <summary>
+    /// An optimization pass that reduces expressions of the form <c>exp(ln(x))</c> into <c>x</c> with a domain  restriction.
+    /// </summary>
     public class BuiltinExponentSimplificationPass : OptimizationPass<IDomainRestrictionSettings>
     {
+        /// <inheritdoc/>
         public override MathExpression ApplyTo(BinaryExpression expr, IOptimizationContext<IDomainRestrictionSettings> ctx, out bool transformResult)
         {
             switch (expr.Type)
@@ -25,6 +29,7 @@ namespace MathExpr.Compiler.Optimization.Passes
             }
             return base.ApplyTo(expr, ctx, out transformResult);
         }
+        /// <inheritdoc/>
         public override MathExpression ApplyTo(FunctionExpression f, IOptimizationContext<IDomainRestrictionSettings> ctx, out bool transformResult)
         {
             if (!f.IsPrime && f.Name == FunctionExpression.ExpName)
@@ -37,7 +42,7 @@ namespace MathExpr.Compiler.Optimization.Passes
                         if (fn.Arguments.Count == 1 && ctx.Settings.AllowDomainChangingOptimizations)
                         {
                             var ln = fn.Arguments.First();
-                            ctx.Settings.DomainRestrictions.Add(new BinaryExpression(ln, BinaryExpression.ExpressionType.LessEq, new LiteralExpression(0)));
+                            ctx.Settings.DomainRestrictions.Add(new BinaryExpression(ln, new LiteralExpression(0), BinaryExpression.ExpressionType.LessEq));
                             transformResult = false; //because we will have already applied to it
                             return ApplyTo(ln, ctx); // apply to the argument, transform to that
                         }

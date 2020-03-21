@@ -35,8 +35,8 @@ namespace MathExprTests
             new object[] { ExpressionParser.ParseRoot("a - b - c"), new BinaryExpression(
                     new BinaryExpression(BinaryExpression.ExpressionType.Subtract,
                         new [] { new VariableExpression("a"), new VariableExpression("b") }),
-                    BinaryExpression.ExpressionType.Subtract,
-                    new VariableExpression("c")) },
+                    new VariableExpression("c"),
+                    BinaryExpression.ExpressionType.Subtract) },
         };
 
         [Theory]

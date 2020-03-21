@@ -8,8 +8,12 @@ using System.Text;
 
 namespace MathExpr.Compiler.Optimization.Passes
 {
+    /// <summary>
+    /// An optimization pass that precomputes the value of some constant operation.
+    /// </summary>
     public class LiteralCombinerPass : OptimizationPass
     {
+        /// <inheritdoc/>
         public override MathExpression ApplyTo(BinaryExpression expr, IOptimizationContext<object?> ctx, out bool transformResult)
         {
             transformResult = true;
@@ -48,6 +52,7 @@ namespace MathExpr.Compiler.Optimization.Passes
             if (list.Count < 2) return list.First();
             return new BinaryExpression(expr.Type, list);
         }
+        /// <inheritdoc/>
         public override MathExpression ApplyTo(UnaryExpression expr, IOptimizationContext<object?> ctx, out bool transformResult)
         {
             transformResult = true;

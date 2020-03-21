@@ -8,8 +8,12 @@ using System.Text;
 
 namespace MathExpr.Compiler.Optimization.Passes
 {
+    /// <summary>
+    /// An optimization pass that precomputes the value of a constant expression of the form <c>exp(c)</c> or <c>ln(c)</c>.
+    /// </summary>
     public class BuiltinExponentConstantReductionPass : OptimizationPass<object?>
     {
+        /// <inheritdoc/>
         public override MathExpression ApplyTo(FunctionExpression expr, IOptimizationContext<object?> ctx, out bool transformResult)
         {
             if (!expr.IsPrime && (expr.Name == FunctionExpression.ExpName || expr.Name == FunctionExpression.LnName))

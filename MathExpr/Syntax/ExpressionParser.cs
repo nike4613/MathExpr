@@ -64,7 +64,7 @@ namespace MathExpr.Syntax
                 || TryConsumeToken(TokenType.Or, out tok) || TryConsumeToken(TokenType.NOr, out tok)
                 || TryConsumeToken(TokenType.Xor, out tok) || TryConsumeToken(TokenType.XNor, out tok))
             {
-                left = new BinaryExpression(left, tok.Type switch
+                left = new BinaryExpression(left, ReadCompareExpr(), tok.Type switch
                 {
                     TokenType.And => BinaryExpression.ExpressionType.And,
                     TokenType.NAnd => BinaryExpression.ExpressionType.NAnd,
@@ -73,7 +73,7 @@ namespace MathExpr.Syntax
                     TokenType.Xor => BinaryExpression.ExpressionType.Xor,
                     TokenType.XNor => BinaryExpression.ExpressionType.XNor,
                     _ => throw new SyntaxException(tok, "Unexpected token type")
-                }, ReadCompareExpr());
+                });
             }
             return left;
         }
@@ -85,7 +85,7 @@ namespace MathExpr.Syntax
                 || TryConsumeToken(TokenType.Less, out tok) || TryConsumeToken(TokenType.Greater, out tok)
                 || TryConsumeToken(TokenType.LessEq, out tok) || TryConsumeToken(TokenType.GreaterEq, out tok))
             {
-                left = new BinaryExpression(left, tok.Type switch
+                left = new BinaryExpression(left, ReadAddSubExpr(), tok.Type switch
                 {
                     TokenType.Equals => BinaryExpression.ExpressionType.Equals,
                     TokenType.Inequals => BinaryExpression.ExpressionType.Inequals,
@@ -94,7 +94,7 @@ namespace MathExpr.Syntax
                     TokenType.LessEq => BinaryExpression.ExpressionType.LessEq,
                     TokenType.GreaterEq => BinaryExpression.ExpressionType.GreaterEq,
                     _ => throw new SyntaxException(tok, "Unexpected token type")
-                }, ReadAddSubExpr());
+                });
             }
             return left;
         }
@@ -104,12 +104,12 @@ namespace MathExpr.Syntax
             var left = ReadMulDivExpr();
             while (TryConsumeToken(TokenType.Plus, out var tok) || TryConsumeToken(TokenType.Minus, out tok))
             {
-                left = new BinaryExpression(left, tok.Type switch
+                left = new BinaryExpression(left, ReadMulDivExpr(), tok.Type switch
                 {
                     TokenType.Plus => BinaryExpression.ExpressionType.Add,
                     TokenType.Minus => BinaryExpression.ExpressionType.Subtract,
                     _ => throw new SyntaxException(tok, "Unexpected token type")
-                }, ReadMulDivExpr());
+                });
             }
             return left;
         }
@@ -120,13 +120,13 @@ namespace MathExpr.Syntax
             while (TryConsumeToken(TokenType.Star, out var tok) || TryConsumeToken(TokenType.Slash, out tok)
                 || TryConsumeToken(TokenType.Percent, out tok))
             {
-                left = new BinaryExpression(left, tok.Type switch
+                left = new BinaryExpression(left, ReadExponentExpr(), tok.Type switch
                 {
                     TokenType.Star => BinaryExpression.ExpressionType.Multiply,
                     TokenType.Slash => BinaryExpression.ExpressionType.Divide,
                     TokenType.Percent => BinaryExpression.ExpressionType.Modulo,
                     _ => throw new SyntaxException(tok, "Unexpected token type")
-                }, ReadExponentExpr());
+                });
             }
             return left;
         }
@@ -137,7 +137,7 @@ namespace MathExpr.Syntax
             while (TryConsumeToken(TokenType.Exponent, out _))
             {
                 var right = ReadNegateNotExpr();
-                left = new BinaryExpression(left, BinaryExpression.ExpressionType.Power, right);
+                left = new BinaryExpression(left, right, BinaryExpression.ExpressionType.Power);
             }
             return left;
         }

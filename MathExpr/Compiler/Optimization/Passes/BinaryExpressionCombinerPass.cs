@@ -8,8 +8,12 @@ using static MathExpr.Syntax.BinaryExpression;
 
 namespace MathExpr.Compiler.Optimization.Passes
 {
+    /// <summary>
+    /// An optimization pass that combines commutative binary operations into a single <see cref="BinaryExpression"/> object.
+    /// </summary>
     public class BinaryExpressionCombinerPass : OptimizationPass<ICommutativitySettings>
     {
+        /// <inheritdoc/>
         public override MathExpression ApplyTo(BinaryExpression expr, IOptimizationContext<ICommutativitySettings> ctx, out bool transformResult)
         {
             transformResult = true;
