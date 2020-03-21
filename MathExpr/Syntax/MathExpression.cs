@@ -31,14 +31,14 @@ namespace MathExpr.Syntax
         /// <returns><see langword="true"/> if the two are equal, <see langword="false"/> otherwise</returns>
         public abstract bool Equals(MathExpression other);
         /// <summary>
-        /// Returns a string representation of the operation.
-        /// </summary>
-        /// <returns>a string representation of the operation</returns>
-        public abstract override int GetHashCode();
-        /// <summary>
         /// Gets a hashcode that represents this expression.
         /// </summary>
         /// <returns>a hash code</returns>
+        public abstract override int GetHashCode();
+        /// <summary>
+        /// Returns a string representation of the operation.
+        /// </summary>
+        /// <returns>a string representation of the operation</returns>
         public abstract override string ToString();
 
         /// <inheritdoc/>
