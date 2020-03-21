@@ -219,7 +219,7 @@ namespace MathExpr.Compiler.Compilation.Passes
         /// <inheritdoc/>
         public override Expression ApplyTo(FunctionExpression expr, ICompilationTransformContext<ICompileToLinqExpressionSettings> ctx)
         {
-            if (expr.IsPrime)
+            if (expr.IsUserDefined)
                 throw new InvalidOperationException("Default compiler does not support un-inlined user functions");
 
             var name = expr.Name;

@@ -42,7 +42,7 @@ namespace MathExpr.Compiler.Optimization.Passes
         /// <inheritdoc/>
         public override MathExpression ApplyTo(FunctionExpression expr, IOptimizationContext<IFunctionInlineSettings> ctx, out bool transformResult)
         {
-            if (expr.IsPrime)
+            if (expr.IsUserDefined)
             {
                 var definedFunctions = GetDefinedFunctions(ctx);
 

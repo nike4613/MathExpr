@@ -48,7 +48,7 @@ namespace MathExpr.Syntax
             if (!(assignExpr is BinaryExpression bexp) || bexp.Type != BinaryExpression.ExpressionType.Equals)
                 throw new ArgumentException("Expected Equals expression");
             var fn = bexp.Left;
-            if (!(fn is FunctionExpression func) || !func.IsPrime)
+            if (!(fn is FunctionExpression func) || !func.IsUserDefined)
                 throw new ArgumentException("Left side of definition must be a prime function");
             if (!func.Arguments.All(e => e is VariableExpression))
                 throw new ArgumentException("Left side of definition cannot contain arguments with expressions");

@@ -73,7 +73,7 @@ namespace MathExpr.Compiler.Optimization
         public virtual MathExpression ApplyTo(VariableExpression expr, IOptimizationContext<TSettings> ctx, out bool transformResult) 
             => SequenceExpressions(transformResult = true, expr);
         public virtual MathExpression ApplyTo(FunctionExpression expr, IOptimizationContext<TSettings> ctx, out bool transformResult)
-            => SequenceExpressions(transformResult = true, new FunctionExpression(expr.Name, expr.Arguments.Select(e => ApplyTo(e, ctx)).ToList(), expr.IsPrime));
+            => SequenceExpressions(transformResult = true, new FunctionExpression(expr.Name, expr.Arguments.Select(e => ApplyTo(e, ctx)).ToList(), expr.IsUserDefined));
         public virtual MathExpression ApplyTo(LiteralExpression expr, IOptimizationContext<TSettings> ctx, out bool transformResult) 
             => SequenceExpressions(transformResult = true, expr);
         public virtual MathExpression ApplyTo(CustomDefinitionExpression expr, IOptimizationContext<TSettings> ctx, out bool transformResult)

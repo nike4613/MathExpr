@@ -32,12 +32,12 @@ namespace MathExpr.Compiler.Optimization.Passes
         /// <inheritdoc/>
         public override MathExpression ApplyTo(FunctionExpression f, IOptimizationContext<IDomainRestrictionSettings> ctx, out bool transformResult)
         {
-            if (!f.IsPrime && f.Name == FunctionExpression.ExpName)
+            if (!f.IsUserDefined && f.Name == FunctionExpression.ExpName)
             { // exp(x)
                 if (f.Arguments.Count == 1)
                 {
                     var arg = f.Arguments.First();
-                    if (arg is FunctionExpression fn && !fn.IsPrime && fn.Name == FunctionExpression.LnName)
+                    if (arg is FunctionExpression fn && !fn.IsUserDefined && fn.Name == FunctionExpression.LnName)
                     { // exp(ln(x))
                         if (fn.Arguments.Count == 1 && ctx.Settings.AllowDomainChangingOptimizations)
                         {

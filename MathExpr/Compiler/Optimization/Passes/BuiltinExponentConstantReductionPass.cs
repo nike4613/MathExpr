@@ -16,7 +16,7 @@ namespace MathExpr.Compiler.Optimization.Passes
         /// <inheritdoc/>
         public override MathExpression ApplyTo(FunctionExpression expr, IOptimizationContext<object?> ctx, out bool transformResult)
         {
-            if (!expr.IsPrime && (expr.Name == FunctionExpression.ExpName || expr.Name == FunctionExpression.LnName))
+            if (!expr.IsUserDefined && (expr.Name == FunctionExpression.ExpName || expr.Name == FunctionExpression.LnName))
             { // exp(x)
                 if (expr.Arguments.Count == 1)
                 {
