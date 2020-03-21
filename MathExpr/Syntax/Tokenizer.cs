@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 
 namespace MathExpr.Syntax
@@ -14,6 +15,10 @@ namespace MathExpr.Syntax
         }
     }
 
+    /// <summary>
+    /// The type of a token.
+    /// </summary>
+    [SuppressMessage("Documentation", "CS1591", Justification = "The names are self-explanatory.")]
     public enum TokenType
     {
         [TokenDesc(@"[A-Za-z_]([A-Za-z_]|\d)*")] Identifier,
@@ -38,42 +43,97 @@ namespace MathExpr.Syntax
         [TokenDesc("~&")]           NAnd,
         [TokenDesc("|")]            Or,
         [TokenDesc("~|")]           NOr,
-        [TokenDesc("!")]            Bang,
+        [TokenDesc("!")]            Factorial,
         [TokenDesc("%")]            Percent,
-        [TokenDesc("~")]            Tilde,
+        [TokenDesc("~")]            Not,
         [TokenDesc("'")]            Prime,
         [TokenDesc(";")]            Semicolon,
         [TokenDesc(".")]            Period,
 
+        /// <summary>
+        /// A token type that is emitted only when there is a parser error.
+        /// </summary>
+        /// <remarks>
+        /// This is emitted as a token in order to allow the parser to continue even when it finds
+        /// something it doesn't expect. The error message will be found in the token's <see cref="Token.AsString"/>
+        /// property.
+        /// </remarks>
         Error,
     }
 
+    /// <summary>
+    /// A parser token.
+    /// </summary>
     public struct Token
     {
+        /// <summary>
+        /// The type of the token.
+        /// </summary>
         public TokenType Type { get; }
+        /// <summary>
+        /// The value contained in the token, if any.
+        /// </summary>
         public object? Value { get; }
 
+        /// <summary>
+        /// The starting position of the token in the input string.
+        /// </summary>
         public int Position { get; }
+        /// <summary>
+        /// The length of the token in the input string.
+        /// </summary>
         public int Length { get; }
 
+        /// <summary>
+        /// The value contained in this token as a <see cref="decimal"/>.
+        /// </summary>
         public decimal? AsDecimal => Value as decimal?;
+        /// <summary>
+        /// The value contained in this token as a <see cref="string"/>.
+        /// </summary>
         public string? AsString => Value as string;
 
+        /// <summary>
+        /// Constructs a new token of the given type with the given value, position,
+        /// and length.
+        /// </summary>
+        /// <param name="type">the type of token being constructed</param>
+        /// <param name="value">the value to store in the token</param>
+        /// <param name="pos">the position of the token in the input string</param>
+        /// <param name="len">the length of the token</param>
         public Token(TokenType type, object? value, int pos, int len)
         {
             Type = type; Value = value; Position = pos; Length = len;
         }
 
+        /// <inheritdoc/>
         public override bool Equals(object? obj)
             => obj is Token t && this == t;
+        /// <summary>
+        /// Compares two tokens for equality.
+        /// </summary>
+        /// <param name="a">the first token to compare</param>
+        /// <param name="b">the second token to compare</param>
+        /// <returns>whether or not the tokens are equal</returns>
         public static bool operator ==(Token a, Token b)
             => a.Type == b.Type && Equals(a.Value, b.Value);
+        /// <summary>
+        /// Tests if two tokens are inequal.
+        /// </summary>
+        /// <param name="a">the first token to compare</param>
+        /// <param name="b">the second token to compare</param>
+        /// <returns>whether or not the tokens are inequal</returns>
         public static bool operator !=(Token a, Token b)
             => !(a == b);
 
+        /// <summary>
+        /// Returns a string represenation of this token.
+        /// </summary>
+        /// <returns>the string representation of the token</returns>
         public override string ToString()
             => $"Token({Type}, {Value?.ToString()})";
 
+        /// <inheritdoc/>
         public override int GetHashCode()
         {
             var hashCode = 9789246;
@@ -198,10 +258,10 @@ namespace MathExpr.Syntax
                             else if (text[i + 1] == '=')
                                 yield return NewToken(TokenType.Inequals, ref i, 2);
                             else
-                                yield return NewToken(TokenType.Tilde, ref i);
+                                yield return NewToken(TokenType.Not, ref i);
                             break;
                         case '!':
-                            yield return NewToken(TokenType.Bang, ref i);
+                            yield return NewToken(TokenType.Factorial, ref i);
                             break;
                         case '<':
                             if (text[i + 1] == '=')

@@ -144,10 +144,10 @@ namespace MathExpr.Syntax
 
         private MathExpression ReadNegateNotExpr()
         {
-            if (TryConsumeToken(TokenType.Tilde, out var tok) || TryConsumeToken(TokenType.Minus, out tok))
+            if (TryConsumeToken(TokenType.Not, out var tok) || TryConsumeToken(TokenType.Minus, out tok))
                 return new UnaryExpression(tok.Type switch
                 {
-                    TokenType.Tilde => UnaryExpression.ExpressionType.Not,
+                    TokenType.Not => UnaryExpression.ExpressionType.Not,
                     TokenType.Minus => UnaryExpression.ExpressionType.Negate,
                     _ => throw new SyntaxException(tok, "Unexpected token type")
                 }, ReadFactorialExpr());
@@ -157,7 +157,7 @@ namespace MathExpr.Syntax
         private MathExpression ReadFactorialExpr()
         {
             var arg = ReadMemberExpr();
-            while (TryConsumeToken(TokenType.Bang, out _))
+            while (TryConsumeToken(TokenType.Factorial, out _))
                 arg = new UnaryExpression(UnaryExpression.ExpressionType.Factorial, arg);
             return arg;
         }
