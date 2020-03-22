@@ -15,7 +15,7 @@ namespace MathExprTests
         [InlineData("2*x + 1", 1.5d, 4d)]
         public void CompileX(string expression, double arg, double expect)
         {
-            var del = ExpressionCompiler.Default.Compile<Func<double, double>>(ExpressionParser.ParseRoot(expression), "x");
+            var del = ExpressionCompiler.Default.Compile<Func<double, double>>(MathExpression.Parse(expression), "x");
             Assert.Equal(expect, del(arg));
         }
 
@@ -31,7 +31,7 @@ namespace MathExprTests
         [InlineData("(2*x + 1)*y", 1.5d, 2d, 8d)]
         public void CompileXY(string expression, double arg1, double arg2, double expect)
         {
-            var del = ExpressionCompiler.Default.Compile<Func<double, double, double>>(ExpressionParser.ParseRoot(expression), "x", "y");
+            var del = ExpressionCompiler.Default.Compile<Func<double, double, double>>(MathExpression.Parse(expression), "x", "y");
             Assert.Equal(expect, del(arg1, arg2));
         }
     }

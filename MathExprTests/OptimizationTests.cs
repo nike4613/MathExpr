@@ -28,11 +28,11 @@ namespace MathExprTests
 
         public static object[][] BinaryExpressionCombinerPassTestData = new []
         {
-            new object[] { ExpressionParser.ParseRoot("a + b + c"), new BinaryExpression(BinaryExpression.ExpressionType.Add,
+            new object[] { MathExpression.Parse("a + b + c"), new BinaryExpression(BinaryExpression.ExpressionType.Add,
                 new [] { new VariableExpression("c"), new VariableExpression("a"), new VariableExpression("b") }) },
-            new object[] { ExpressionParser.ParseRoot("a * b * c"), new BinaryExpression(BinaryExpression.ExpressionType.Multiply,
+            new object[] { MathExpression.Parse("a * b * c"), new BinaryExpression(BinaryExpression.ExpressionType.Multiply,
                 new [] { new VariableExpression("c"), new VariableExpression("a"), new VariableExpression("b") }) },
-            new object[] { ExpressionParser.ParseRoot("a - b - c"), new BinaryExpression(
+            new object[] { MathExpression.Parse("a - b - c"), new BinaryExpression(
                     new BinaryExpression(BinaryExpression.ExpressionType.Subtract,
                         new [] { new VariableExpression("a"), new VariableExpression("b") }),
                     new VariableExpression("c"),
@@ -51,14 +51,14 @@ namespace MathExprTests
 
         public static object[][] LiteralCombinerPassTestData = new[]
         {
-            new object[] { ExpressionParser.ParseRoot("4 + 5"),     new LiteralExpression(9) },
-            new object[] { ExpressionParser.ParseRoot("4 + 5 + 6"), new LiteralExpression(15) },
-            new object[] { ExpressionParser.ParseRoot("9 + 5 + -4"),new LiteralExpression(10) },
-            new object[] { ExpressionParser.ParseRoot("9 + 5 - 4"), new LiteralExpression(10) },
-            new object[] { ExpressionParser.ParseRoot("5 > 4"),     new LiteralExpression(1) },
-            new object[] { ExpressionParser.ParseRoot("5 < 4"),     new LiteralExpression(0) },
-            new object[] { ExpressionParser.ParseRoot("4 * 5"),     new LiteralExpression(20) },
-            new object[] { ExpressionParser.ParseRoot("4 * -5"),    new LiteralExpression(-20) },
+            new object[] { MathExpression.Parse("4 + 5"),     new LiteralExpression(9) },
+            new object[] { MathExpression.Parse("4 + 5 + 6"), new LiteralExpression(15) },
+            new object[] { MathExpression.Parse("9 + 5 + -4"),new LiteralExpression(10) },
+            new object[] { MathExpression.Parse("9 + 5 - 4"), new LiteralExpression(10) },
+            new object[] { MathExpression.Parse("5 > 4"),     new LiteralExpression(1) },
+            new object[] { MathExpression.Parse("5 < 4"),     new LiteralExpression(0) },
+            new object[] { MathExpression.Parse("4 * 5"),     new LiteralExpression(20) },
+            new object[] { MathExpression.Parse("4 * -5"),    new LiteralExpression(-20) },
         };
 
         [Theory]
@@ -75,7 +75,7 @@ namespace MathExprTests
             LiteralCombinerPassTestData.Concat(BinaryExpressionCombinerPassTestData)
                 .Concat(new[]
                 {
-                    new object[] { ExpressionParser.ParseRoot("1 + a + 2 + b"), new BinaryExpression(BinaryExpression.ExpressionType.Add,
+                    new object[] { MathExpression.Parse("1 + a + 2 + b"), new BinaryExpression(BinaryExpression.ExpressionType.Add,
                         new MathExpression[] { new VariableExpression("b"), new VariableExpression("a"), new LiteralExpression(3) }) }
                 });
         #endregion
@@ -99,12 +99,12 @@ namespace MathExprTests
 
         public static object[][] ExponentSimplificationPassTestData = new[]
         {
-            new object[] { ExpressionParser.ParseRoot("exp(x)"), ExpressionParser.ParseRoot("exp(x)"), Array.Empty<MathExpression>(), true },
-            new object[] { ExpressionParser.ParseRoot("exp(ln(x))"), ExpressionParser.ParseRoot("x"), new[] { ExpressionParser.ParseRoot("x <= 0") }, true },
-            new object[] { ExpressionParser.ParseRoot("exp(ln(x - 2))"), ExpressionParser.ParseRoot("x - 2"), new[] { ExpressionParser.ParseRoot("x - 2 <= 0") }, true },
-            new object[] { ExpressionParser.ParseRoot("exp(x)"), ExpressionParser.ParseRoot("exp(x)"), Array.Empty<MathExpression>(), false },
-            new object[] { ExpressionParser.ParseRoot("exp(ln(x))"), ExpressionParser.ParseRoot("exp(ln(x))"), Array.Empty<MathExpression>(), false },
-            new object[] { ExpressionParser.ParseRoot("exp(ln(x - 2))"), ExpressionParser.ParseRoot("exp(ln(x - 2))"), Array.Empty<MathExpression>(), false },
+            new object[] { MathExpression.Parse("exp(x)"), MathExpression.Parse("exp(x)"), Array.Empty<MathExpression>(), true },
+            new object[] { MathExpression.Parse("exp(ln(x))"), MathExpression.Parse("x"), new[] { MathExpression.Parse("x <= 0") }, true },
+            new object[] { MathExpression.Parse("exp(ln(x - 2))"), MathExpression.Parse("x - 2"), new[] { MathExpression.Parse("x - 2 <= 0") }, true },
+            new object[] { MathExpression.Parse("exp(x)"), MathExpression.Parse("exp(x)"), Array.Empty<MathExpression>(), false },
+            new object[] { MathExpression.Parse("exp(ln(x))"), MathExpression.Parse("exp(ln(x))"), Array.Empty<MathExpression>(), false },
+            new object[] { MathExpression.Parse("exp(ln(x - 2))"), MathExpression.Parse("exp(ln(x - 2))"), Array.Empty<MathExpression>(), false },
         };
 
         [Theory]
@@ -126,8 +126,8 @@ namespace MathExprTests
         public static IEnumerable<object[]> ExponentSimplificationAndOtherPassesTestData =
             ExponentSimplificationPassTestData.Concat(new[]
             {
-                new object[] { ExpressionParser.ParseRoot("exp(ln(x + 2)) + 5"), ExpressionParser.ParseRoot("x + 7"), new[] { ExpressionParser.ParseRoot("x + 2 <= 0") }, true },
-                new object[] { ExpressionParser.ParseRoot("exp(ln(x + 2)) + 5"), ExpressionParser.ParseRoot("exp(ln(x + 2)) + 5"), Array.Empty<MathExpression>(), false },
+                new object[] { MathExpression.Parse("exp(ln(x + 2)) + 5"), MathExpression.Parse("x + 7"), new[] { MathExpression.Parse("x + 2 <= 0") }, true },
+                new object[] { MathExpression.Parse("exp(ln(x + 2)) + 5"), MathExpression.Parse("exp(ln(x + 2)) + 5"), Array.Empty<MathExpression>(), false },
             });
         #endregion
 
@@ -144,8 +144,8 @@ namespace MathExprTests
 
         public static object[][] ExponentConstantReductionPassTestData = new[]
         {
-            new object[] { ExpressionParser.ParseRoot("exp(2)"), new LiteralExpression(DecimalMath.Exp(2)) },
-            new object[] { ExpressionParser.ParseRoot("ln(2)"), new LiteralExpression(DecimalMath.Ln2) },
+            new object[] { MathExpression.Parse("exp(2)"), new LiteralExpression(DecimalMath.Exp(2)) },
+            new object[] { MathExpression.Parse("ln(2)"), new LiteralExpression(DecimalMath.Ln2) },
         };
         #endregion
 
@@ -163,9 +163,9 @@ namespace MathExprTests
 
         public static object[][] FunctionInliningPassTestData = new[]
         {
-            new object[] { ExpressionParser.ParseRoot("f'(x) = 2*x; 3*f'(2)"), new LiteralExpression(12) },
-            new object[] { ExpressionParser.ParseRoot("f'(x,y) = 2*x + x*y; 3 + f'(6, f'(2, 8))"), new LiteralExpression(135) },
-            new object[] { ExpressionParser.ParseRoot("a'(x) = x;" +
+            new object[] { MathExpression.Parse("f'(x) = 2*x; 3*f'(2)"), new LiteralExpression(12) },
+            new object[] { MathExpression.Parse("f'(x,y) = 2*x + x*y; 3 + f'(6, f'(2, 8))"), new LiteralExpression(135) },
+            new object[] { MathExpression.Parse("a'(x) = x;" +
                 "b'(x) = a'(a'(a'(a'(a'(a'(a'(x)))))));" +
                 "c'(x) = b'(b'(b'(b'(b'(b'(b'(x)))))));" +
                 "c'(x)"), new VariableExpression("x") }

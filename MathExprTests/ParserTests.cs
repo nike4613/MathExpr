@@ -63,7 +63,7 @@ namespace MathExprTests
         {
             try
             {
-                _ = ExpressionParser.ParseRoot(input);
+                _ = MathExpression.Parse(input);
                 Assert.True(valid, "Parser did not throw when it was supposed to");
             }
             catch (SyntaxException)

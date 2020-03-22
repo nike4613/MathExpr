@@ -32,11 +32,11 @@ namespace MathExprTests
 
         public static readonly object[][] CompileLiteralTestValues = new[]
         {
-            new object[] { ExpressionParser.ParseRoot("15"), typeof(decimal), 15m },
-            new object[] { ExpressionParser.ParseRoot("15"), typeof(double), 15d },
-            new object[] { ExpressionParser.ParseRoot("15"), typeof(float), 15f },
-            new object[] { ExpressionParser.ParseRoot("15"), typeof(long), 15L },
-            new object[] { ExpressionParser.ParseRoot("15"), typeof(int), 15 },
+            new object[] { MathExpression.Parse("15"), typeof(decimal), 15m },
+            new object[] { MathExpression.Parse("15"), typeof(double), 15d },
+            new object[] { MathExpression.Parse("15"), typeof(float), 15f },
+            new object[] { MathExpression.Parse("15"), typeof(long), 15L },
+            new object[] { MathExpression.Parse("15"), typeof(int), 15 },
         };
 
         [Theory]
@@ -57,26 +57,26 @@ namespace MathExprTests
 
         public static readonly object[][] CompileUnaryTestValues = new[]
         {
-            new object[] { ExpressionParser.ParseRoot("-15"), typeof(int), -15 },
-            new object[] { ExpressionParser.ParseRoot("-(-15)"), typeof(int), 15 },
-            new object[] { ExpressionParser.ParseRoot("-15"), typeof(double), -15d },
-            new object[] { ExpressionParser.ParseRoot("-(-15)"), typeof(double), 15d },
-            new object[] { ExpressionParser.ParseRoot("~1"), typeof(int), 0 },
-            new object[] { ExpressionParser.ParseRoot("~2"), typeof(int), 0 },
-            new object[] { ExpressionParser.ParseRoot("~(-1)"), typeof(int), 0 },
-            new object[] { ExpressionParser.ParseRoot("~0"), typeof(int), 1 },
-            new object[] { ExpressionParser.ParseRoot("0!"), typeof(int), 1 },
-            new object[] { ExpressionParser.ParseRoot("1!"), typeof(int), 1 },
-            new object[] { ExpressionParser.ParseRoot("2!"), typeof(int), 2 },
-            new object[] { ExpressionParser.ParseRoot("3!"), typeof(int), 6 },
-            new object[] { ExpressionParser.ParseRoot("0!"), typeof(double), 1d },
-            new object[] { ExpressionParser.ParseRoot("1!"), typeof(double), 1d },
-            new object[] { ExpressionParser.ParseRoot("2!"), typeof(double), 2d },
-            new object[] { ExpressionParser.ParseRoot("3!"), typeof(double), 6d },
-            new object[] { ExpressionParser.ParseRoot("0!"), typeof(decimal), 1m },
-            new object[] { ExpressionParser.ParseRoot("1!"), typeof(decimal), 1m },
-            new object[] { ExpressionParser.ParseRoot("2!"), typeof(decimal), 2m },
-            new object[] { ExpressionParser.ParseRoot("3!"), typeof(decimal), 6m },
+            new object[] { MathExpression.Parse("-15"), typeof(int), -15 },
+            new object[] { MathExpression.Parse("-(-15)"), typeof(int), 15 },
+            new object[] { MathExpression.Parse("-15"), typeof(double), -15d },
+            new object[] { MathExpression.Parse("-(-15)"), typeof(double), 15d },
+            new object[] { MathExpression.Parse("~1"), typeof(int), 0 },
+            new object[] { MathExpression.Parse("~2"), typeof(int), 0 },
+            new object[] { MathExpression.Parse("~(-1)"), typeof(int), 0 },
+            new object[] { MathExpression.Parse("~0"), typeof(int), 1 },
+            new object[] { MathExpression.Parse("0!"), typeof(int), 1 },
+            new object[] { MathExpression.Parse("1!"), typeof(int), 1 },
+            new object[] { MathExpression.Parse("2!"), typeof(int), 2 },
+            new object[] { MathExpression.Parse("3!"), typeof(int), 6 },
+            new object[] { MathExpression.Parse("0!"), typeof(double), 1d },
+            new object[] { MathExpression.Parse("1!"), typeof(double), 1d },
+            new object[] { MathExpression.Parse("2!"), typeof(double), 2d },
+            new object[] { MathExpression.Parse("3!"), typeof(double), 6d },
+            new object[] { MathExpression.Parse("0!"), typeof(decimal), 1m },
+            new object[] { MathExpression.Parse("1!"), typeof(decimal), 1m },
+            new object[] { MathExpression.Parse("2!"), typeof(decimal), 2m },
+            new object[] { MathExpression.Parse("3!"), typeof(decimal), 6m },
         };
 
         [Theory]
@@ -108,24 +108,24 @@ namespace MathExprTests
 
         public static readonly object[][] CompileVariableTestValues = new[]
         {
-            new object[] { ExpressionParser.ParseRoot("x"), typeof(int), "x", 1, 1 },
-            new object[] { ExpressionParser.ParseRoot("x"), typeof(int), "x", 2, 2 },
-            new object[] { ExpressionParser.ParseRoot("x"), typeof(int), "x", 3, 3 },
-            new object[] { ExpressionParser.ParseRoot("-x"), typeof(int), "x", 1, -1 },
-            new object[] { ExpressionParser.ParseRoot("-x"), typeof(int), "x", 2, -2 },
-            new object[] { ExpressionParser.ParseRoot("-x"), typeof(int), "x", 3, -3 },
-            new object[] { ExpressionParser.ParseRoot("x!"), typeof(int), "x", 1, 1 },
-            new object[] { ExpressionParser.ParseRoot("x!"), typeof(int), "x", 2, 2 },
-            new object[] { ExpressionParser.ParseRoot("x!"), typeof(int), "x", 3, 6 },
-            new object[] { ExpressionParser.ParseRoot("abc"), typeof(int), "abc", 1, 1 },
-            new object[] { ExpressionParser.ParseRoot("abc"), typeof(int), "abc", 2, 2 },
-            new object[] { ExpressionParser.ParseRoot("abc"), typeof(int), "abc", 3, 3 },
-            new object[] { ExpressionParser.ParseRoot("-abc"), typeof(int), "abc", 1, -1 },
-            new object[] { ExpressionParser.ParseRoot("-abc"), typeof(int), "abc", 2, -2 },
-            new object[] { ExpressionParser.ParseRoot("-abc"), typeof(int), "abc", 3, -3 },
-            new object[] { ExpressionParser.ParseRoot("abc!"), typeof(int), "abc", 1, 1 },
-            new object[] { ExpressionParser.ParseRoot("abc!"), typeof(int), "abc", 2, 2 },
-            new object[] { ExpressionParser.ParseRoot("abc!"), typeof(int), "abc", 3, 6 },
+            new object[] { MathExpression.Parse("x"), typeof(int), "x", 1, 1 },
+            new object[] { MathExpression.Parse("x"), typeof(int), "x", 2, 2 },
+            new object[] { MathExpression.Parse("x"), typeof(int), "x", 3, 3 },
+            new object[] { MathExpression.Parse("-x"), typeof(int), "x", 1, -1 },
+            new object[] { MathExpression.Parse("-x"), typeof(int), "x", 2, -2 },
+            new object[] { MathExpression.Parse("-x"), typeof(int), "x", 3, -3 },
+            new object[] { MathExpression.Parse("x!"), typeof(int), "x", 1, 1 },
+            new object[] { MathExpression.Parse("x!"), typeof(int), "x", 2, 2 },
+            new object[] { MathExpression.Parse("x!"), typeof(int), "x", 3, 6 },
+            new object[] { MathExpression.Parse("abc"), typeof(int), "abc", 1, 1 },
+            new object[] { MathExpression.Parse("abc"), typeof(int), "abc", 2, 2 },
+            new object[] { MathExpression.Parse("abc"), typeof(int), "abc", 3, 3 },
+            new object[] { MathExpression.Parse("-abc"), typeof(int), "abc", 1, -1 },
+            new object[] { MathExpression.Parse("-abc"), typeof(int), "abc", 2, -2 },
+            new object[] { MathExpression.Parse("-abc"), typeof(int), "abc", 3, -3 },
+            new object[] { MathExpression.Parse("abc!"), typeof(int), "abc", 1, 1 },
+            new object[] { MathExpression.Parse("abc!"), typeof(int), "abc", 2, 2 },
+            new object[] { MathExpression.Parse("abc!"), typeof(int), "abc", 3, 6 },
         };
 
         [Theory]
@@ -159,7 +159,7 @@ namespace MathExprTests
 
         public static readonly object[][] CompileBuiltinFunctionTestValues = new[]
         {
-            new object[] { ExpressionParser.ParseRoot("toString(x)"), typeof(string), "x", 1, "hello 1" },
+            new object[] { MathExpression.Parse("toString(x)"), typeof(string), "x", 1, "hello 1" },
         };
 
         private class StringifyBuiltin : IBuiltinFunction<object?>
@@ -194,14 +194,14 @@ namespace MathExprTests
 
         public static object[][] CompileBinaryTestValues = new[]
         {
-            new object[] { ExpressionParser.ParseRoot("4 + 5"),      typeof(int), 9 },
-            new object[] { ExpressionParser.ParseRoot("4 + 5 + 6"),  typeof(int), 15 },
-            new object[] { ExpressionParser.ParseRoot("9 + 5 + -4"), typeof(int), 10 },
-            new object[] { ExpressionParser.ParseRoot("9 + 5 - 4"),  typeof(int), 10 },
-            new object[] { ExpressionParser.ParseRoot("5 > 4"),      typeof(int), 1 },
-            new object[] { ExpressionParser.ParseRoot("5 < 4"),      typeof(int), 0 },
-            new object[] { ExpressionParser.ParseRoot("4 * 5"),      typeof(int), 20 },
-            new object[] { ExpressionParser.ParseRoot("4 * -5"),     typeof(int), -20 },
+            new object[] { MathExpression.Parse("4 + 5"),      typeof(int), 9 },
+            new object[] { MathExpression.Parse("4 + 5 + 6"),  typeof(int), 15 },
+            new object[] { MathExpression.Parse("9 + 5 + -4"), typeof(int), 10 },
+            new object[] { MathExpression.Parse("9 + 5 - 4"),  typeof(int), 10 },
+            new object[] { MathExpression.Parse("5 > 4"),      typeof(int), 1 },
+            new object[] { MathExpression.Parse("5 < 4"),      typeof(int), 0 },
+            new object[] { MathExpression.Parse("4 * 5"),      typeof(int), 20 },
+            new object[] { MathExpression.Parse("4 * -5"),     typeof(int), -20 },
         };
 
         [Theory]
@@ -233,13 +233,13 @@ namespace MathExprTests
 
         public static object[][] CompileIfTestValues = new[]
         {
-            new object[] { ExpressionParser.ParseRoot("if(x > 5, 15, 25)"), typeof(int), 6, 15 },
-            new object[] { ExpressionParser.ParseRoot("if(x > 5, 15, 25)"), typeof(int), 4, 25 },
-            new object[] { ExpressionParser.ParseRoot("if(x > 5, x*2, x*3)"), typeof(int), 6, 12 },
-            new object[] { ExpressionParser.ParseRoot("if(x > 5, x*2, x*3)"), typeof(int), 5, 15 },
-            new object[] { ExpressionParser.ParseRoot("if(x > 5, x*2, x*3)"), typeof(int), 4, 12 },
-            new object[] { ExpressionParser.ParseRoot("if(x < 0.5, 8 * x^4, -8 * (x-1)^4 + 1)"), typeof(decimal), 0.7m, 0.9352m },
-            new object[] { ExpressionParser.ParseRoot("if(x < 0.5, 8 * x^4, -8 * (x-1)^4 + 1)"), typeof(decimal), 0.3m, 0.0648m },
+            new object[] { MathExpression.Parse("if(x > 5, 15, 25)"), typeof(int), 6, 15 },
+            new object[] { MathExpression.Parse("if(x > 5, 15, 25)"), typeof(int), 4, 25 },
+            new object[] { MathExpression.Parse("if(x > 5, x*2, x*3)"), typeof(int), 6, 12 },
+            new object[] { MathExpression.Parse("if(x > 5, x*2, x*3)"), typeof(int), 5, 15 },
+            new object[] { MathExpression.Parse("if(x > 5, x*2, x*3)"), typeof(int), 4, 12 },
+            new object[] { MathExpression.Parse("if(x < 0.5, 8 * x^4, -8 * (x-1)^4 + 1)"), typeof(decimal), 0.7m, 0.9352m },
+            new object[] { MathExpression.Parse("if(x < 0.5, 8 * x^4, -8 * (x-1)^4 + 1)"), typeof(decimal), 0.3m, 0.0648m },
         };
 
         [Theory]
@@ -283,10 +283,10 @@ namespace MathExprTests
 
         public static object[][] CompileDomainRestrictionTestValues = new[]
         {
-            new object[] { ExpressionParser.ParseRoot("1 / (2*x)"), ExpressionParser.ParseRoot("x = 0"), typeof(decimal), 2m, 1m/4m, false },
-            new object[] { ExpressionParser.ParseRoot("1 / (2*x)"), ExpressionParser.ParseRoot("x = 0"), typeof(decimal), 0m, 1m, true},
-            new object[] { ExpressionParser.ParseRoot("1 / (2*x + 1)"), ExpressionParser.ParseRoot("2*x+1 = 0"), typeof(decimal), 2m, 1m/5m, false },
-            new object[] { ExpressionParser.ParseRoot("1 / (2*x + 1)"), ExpressionParser.ParseRoot("2*x+1 = 0"), typeof(decimal), -1m/2m, 1m, true},
+            new object[] { MathExpression.Parse("1 / (2*x)"), MathExpression.Parse("x = 0"), typeof(decimal), 2m, 1m/4m, false },
+            new object[] { MathExpression.Parse("1 / (2*x)"), MathExpression.Parse("x = 0"), typeof(decimal), 0m, 1m, true},
+            new object[] { MathExpression.Parse("1 / (2*x + 1)"), MathExpression.Parse("2*x+1 = 0"), typeof(decimal), 2m, 1m/5m, false },
+            new object[] { MathExpression.Parse("1 / (2*x + 1)"), MathExpression.Parse("2*x+1 = 0"), typeof(decimal), -1m/2m, 1m, true},
         };
     }
 }
