@@ -226,7 +226,7 @@ namespace MathExpr.Compiler.Compilation.Passes
             var name = expr.Name;
             var args = expr.Arguments;
 
-            if (ctx.Settings.BuiltinFunctions.TryGetValue(name, out var impls))
+            /*if (ctx.Settings.BuiltinFunctions.TryGetValue(name, out var impls))
             {
                 foreach (var impl in impls)
                     if (impl.TryCompile(args, ctx, this, out var outexpr))
@@ -234,7 +234,14 @@ namespace MathExpr.Compiler.Compilation.Passes
                 throw new InvalidOperationException($"Function '{name}' coult not compile with the given arguments");
             }
             else
-                throw new InvalidOperationException($"Builtin function named '{name}' with {args.Count} arguments does not exist");
+                throw new InvalidOperationException($"Builtin function named '{name}' with {args.Count} arguments does not exist");*/
+            foreach (var impl in ctx.Settings.BuiltinFunctions)
+            {
+                if (impl.Name != name) continue;
+                if (impl.TryCompile(args, ctx, this, out var outexpr))
+                    return outexpr;
+            }
+            throw new InvalidOperationException($"Function '{name}' coult not compile with the given arguments");
         }
 
         /// <inheritdoc/>

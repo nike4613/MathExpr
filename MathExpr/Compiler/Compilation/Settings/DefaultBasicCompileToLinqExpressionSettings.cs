@@ -13,7 +13,8 @@ namespace MathExpr.Compiler.Compilation.Settings
     /// A default implementation of <see cref="ICompileToLinqExpressionSettings{TSettings}"/>
     /// </summary>
     public class DefaultBasicCompileToLinqExpressionSettings : 
-        ICompileToLinqExpressionSettings<DefaultBasicCompileToLinqExpressionSettings>
+        ICompileToLinqExpressionSettings<DefaultBasicCompileToLinqExpressionSettings>,
+        IBuiltinFunctionWritableCompilerSettings<DefaultBasicCompileToLinqExpressionSettings>
     {
         /// <inheritdoc/>
         public Type ExpectReturn { get; set; } = typeof(decimal);
@@ -22,9 +23,12 @@ namespace MathExpr.Compiler.Compilation.Settings
         public IDictionary<VariableExpression, ParameterExpression> ParameterMap { get; } = new Dictionary<VariableExpression, ParameterExpression>();
 
         /// <inheritdoc/>
-        public IDictionary<string, IList<IBuiltinFunction<DefaultBasicCompileToLinqExpressionSettings>>> BuiltinFunctions { get; }
-            = new Dictionary<string, IList<IBuiltinFunction<DefaultBasicCompileToLinqExpressionSettings>>>();
-        
+        public IReadOnlyCollection<IBuiltinFunction<DefaultBasicCompileToLinqExpressionSettings>> BuiltinFunctions => builtinFunctions;
+        /// <inheritdoc/>
+        public ICollection<IBuiltinFunction<DefaultBasicCompileToLinqExpressionSettings>> WritableBuiltinFunctions => builtinFunctions;
+
+        private readonly List<IBuiltinFunction<DefaultBasicCompileToLinqExpressionSettings>> builtinFunctions = new List<IBuiltinFunction<DefaultBasicCompileToLinqExpressionSettings>>();
+
         /// <summary>
         /// Initializes a default configuration.
         /// </summary>

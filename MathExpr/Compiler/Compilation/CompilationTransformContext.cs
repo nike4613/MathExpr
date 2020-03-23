@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq.Expressions;
+using MathExpr.Compiler.Compilation.Settings;
+using System.Linq;
 
 namespace MathExpr.Compiler.Compilation
 {
@@ -28,6 +30,35 @@ namespace MathExpr.Compiler.Compilation
         /// <returns>the new <see cref="CompilationTransformContext{TSettings}"/></returns>
         public static CompilationTransformContext<TSettings> CreateWith<TSettings>(TSettings settings, ICompilationTransformPass<TSettings> pass)
             => new CompilationTransformContext<TSettings>(settings, pass);
+
+        /// <summary>
+        /// Creates a <see cref="CompilationTransformContext{TSettings}"/> using the specified settings, builtin functions, and transformer.
+        /// </summary>
+        /// <typeparam name="TSettings">the settings type to provide to the transformer</typeparam>
+        /// <param name="settings">the settings to create the context with</param>
+        /// <param name="pass">the compilation backend to use</param>
+        /// <param name="builtinFunctions">the builtin functions to use</param>
+        /// <returns>the new <see cref="CompilationTransformContext{TSettings}"/></returns>
+        public static CompilationTransformContext<TSettings> CreateWith<TSettings>(TSettings settings, ICompilationTransformPass<TSettings> pass,
+            IEnumerable<IBuiltinFunction<TSettings>> builtinFunctions)
+            where TSettings : IBuiltinFunctionWritableCompilerSettings<TSettings>
+        {
+            foreach (var fun in builtinFunctions)
+                settings.AddBuiltin(fun);
+            return CreateWith(settings, pass);
+        }
+        /// <summary>
+        /// Creates a <see cref="CompilationTransformContext{TSettings}"/> using the specified settings, builtin functions, and transformer.
+        /// </summary>
+        /// <typeparam name="TSettings">the settings type to provide to the transformer</typeparam>
+        /// <param name="settings">the settings to create the context with</param>
+        /// <param name="pass">the compilation backend to use</param>
+        /// <param name="builtinFunctions">the builtin functions to use</param>
+        /// <returns>the new <see cref="CompilationTransformContext{TSettings}"/></returns>
+        public static CompilationTransformContext<TSettings> CreateWith<TSettings>(TSettings settings, ICompilationTransformPass<TSettings> pass,
+            params IBuiltinFunction<TSettings>[] builtinFunctions)
+            where TSettings : IBuiltinFunctionWritableCompilerSettings<TSettings>
+            => CreateWith(settings, pass, builtinFunctions.AsEnumerable());
     }
 
     /// <summary>
