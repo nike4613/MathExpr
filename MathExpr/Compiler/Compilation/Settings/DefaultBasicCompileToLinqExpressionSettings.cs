@@ -10,9 +10,10 @@ using System.Text;
 namespace MathExpr.Compiler.Compilation.Settings
 {
     /// <summary>
-    /// A default implementation of <see cref="ICompileToLinqExpressionSettings"/>
+    /// A default implementation of <see cref="ICompileToLinqExpressionSettings{TSettings}"/>
     /// </summary>
-    public class DefaultBasicCompileToLinqExpressionSettings : ICompileToLinqExpressionSettings
+    public class DefaultBasicCompileToLinqExpressionSettings : 
+        ICompileToLinqExpressionSettings<DefaultBasicCompileToLinqExpressionSettings>
     {
         /// <inheritdoc/>
         public Type ExpectReturn { get; set; } = typeof(decimal);
@@ -21,8 +22,8 @@ namespace MathExpr.Compiler.Compilation.Settings
         public IDictionary<VariableExpression, ParameterExpression> ParameterMap { get; } = new Dictionary<VariableExpression, ParameterExpression>();
 
         /// <inheritdoc/>
-        public IDictionary<string, IList<IBuiltinFunction<ICompileToLinqExpressionSettings>>> BuiltinFunctions { get; }
-            = new Dictionary<string, IList<IBuiltinFunction<ICompileToLinqExpressionSettings>>>();
+        public IDictionary<string, IList<IBuiltinFunction<DefaultBasicCompileToLinqExpressionSettings>>> BuiltinFunctions { get; }
+            = new Dictionary<string, IList<IBuiltinFunction<DefaultBasicCompileToLinqExpressionSettings>>>();
         
         /// <summary>
         /// Initializes a default configuration.

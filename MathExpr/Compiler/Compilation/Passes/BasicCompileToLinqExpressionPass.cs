@@ -14,7 +14,8 @@ namespace MathExpr.Compiler.Compilation.Passes
     /// <summary>
     /// A compiler that compiles a <see cref="MathExpression"/> to a <see cref="Expression"/>, using type hinting.
     /// </summary>
-    public class BasicCompileToLinqExpressionPass : CompilationTransformPass<ICompileToLinqExpressionSettings>, ITypeHintHandler
+    public class BasicCompileToLinqExpressionPass<TSettings> : CompilationTransformPass<TSettings>, ITypeHintHandler
+        where TSettings : ICompileToLinqExpressionSettings<TSettings>
     {
         // TODO: completely redo the compiler-side architecture, because the fundamental extension point is now builtin implementations
 
@@ -37,7 +38,7 @@ namespace MathExpr.Compiler.Compilation.Passes
         /// <param name="expr">the <see cref="MathExpression"/> to compile</param>
         /// <param name="ctx">the context to compile in</param>
         /// <returns>the compiled <see cref="Expression"/></returns>
-        public override Expression ApplyTo(MathExpression expr, ICompilationTransformContext<ICompileToLinqExpressionSettings> ctx)
+        public override Expression ApplyTo(MathExpression expr, ICompilationTransformContext<TSettings> ctx)
         {
             if (!IsRootExpression(ctx))
                 return base.ApplyTo(expr, ctx);
@@ -82,7 +83,7 @@ namespace MathExpr.Compiler.Compilation.Passes
             };
 
         /// <inheritdoc/>
-        public override Expression ApplyTo(Syntax.BinaryExpression expr, ICompilationTransformContext<ICompileToLinqExpressionSettings> ctx)
+        public override Expression ApplyTo(Syntax.BinaryExpression expr, ICompilationTransformContext<TSettings> ctx)
         {
             var args = expr.Arguments.Select(m =>
             {
@@ -119,7 +120,7 @@ namespace MathExpr.Compiler.Compilation.Passes
             return AggregateBinaryExpr(expr.Type, args, boolResType, ctx.Settings);
         }
 
-        private Expression AggregateBinaryExpr(Syntax.BinaryExpression.ExpressionType type, IEnumerable<Expression> args, Type boolResultType, ICompileToLinqExpressionSettings settings)
+        private Expression AggregateBinaryExpr(Syntax.BinaryExpression.ExpressionType type, IEnumerable<Expression> args, Type boolResultType, TSettings settings)
             => type switch
             {
                 Syntax.BinaryExpression.ExpressionType.Add
@@ -165,7 +166,7 @@ namespace MathExpr.Compiler.Compilation.Passes
             };
 
         /// <inheritdoc/>
-        public override Expression ApplyTo(Syntax.UnaryExpression expr, ICompilationTransformContext<ICompileToLinqExpressionSettings> ctx)
+        public override Expression ApplyTo(Syntax.UnaryExpression expr, ICompilationTransformContext<TSettings> ctx)
         {
             var arg = ApplyTo(expr.Argument, ctx);
             return expr.Type switch
@@ -182,7 +183,7 @@ namespace MathExpr.Compiler.Compilation.Passes
         }
 
         /// <inheritdoc/>
-        public override Expression ApplyTo(Syntax.MemberExpression expr, ICompilationTransformContext<ICompileToLinqExpressionSettings> ctx)
+        public override Expression ApplyTo(Syntax.MemberExpression expr, ICompilationTransformContext<TSettings> ctx)
         {
             var arg = ApplyTo(expr.Target, ctx);
             var name = expr.MemberName;
@@ -197,7 +198,7 @@ namespace MathExpr.Compiler.Compilation.Passes
         }
 
         /// <inheritdoc/>
-        public override Expression ApplyTo(VariableExpression expr, ICompilationTransformContext<ICompileToLinqExpressionSettings> ctx)
+        public override Expression ApplyTo(VariableExpression expr, ICompilationTransformContext<TSettings> ctx)
         {
             if (ctx.Settings.ParameterMap.TryGetValue(expr, out var param))
                 return param;
@@ -205,9 +206,9 @@ namespace MathExpr.Compiler.Compilation.Passes
                 throw new InvalidOperationException($"Variable '{expr.Name}' does not have an associated ParameterExpression");
         }
 
-        Type? ITypeHintHandler.CurrentHint<TSettings>(ICompilationTransformContext<TSettings> ctx)
+        Type? ITypeHintHandler.CurrentHint<TSettings2>(ICompilationTransformContext<TSettings2> ctx)
             => GetTypeHint(ctx);
-        Expression ITypeHintHandler.TransformWithHint<TSettings>(MathExpression expr, Type? hint, ICompilationTransformContext<TSettings> ctx)
+        Expression ITypeHintHandler.TransformWithHint<TSettings2>(MathExpression expr, Type? hint, ICompilationTransformContext<TSettings2> ctx)
         {
             var savedHint = GetTypeHint(ctx);
             SetTypeHint(ctx, hint);
@@ -217,7 +218,7 @@ namespace MathExpr.Compiler.Compilation.Passes
         }
 
         /// <inheritdoc/>
-        public override Expression ApplyTo(FunctionExpression expr, ICompilationTransformContext<ICompileToLinqExpressionSettings> ctx)
+        public override Expression ApplyTo(FunctionExpression expr, ICompilationTransformContext<TSettings> ctx)
         {
             if (expr.IsUserDefined)
                 throw new InvalidOperationException("Default compiler does not support un-inlined user functions");
@@ -237,14 +238,13 @@ namespace MathExpr.Compiler.Compilation.Passes
         }
 
         /// <inheritdoc/>
-        public override Expression ApplyTo(LiteralExpression expr, ICompilationTransformContext<ICompileToLinqExpressionSettings> ctx)
+        public override Expression ApplyTo(LiteralExpression expr, ICompilationTransformContext<TSettings> ctx)
         {
             var val = expr.Value;
 
             var hint = GetTypeHint(ctx);
             if (hint != null)
             {
-                //
                 if ((CompilerHelpers.IsIntegral(hint) && DecimalMath.IsIntegral(val))
                   || !CompilerHelpers.IsIntegral(hint))
                     try
@@ -265,7 +265,7 @@ namespace MathExpr.Compiler.Compilation.Passes
         }
 
         /// <inheritdoc/>
-        public override Expression ApplyTo(CustomDefinitionExpression expr, ICompilationTransformContext<ICompileToLinqExpressionSettings> ctx)
+        public override Expression ApplyTo(CustomDefinitionExpression expr, ICompilationTransformContext<TSettings> ctx)
         {
             throw new InvalidOperationException("Default compiler does not support un-inlined user functions");
         }

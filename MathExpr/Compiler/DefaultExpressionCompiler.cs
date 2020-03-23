@@ -32,7 +32,7 @@ namespace MathExpr.Compiler
         /// <param name="optimizerSettings">the optmization settings to initialize with</param>
         /// <param name="compilerSettings">the compielr settings to initialize with</param>
         public DefaultExpressionCompiler(DefaultOptimizationSettings optimizerSettings, DefaultBasicCompileToLinqExpressionSettings compilerSettings) 
-            : base(optimizerSettings, compilerSettings, new BasicCompileToLinqExpressionPass())
+            : base(optimizerSettings, compilerSettings, new BasicCompileToLinqExpressionPass<DefaultBasicCompileToLinqExpressionSettings>())
         {
         }
 

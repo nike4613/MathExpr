@@ -21,7 +21,7 @@ namespace MathExprTests
             var context = CompilationTransformContext.CreateWith(new DefaultBasicCompileToLinqExpressionSettings
             {
                 ExpectReturn = expectType,
-            }, new BasicCompileToLinqExpressionPass());
+            }, new BasicCompileToLinqExpressionPass<DefaultBasicCompileToLinqExpressionSettings>());
 
             var fn = Expression.Lambda<Func<object>>(Expression.Convert(
                     context.Transform(expr),
@@ -46,7 +46,7 @@ namespace MathExprTests
             var context = CompilationTransformContext.CreateWith(new DefaultBasicCompileToLinqExpressionSettings
             {
                 ExpectReturn = expectType,
-            }, new BasicCompileToLinqExpressionPass());
+            }, new BasicCompileToLinqExpressionPass<DefaultBasicCompileToLinqExpressionSettings>());
 
             var fn = Expression.Lambda<Func<object>>(Expression.Convert(
                     context.Transform(expr),
@@ -86,7 +86,7 @@ namespace MathExprTests
             var context = CompilationTransformContext.CreateWith(new DefaultBasicCompileToLinqExpressionSettings
             {
                 ExpectReturn = expectType,
-            }, new BasicCompileToLinqExpressionPass());
+            }, new BasicCompileToLinqExpressionPass<DefaultBasicCompileToLinqExpressionSettings>());
 
             var objParam = Expression.Parameter(typeof(object));
             var var = Expression.Variable(expectType);
@@ -135,7 +135,7 @@ namespace MathExprTests
             var context = CompilationTransformContext.CreateWith(new DefaultBasicCompileToLinqExpressionSettings
             {
                 ExpectReturn = expectType,
-            }, new BasicCompileToLinqExpressionPass());
+            }, new BasicCompileToLinqExpressionPass<DefaultBasicCompileToLinqExpressionSettings>());
 
             var objParam = Expression.Parameter(typeof(object));
             var var = Expression.Variable(parameter.GetType());
@@ -183,7 +183,7 @@ namespace MathExprTests
             var context = CompilationTransformContext.CreateWith(new DefaultBasicCompileToLinqExpressionSettings
             {
                 ExpectReturn = expectType,
-            }, new BasicCompileToLinqExpressionPass());
+            }, new BasicCompileToLinqExpressionPass<DefaultBasicCompileToLinqExpressionSettings>());
 
             var fn = Expression.Lambda<Func<object>>(Expression.Convert(
                     context.Transform(expr),
@@ -211,7 +211,7 @@ namespace MathExprTests
             var context = CompilationTransformContext.CreateWith(new DefaultBasicCompileToLinqExpressionSettings
             {
                 ExpectReturn = expectType,
-            }, new BasicCompileToLinqExpressionPass());
+            }, new BasicCompileToLinqExpressionPass<DefaultBasicCompileToLinqExpressionSettings>());
 
             var objParam = Expression.Parameter(typeof(object));
             var var = Expression.Variable(expectType);
@@ -250,7 +250,7 @@ namespace MathExprTests
             {
                 ExpectReturn = expectType,
                 IgnoreDomainRestrictions = false,
-            }, new BasicCompileToLinqExpressionPass());
+            }, new BasicCompileToLinqExpressionPass<DefaultBasicCompileToLinqExpressionSettings>());
 
             var objParam = Expression.Parameter(typeof(object));
             var var = Expression.Variable(expectType);
