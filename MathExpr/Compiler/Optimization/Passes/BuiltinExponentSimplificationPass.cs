@@ -42,7 +42,7 @@ namespace MathExpr.Compiler.Optimization.Passes
                 if (f.Arguments.Count == 1)
                 {
                     var arg = f.Arguments.First();
-                    if (arg is FunctionExpression fn && !fn.IsUserDefined && fn.Name == FunctionExpression.LnName)
+                    if (arg is FunctionExpression fn && !fn.IsUserDefined && fn.Name == BuiltinFunctionLn.ConstName)
                     { // exp(ln(x))
                         if (fn.Arguments.Count == 1 && ctx.Settings.AllowDomainChangingOptimizations)
                         {

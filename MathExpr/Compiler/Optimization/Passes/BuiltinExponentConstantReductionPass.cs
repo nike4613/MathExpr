@@ -17,7 +17,7 @@ namespace MathExpr.Compiler.Optimization.Passes
         /// <inheritdoc/>
         public override MathExpression ApplyTo(FunctionExpression expr, IOptimizationContext<object?> ctx, out bool transformResult)
         {
-            if (!expr.IsUserDefined && (expr.Name == BuiltinFunctionExp.ConstName || expr.Name == FunctionExpression.LnName))
+            if (!expr.IsUserDefined && (expr.Name == BuiltinFunctionExp.ConstName || expr.Name == BuiltinFunctionLn.ConstName))
             { // exp(x)
                 if (expr.Arguments.Count == 1)
                 {
@@ -27,7 +27,7 @@ namespace MathExpr.Compiler.Optimization.Passes
                         transformResult = true;
                         if (expr.Name == BuiltinFunctionExp.ConstName)
                             return new LiteralExpression(DecimalMath.Exp(lit.Value)).WithToken(expr.Token);
-                        if (expr.Name == FunctionExpression.LnName)
+                        if (expr.Name == BuiltinFunctionLn.ConstName)
                             return new LiteralExpression(DecimalMath.Ln(lit.Value)).WithToken(expr.Token);
                     }
                 }

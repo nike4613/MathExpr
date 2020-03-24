@@ -155,7 +155,7 @@ namespace MathExpr.Utilities
         public const decimal Epsilon = 0.0000000000000000000000000001m;
 
         /// <summary>
-        /// The natural logarithm, approxamated by the Taylor series centered around 1.
+        /// Computes the natural logarithm of <paramref name="arg"/>.
         /// </summary>
         /// <param name="arg">the argument to <c>ln(x)</c></param>
         /// <returns>the approxamate value of <c>ln(x)</c></returns>

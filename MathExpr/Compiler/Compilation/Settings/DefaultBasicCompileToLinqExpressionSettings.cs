@@ -36,6 +36,7 @@ namespace MathExpr.Compiler.Compilation.Settings
         {
             this.AddBuiltin().OfType<BuiltinFunctionIf>();
             this.AddBuiltin().OfType<BuiltinFunctionExp>();
+            this.AddBuiltin().OfType<BuiltinFunctionLn>();
         }
 
         #region Domain Restrictions
