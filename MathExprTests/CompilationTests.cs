@@ -9,6 +9,7 @@ using Xunit;
 using System.Linq.Expressions;
 using System.Linq;
 using MathExpr.Utilities;
+using MathExpr.Compiler.Optimization.Settings;
 
 namespace MathExprTests
 {
@@ -256,7 +257,8 @@ namespace MathExprTests
             var var = Expression.Variable(expectType);
             context.Settings.ParameterMap.Add(new VariableExpression("x"), var);
 
-            context.Settings.DomainRestrictions.Add(restrict);
+            var restrictions = DomainRestrictionSettings.GetDomainRestrictionsFor(context);
+            restrictions.Add(restrict);
 
             var fn = Expression.Lambda<Func<object, object>>(
                 Expression.Block(

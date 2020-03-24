@@ -57,7 +57,7 @@ namespace MathExpr.Compiler.Compilation.Passes
             if (!ctx.Settings.IgnoreDomainRestrictions)
             {
                 var overflowCtor = Helpers.GetConstructor<Action>(() => new OverflowException(""));
-                subexpr = ctx.Settings.DomainRestrictions
+                subexpr = DomainRestrictionSettings.GetDomainRestrictionsFor(ctx)
                     .Select(e =>
                     {
                         SetTypeHint(ctx, typeof(bool));

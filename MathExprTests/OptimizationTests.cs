@@ -90,11 +90,13 @@ namespace MathExprTests
                 AllowDomainChangingOptimizations = allowRestrictions 
             }, new BuiltinExponentSimplificationPass());
 
+            var restrictions = DomainRestrictionSettings.GetDomainRestrictionsFor(context);
+
             var actual = context.Optimize(input);
             Assert.Equal(expect, actual);
-            Assert.Equal(expectRestrictions.Length, context.Settings.DomainRestrictions.Count);
+            Assert.Equal(expectRestrictions.Length, restrictions.Count);
             foreach (var restrict in expectRestrictions)
-                Assert.Contains(restrict, context.Settings.DomainRestrictions);
+                Assert.Contains(restrict, restrictions);
         }
 
         public static object[][] ExponentSimplificationPassTestData = new[]
@@ -116,11 +118,13 @@ namespace MathExprTests
                 AllowDomainChangingOptimizations = allowRestrictions
             }, new BuiltinExponentSimplificationPass(), new BinaryExpressionCombinerPass(), new LiteralCombinerPass());
 
+            var restrictions = DomainRestrictionSettings.GetDomainRestrictionsFor(context);
+
             var actual = context.Optimize(input);
             Assert.Equal(expect, actual);
-            Assert.Equal(expectRestrictions.Length, context.Settings.DomainRestrictions.Count);
+            Assert.Equal(expectRestrictions.Length, restrictions.Count);
             foreach (var restrict in expectRestrictions)
-                Assert.Contains(restrict, context.Settings.DomainRestrictions);
+                Assert.Contains(restrict, restrictions);
         }
 
         public static IEnumerable<object[]> ExponentSimplificationAndOtherPassesTestData =

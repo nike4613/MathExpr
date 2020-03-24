@@ -65,7 +65,7 @@ namespace MathExpr.Compiler.Compilation
     /// A context for managing the compilation of <see cref="MathExpression"/>s.
     /// </summary>
     /// <typeparam name="TSettings"></typeparam>
-    public class CompilationTransformContext<TSettings>
+    public class CompilationTransformContext<TSettings> : DataProvidingContext, ICompilationTransformContext<TSettings>
     {
         /// <summary>
         /// The <see cref="ICompilationTransformContext{TSettings}"/> to use to compile expressions.
@@ -88,16 +88,23 @@ namespace MathExpr.Compiler.Compilation
         /// </summary>
         public TSettings Settings { get; }
 
-        private class ContextImpl : DataProvidingTransformContext, ICompilationTransformContext<TSettings>
+        /// <summary>
+        /// Sets this context's parent data context.
+        /// </summary>
+        /// <param name="newParent">the context to parent this to</param>
+        public void SetParentDataContext(DataProvidingContext? newParent) => SetParent(newParent);
+
+        private class ContextImpl : DataProvidingContext, ICompilationTransformContext<TSettings>
         {
             private readonly CompilationTransformContext<TSettings> owner;
-            public ContextImpl(CompilationTransformContext<TSettings> own) : base(null)
+            public ContextImpl(CompilationTransformContext<TSettings> own) : base(own)
                 => owner = own;
 
             public TSettings Settings => owner.Settings;
             public Expression Transform(MathExpression from)
                 => owner.Transformer.ApplyTo(from, this);
         }
+
         /// <summary>
         /// Transforms a given <see cref="MathExpression"/> into an equivalent <see cref="Expression"/> implementation.
         /// </summary>

@@ -74,7 +74,7 @@ namespace MathExpr.Compiler.Optimization
     /// An optimization context for easily running multiple optimization passes on expressions.
     /// </summary>
     /// <typeparam name="TSettings"></typeparam>
-    public class OptimizationContext<TSettings>
+    public class OptimizationContext<TSettings> : DataProvidingContext, IOptimizationContext<TSettings>
     {
         private readonly List<IOptimizationPass<TSettings>> passes;
 
@@ -99,18 +99,24 @@ namespace MathExpr.Compiler.Optimization
             Settings = settings;
         }
 
-        private class SubContext : DataProvidingTransformContext, IOptimizationContext<TSettings>
+        /// <summary>
+        /// Sets this context's parent data context.
+        /// </summary>
+        /// <param name="newParent">the context to parent this to</param>
+        public void SetParentDataContext(DataProvidingContext? newParent) => SetParent(newParent);
+
+        private class SubContext : DataProvidingContext, IOptimizationContext<TSettings>
         {
             private readonly OptimizationContext<TSettings> owner;
             private readonly int currentIndex;
 
-            public SubContext(OptimizationContext<TSettings> own, int index = 0) : this(null, own, index)
+            public SubContext(OptimizationContext<TSettings> own, int index = 0) : this(own, own, index)
             {
             }
             private SubContext(SubContext parent) : this(parent, parent.owner, parent.currentIndex + 1)
             {
             }
-            private SubContext(SubContext? parent, OptimizationContext<TSettings> own, int index = 0) : base(parent)
+            private SubContext(DataProvidingContext? parent, OptimizationContext<TSettings> own, int index = 0) : base(parent)
             {
                 owner = own;
                 currentIndex = index;
@@ -147,5 +153,8 @@ namespace MathExpr.Compiler.Optimization
         /// <returns>the optimized expression</returns>
         public MathExpression Optimize(MathExpression expr)
             => new SubContext(this).Transform(expr);
+
+        MathExpression ITransformContext<TSettings, MathExpression, MathExpression>.Transform(MathExpression from)
+            => Optimize(from);
     }
 }

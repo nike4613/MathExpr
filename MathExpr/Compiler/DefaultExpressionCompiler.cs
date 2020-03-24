@@ -45,6 +45,7 @@ namespace MathExpr.Compiler
         public override MathExpression Optimize(MathExpression expr)
         {
             var ctx = OptimizationContext.CreateDefault(OptimizerSettings, OptimizerPasses);
+            ctx.SetParentDataContext(SharedDataStore);
             return ctx.Optimize(expr);
         }
 
@@ -60,9 +61,6 @@ namespace MathExpr.Compiler
             if (optimize)
             {
                 expr = Optimize(expr);
-                // TODO: make this not actually necessary somehow
-                foreach (var restrict in OptimizerSettings.DomainRestrictions)
-                    CompilerSettings.DomainRestrictions.Add(restrict);
             }
             return base.CompileToExpression(expr, false);
         }
@@ -96,6 +94,8 @@ namespace MathExpr.Compiler
             CompilerSettings.ParameterMap.Clear();
             foreach (var (name, param) in parameters)
                 CompilerSettings.ParameterMap.Add(new VariableExpression(name), param);
+
+            DomainRestrictionSettings.GetDomainRestrictionsFor(this); // ensure that restrictions are defined locally
 
             return compile(
                 Expression.Lambda<TDelegate>(

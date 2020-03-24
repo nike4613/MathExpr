@@ -29,6 +29,10 @@ namespace MathExpr.Compiler.Optimization.Passes
             }
             return base.ApplyTo(expr, ctx, out transformResult);
         }
+
+        private ICollection<MathExpression> GetDomainRestrictions(IDataContext ctx)
+            => DomainRestrictionSettings.GetDomainRestrictionsFor(ctx);
+
         /// <inheritdoc/>
         public override MathExpression ApplyTo(FunctionExpression f, IOptimizationContext<IDomainRestrictionSettings> ctx, out bool transformResult)
         {
@@ -42,7 +46,8 @@ namespace MathExpr.Compiler.Optimization.Passes
                         if (fn.Arguments.Count == 1 && ctx.Settings.AllowDomainChangingOptimizations)
                         {
                             var ln = fn.Arguments.First();
-                            ctx.Settings.DomainRestrictions.Add(new BinaryExpression(ln, new LiteralExpression(0), BinaryExpression.ExpressionType.LessEq));
+                            var dr = GetDomainRestrictions(ctx);
+                            dr.Add(new BinaryExpression(ln, new LiteralExpression(0), BinaryExpression.ExpressionType.LessEq));
                             transformResult = false; //because we will have already applied to it
                             return ApplyTo(ln, ctx); // apply to the argument, transform to that
                         }

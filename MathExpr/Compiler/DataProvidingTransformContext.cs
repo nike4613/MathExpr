@@ -8,9 +8,9 @@ namespace MathExpr.Compiler
     /// <summary>
     /// A basic implementation of <see cref="IDataContext"/>, providing a nested dictionary based data storage.
     /// </summary>
-    public abstract class DataProvidingTransformContext : IDataContext
+    public abstract class DataProvidingContext : IDataContext
     {
-        private readonly DataProvidingTransformContext? parent;
+        private DataProvidingContext? parent;
         /// <summary>
         /// The data storage dictionary used to store the data in this context.
         /// </summary>
@@ -20,8 +20,14 @@ namespace MathExpr.Compiler
         /// Constructs a new context, optionally with a parent context.
         /// </summary>
         /// <param name="parent">the parent context</param>
-        protected DataProvidingTransformContext(DataProvidingTransformContext? parent = null)
+        protected DataProvidingContext(DataProvidingContext? parent = null)
             => this.parent = parent;
+
+        /// <summary>
+        /// Changes this data context's parent context.
+        /// </summary>
+        /// <param name="parent">the new parent context</param>
+        protected void SetParent(DataProvidingContext? parent) => this.parent = parent;
 
         private static class DataStoreKeyStore<TScope, TData>
         {

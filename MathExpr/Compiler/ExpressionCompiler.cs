@@ -26,7 +26,7 @@ namespace MathExpr.Compiler
     /// </summary>
     /// <typeparam name="TOptimizerSettings">the type of optimizer settings to use</typeparam>
     /// <typeparam name="TCompilerSettings">the type of compiler settings to use</typeparam>
-    public class ExpressionCompiler<TOptimizerSettings, TCompilerSettings>
+    public class ExpressionCompiler<TOptimizerSettings, TCompilerSettings> : IDataContext
     {
         /// <summary>
         /// The optimizer settings to use.
@@ -60,6 +60,13 @@ namespace MathExpr.Compiler
         }
 
         /// <summary>
+        /// The data store implementation underlying this <see cref="ExpressionCompiler{TOptimizerSettings, TCompilerSettings}"/>.
+        /// </summary>
+        protected DataProvidingContext SharedDataStore { get; } = new DataContextImpl();
+
+        private sealed class DataContextImpl : DataProvidingContext { }
+
+        /// <summary>
         /// Optimizes a <see cref="MathExpression"/> using the passes in <see cref="OptimizerPasses"/> and the settings in
         /// <see cref="OptimizerSettings"/>.
         /// </summary>
@@ -68,6 +75,7 @@ namespace MathExpr.Compiler
         public virtual MathExpression Optimize(MathExpression expr)
         {
             var ctx = OptimizationContext.CreateWith(OptimizerSettings, OptimizerPasses);
+            ctx.SetParentDataContext(SharedDataStore);
             return ctx.Optimize(expr);
         }
 
@@ -83,7 +91,15 @@ namespace MathExpr.Compiler
         {
             if (optimize) expr = Optimize(expr);
             var ctx = CompilationTransformContext.CreateWith(CompilerSettings, Compiler);
+            ctx.SetParentDataContext(SharedDataStore);
             return ctx.Transform(expr);
         }
+
+        /// <inheritdoc/>
+        public TData GetOrCreateData<TScope, TData>(Func<TData> creator)
+            => SharedDataStore.GetOrCreateData<TScope, TData>(creator);
+        /// <inheritdoc/>
+        public void SetData<TScope, TData>(TData data)
+            => SharedDataStore.SetData<TScope, TData>(data);
     }
 }
