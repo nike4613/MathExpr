@@ -316,8 +316,8 @@ namespace MathExprTests
         {
             new object[] { MathExpression.Parse("exp(x)"), 0m, DecimalMath.Exp(0) },
             new object[] { MathExpression.Parse("exp(x)"), 1m, DecimalMath.Exp(1) },
-            new object[] { MathExpression.Parse("exp(x)"), 2m, DecimalMath.Exp(2)  },
-            new object[] { MathExpression.Parse("exp(x)"), 3m, DecimalMath.Exp(3)  },
+            new object[] { MathExpression.Parse("exp(x)"), 2m, DecimalMath.Exp(2) },
+            new object[] { MathExpression.Parse("exp(x)"), 3m, DecimalMath.Exp(3) },
             new object[] { MathExpression.Parse("exp(2*x)"), 0m, DecimalMath.Exp(0) },
             new object[] { MathExpression.Parse("exp(2*x)"), 1m, DecimalMath.Exp(2) },
             new object[] { MathExpression.Parse("exp(2*x)"), 2m, DecimalMath.Exp(4) },
@@ -326,6 +326,40 @@ namespace MathExprTests
             new object[] { MathExpression.Parse("exp(x/2)"), 2m, DecimalMath.Exp(1) },
             new object[] { MathExpression.Parse("exp(x/2)"), 4m, DecimalMath.Exp(2) },
             new object[] { MathExpression.Parse("exp(x/2)"), 6m, DecimalMath.Exp(3) },
+        };
+
+        [Theory]
+        [MemberData(nameof(CompileLnTestValues))]
+        public void CompileLn(MathExpression expr, decimal xarg, decimal result)
+        {
+            var context = CompilationTransformContext.CreateWith(new DefaultBasicCompileToLinqExpressionSettings(),
+                new BasicCompileToLinqExpressionPass<DefaultBasicCompileToLinqExpressionSettings>());
+
+            var var = Expression.Parameter(typeof(decimal));
+            context.Settings.ParameterMap.Add(new VariableExpression("x"), var);
+
+            var fn = Expression.Lambda<Func<decimal, decimal>>(
+                context.Transform(expr),
+                var
+            ).Compile();
+
+            var actual = fn(xarg);
+
+            Assert.Equal(result, actual);
+        }
+
+        public static object[][] CompileLnTestValues = new[]
+        {
+            new object[] { MathExpression.Parse("ln(x)"), 1m, DecimalMath.Ln(1) },
+            new object[] { MathExpression.Parse("ln(x)"), 2m, DecimalMath.Ln(2) },
+            new object[] { MathExpression.Parse("ln(x)"), 3m, DecimalMath.Ln(3) },
+            new object[] { MathExpression.Parse("ln(2*x)"), 1m, DecimalMath.Ln(2) },
+            new object[] { MathExpression.Parse("ln(2*x)"), 2m, DecimalMath.Ln(4) },
+            new object[] { MathExpression.Parse("ln(2*x)"), 3m, DecimalMath.Ln(6) },
+            new object[] { MathExpression.Parse("ln(x/2)"), 1m, DecimalMath.Ln(1m/2m) },
+            new object[] { MathExpression.Parse("ln(x/2)"), 2m, DecimalMath.Ln(1) },
+            new object[] { MathExpression.Parse("ln(x/2)"), 4m, DecimalMath.Ln(2) },
+            new object[] { MathExpression.Parse("ln(x/2)"), 6m, DecimalMath.Ln(3) },
         };
     }
 }
