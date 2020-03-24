@@ -305,7 +305,10 @@ namespace MathExprTests
                 context.Transform(expr),
                 var
             ).Compile();
-            Assert.Equal(fn(xarg), result);
+
+            var actual = fn(xarg);
+
+            Assert.True(Math.Abs(actual - result) < 1000 * DecimalMath.Epsilon, $"{actual} out of error margin of {result}");
         }
 
         public static object[][] CompileExpTestValues = new[]
