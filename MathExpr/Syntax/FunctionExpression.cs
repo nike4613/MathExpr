@@ -11,7 +11,6 @@ namespace MathExpr.Syntax
     public sealed class FunctionExpression : MathExpression
     {
         internal const string LnName = "ln";
-        internal const string ExpName = "exp";
 
         /// <summary>
         /// The name of the function being invoked.

@@ -35,6 +35,7 @@ namespace MathExpr.Compiler.Compilation.Settings
         public DefaultBasicCompileToLinqExpressionSettings()
         {
             this.AddBuiltin().OfType<BuiltinFunctionIf>();
+            this.AddBuiltin().OfType<BuiltinFunctionExp>();
         }
 
         #region Domain Restrictions

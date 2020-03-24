@@ -20,25 +20,18 @@ namespace MathExpr.Compiler.Compilation.Builtins
         /// The name of this builtin function as a constant value.
         /// </summary>
         public const string ConstName = "if";
-        /// <summary>
-        /// The name of this builtin function.
-        /// </summary>
+        /// <inheritdoc/>
         public string Name => ConstName;
-        /// <summary>
-        /// The number of parameters that this builtin supports
-        /// </summary>
-        public int ParamCount => 3; // condition, if true, if false
 
-        /// <summary>
-        /// Attempts to compile a call to the builtin with the given arguments in a context.
-        /// </summary>
-        /// <param name="arguments">the arguments provided in the call</param>
-        /// <param name="ctx">the compilation context</param>
-        /// <param name="hintHandler">the handler for compiling an expression with a preferred type</param>
-        /// <param name="expr">the <see cref="Expression"/> for the compiled call</param>
-        /// <returns><see langword="true"/> if the compilation was successful, <see langword="false"/> otherwise</returns>
+        /// <inheritdoc/>
         public bool TryCompile(IReadOnlyList<MathExpression> arguments, ICompilationTransformContext<object?> ctx, ITypeHintHandler hintHandler, out Expression expr)
         {
+            if (arguments.Count != 3)
+            {
+                expr = default!;
+                return false;
+            }
+
             var condition = hintHandler.TransformWithHint(arguments.First(), typeof(bool), ctx);
 
             var hint = hintHandler.CurrentHint(ctx);

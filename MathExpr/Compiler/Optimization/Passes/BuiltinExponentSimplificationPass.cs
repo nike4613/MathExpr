@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using MathExpr.Compiler.Compilation.Builtins;
 
 namespace MathExpr.Compiler.Optimization.Passes
 {
@@ -23,7 +24,7 @@ namespace MathExpr.Compiler.Optimization.Passes
                     {
                         transformResult = false; // because we will have already applied to our target
                         //  transform into call to `exp` function, then apply to that
-                        return ApplyTo(new FunctionExpression(FunctionExpression.ExpName, new[] { ApplyTo(expr.Right, ctx) }.ToList(), false).WithToken(expr.Token), ctx);
+                        return ApplyTo(new FunctionExpression(BuiltinFunctionExp.ConstName, new[] { ApplyTo(expr.Right, ctx) }.ToList(), false).WithToken(expr.Token), ctx);
                     }
                     break;
             }
@@ -36,7 +37,7 @@ namespace MathExpr.Compiler.Optimization.Passes
         /// <inheritdoc/>
         public override MathExpression ApplyTo(FunctionExpression f, IOptimizationContext<IDomainRestrictionSettings> ctx, out bool transformResult)
         {
-            if (!f.IsUserDefined && f.Name == FunctionExpression.ExpName)
+            if (!f.IsUserDefined && f.Name == BuiltinFunctionExp.ConstName)
             { // exp(x)
                 if (f.Arguments.Count == 1)
                 {

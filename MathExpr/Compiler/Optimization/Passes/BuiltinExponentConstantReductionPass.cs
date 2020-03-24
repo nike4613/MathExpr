@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using MathExpr.Compiler.Compilation.Builtins;
 
 namespace MathExpr.Compiler.Optimization.Passes
 {
@@ -16,7 +17,7 @@ namespace MathExpr.Compiler.Optimization.Passes
         /// <inheritdoc/>
         public override MathExpression ApplyTo(FunctionExpression expr, IOptimizationContext<object?> ctx, out bool transformResult)
         {
-            if (!expr.IsUserDefined && (expr.Name == FunctionExpression.ExpName || expr.Name == FunctionExpression.LnName))
+            if (!expr.IsUserDefined && (expr.Name == BuiltinFunctionExp.ConstName || expr.Name == FunctionExpression.LnName))
             { // exp(x)
                 if (expr.Arguments.Count == 1)
                 {
@@ -24,7 +25,7 @@ namespace MathExpr.Compiler.Optimization.Passes
                     if (arg is LiteralExpression lit)
                     {
                         transformResult = true;
-                        if (expr.Name == FunctionExpression.ExpName)
+                        if (expr.Name == BuiltinFunctionExp.ConstName)
                             return new LiteralExpression(DecimalMath.Exp(lit.Value)).WithToken(expr.Token);
                         if (expr.Name == FunctionExpression.LnName)
                             return new LiteralExpression(DecimalMath.Ln(lit.Value)).WithToken(expr.Token);
