@@ -33,16 +33,16 @@ namespace MathExpr.Compiler.Compilation.Builtins
 
             if (argExpr.Type == typeof(float) || argExpr.Type == typeof(double))
             { // if this is a floating point
-                var method = Helpers.GetMethod<Action<double>>(d => Math.Exp(d));
+                var method = Helpers.GetMethod<Action<double>>(d => Math.Exp(d))!;
 
-                expr = Expression.Call(CompilerHelpers.ConvertToType(argExpr, typeof(double)), method);
+                expr = Expression.Call(method, CompilerHelpers.ConvertToType(argExpr, typeof(double)));
                 return true;
             }
             else if (CompilerHelpers.IsFloating(argExpr.Type) || CompilerHelpers.IsIntegral(argExpr.Type))
             { // if this is a built-in integer or decimal
-                var method = Helpers.GetMethod<Action<decimal>>(d => DecimalMath.Exp(d));
+                var method = Helpers.GetMethod<Action<decimal>>(d => DecimalMath.Exp(d))!;
 
-                expr = Expression.Call(CompilerHelpers.ConvertToType(argExpr, typeof(decimal)), method);
+                expr = Expression.Call(method, CompilerHelpers.ConvertToType(argExpr, typeof(decimal)));
                 return true;
             }
 

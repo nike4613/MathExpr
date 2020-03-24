@@ -290,5 +290,38 @@ namespace MathExprTests
             new object[] { MathExpression.Parse("1 / (2*x + 1)"), MathExpression.Parse("2*x+1 = 0"), typeof(decimal), 2m, 1m/5m, false },
             new object[] { MathExpression.Parse("1 / (2*x + 1)"), MathExpression.Parse("2*x+1 = 0"), typeof(decimal), -1m/2m, 1m, true},
         };
+
+        [Theory]
+        [MemberData(nameof(CompileExpTestValues))]
+        public void CompileExp(MathExpression expr, decimal xarg, decimal result)
+        {
+            var context = CompilationTransformContext.CreateWith(new DefaultBasicCompileToLinqExpressionSettings(), 
+                new BasicCompileToLinqExpressionPass<DefaultBasicCompileToLinqExpressionSettings>());
+
+            var var = Expression.Parameter(typeof(decimal));
+            context.Settings.ParameterMap.Add(new VariableExpression("x"), var);
+
+            var fn = Expression.Lambda<Func<decimal, decimal>>(
+                context.Transform(expr),
+                var
+            ).Compile();
+            Assert.Equal(fn(xarg), result);
+        }
+
+        public static object[][] CompileExpTestValues = new[]
+        {
+            new object[] { MathExpression.Parse("exp(x)"), 0m, 1m },
+            new object[] { MathExpression.Parse("exp(x)"), 1m, DecimalMath.E },
+            new object[] { MathExpression.Parse("exp(x)"), 2m, DecimalMath.E*DecimalMath.E },
+            new object[] { MathExpression.Parse("exp(x)"), 3m, DecimalMath.E*DecimalMath.E*DecimalMath.E },
+            new object[] { MathExpression.Parse("exp(2*x)"), 0m, 1m },
+            new object[] { MathExpression.Parse("exp(2*x)"), 1m, DecimalMath.E*DecimalMath.E },
+            new object[] { MathExpression.Parse("exp(2*x)"), 2m, DecimalMath.E*DecimalMath.E*DecimalMath.E*DecimalMath.E },
+            new object[] { MathExpression.Parse("exp(2*x)"), 3m, DecimalMath.E*DecimalMath.E*DecimalMath.E*DecimalMath.E*DecimalMath.E*DecimalMath.E },
+            new object[] { MathExpression.Parse("exp(x/2)"), 0m, 1m },
+            new object[] { MathExpression.Parse("exp(x/2)"), 2m, DecimalMath.E },
+            new object[] { MathExpression.Parse("exp(x/2)"), 4m, DecimalMath.E*DecimalMath.E },
+            new object[] { MathExpression.Parse("exp(x/2)"), 6m, DecimalMath.E*DecimalMath.E*DecimalMath.E },
+        };
     }
 }
