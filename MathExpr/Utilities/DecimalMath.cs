@@ -136,7 +136,7 @@ namespace MathExpr.Utilities
         /// <summary>
         /// Euler's constant.
         /// </summary>
-        public const decimal E = 2.71828182845904523536028747135m;
+        public const decimal E = 2.718281828459045235360287471352662497759m;
         /// <summary>
         /// Pi.
         /// </summary>
