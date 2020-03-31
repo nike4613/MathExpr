@@ -361,5 +361,57 @@ namespace MathExprTests
             new object[] { MathExpression.Parse("ln(x/2)"), 4m, DecimalMath.Ln(2) },
             new object[] { MathExpression.Parse("ln(x/2)"), 6m, DecimalMath.Ln(3) },
         };
+
+        [Theory]
+        [MemberData(nameof(CompileTrigTestValues))]
+        public void CompileTrig(MathExpression expr, double xarg, double result)
+        {
+            var context = CompilationTransformContext.CreateWith(new DefaultBasicCompileToLinqExpressionSettings()
+                {
+                    ExpectReturn = typeof(double)
+                },
+                new BasicCompileToLinqExpressionPass<DefaultBasicCompileToLinqExpressionSettings>());
+
+            var var = Expression.Parameter(typeof(double));
+            context.Settings.ParameterMap.Add(new VariableExpression("x"), var);
+
+            var fn = Expression.Lambda<Func<double, double>>(
+                context.Transform(expr),
+                var
+            ).Compile();
+
+            var actual = fn(xarg);
+
+            Assert.Equal(result, actual);
+        }
+
+
+        public static object[][] CompileTrigTestValues = new[]
+        {
+            new object[] { MathExpression.Parse("sin(x)"), 1d, Math.Sin(1) },
+            new object[] { MathExpression.Parse("sin(x)"), 2d, Math.Sin(2) },
+            new object[] { MathExpression.Parse("sin(2*x)"), 1d, Math.Sin(2) },
+            new object[] { MathExpression.Parse("sin(2*x)"), 2d, Math.Sin(4) },
+            new object[] { MathExpression.Parse("cos(x)"), 1d, Math.Cos(1) },
+            new object[] { MathExpression.Parse("cos(x)"), 2d, Math.Cos(2) },
+            new object[] { MathExpression.Parse("cos(2*x)"), 1d, Math.Cos(2) },
+            new object[] { MathExpression.Parse("cos(2*x)"), 2d, Math.Cos(4) },
+            new object[] { MathExpression.Parse("tan(x)"), 1d, Math.Tan(1) },
+            new object[] { MathExpression.Parse("tan(x)"), 2d, Math.Tan(2) },
+            new object[] { MathExpression.Parse("tan(2*x)"), 1d, Math.Tan(2) },
+            new object[] { MathExpression.Parse("tan(2*x)"), 2d, Math.Tan(4) },
+            new object[] { MathExpression.Parse("asin(x)"), 1d, Math.Asin(1) },
+            new object[] { MathExpression.Parse("asin(x)"), 2d, Math.Asin(2) },
+            new object[] { MathExpression.Parse("asin(2*x)"), 1d, Math.Asin(2) },
+            new object[] { MathExpression.Parse("asin(2*x)"), 2d, Math.Asin(4) },
+            new object[] { MathExpression.Parse("acos(x)"), 1d, Math.Acos(1) },
+            new object[] { MathExpression.Parse("acos(x)"), 2d, Math.Acos(2) },
+            new object[] { MathExpression.Parse("acos(2*x)"), 1d, Math.Acos(2) },
+            new object[] { MathExpression.Parse("acos(2*x)"), 2d, Math.Acos(4) },
+            new object[] { MathExpression.Parse("atan(x)"), 1d, Math.Atan(1) },
+            new object[] { MathExpression.Parse("atan(x)"), 2d, Math.Atan(2) },
+            new object[] { MathExpression.Parse("atan(2*x)"), 1d, Math.Atan(2) },
+            new object[] { MathExpression.Parse("atan(2*x)"), 2d, Math.Atan(4) },
+        };
     }
 }
