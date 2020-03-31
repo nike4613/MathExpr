@@ -167,12 +167,17 @@ namespace MathExpr.Syntax
             return hashCode;
         }
 
+        /// <summary>
+        /// Constructs an ASCII art-style representation of this token and its location.
+        /// </summary>
+        /// <returns>a string representing the token and its location in the original string</returns>
         public string FormatTokenLocation()
         {
-            if (InputText == null)
-                return $"at {Position} (token type {Type})";
-
             var sb = new StringBuilder();
+            sb.AppendLine($"at {Position} (token type {Type})");
+
+            if (InputText == null)
+                return sb.ToString();
 
             var lineNo = InputText.CountLinesBefore(Position) + 1;
             var lineStart = InputText.FindLineBreakBefore(Position);

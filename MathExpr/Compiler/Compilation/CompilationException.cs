@@ -69,6 +69,11 @@ namespace MathExpr.Compiler.Compilation
         {
         }
 
+        /// <summary>
+        /// Converts this exception to a string, prepending the result of <see cref="Token.FormatTokenLocation"/>
+        /// for the token associated with the expression associated with this expression.
+        /// </summary>
+        /// <returns>a string representatino of this exception</returns>
         public override string ToString()
         {
             var str = base.ToString();

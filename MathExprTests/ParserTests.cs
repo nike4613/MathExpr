@@ -68,7 +68,7 @@ namespace MathExprTests
             }
             catch (SyntaxException e)
             {
-                var str = e.ToString();
+                _ = e.ToString();
                 Assert.False(valid, "Parser threw when it was not supposed to");
             }
         }

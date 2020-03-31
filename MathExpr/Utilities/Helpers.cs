@@ -67,6 +67,12 @@ namespace MathExpr.Utilities
             yield return val;
         }
 
+        /// <summary>
+        /// Counts the number of lines before <paramref name="pos"/> in <paramref name="str"/>.
+        /// </summary>
+        /// <param name="str">the string to count the lines in</param>
+        /// <param name="pos">the position in the string to count before</param>
+        /// <returns>the number of lines before <paramref name="pos"/></returns>
         public static int CountLinesBefore(this string str, int pos)
         {
             char last = ' ';
@@ -82,6 +88,12 @@ namespace MathExpr.Utilities
             return count;
         }
 
+        /// <summary>
+        /// Finds the nearest line break before <paramref name="pos"/> in <paramref name="str"/>.
+        /// </summary>
+        /// <param name="str">the string to search in</param>
+        /// <param name="pos">the position to find the nearest line break before</param>
+        /// <returns>the position of the nearest line break before <paramref name="pos"/></returns>
         public static int FindLineBreakBefore(this string str, int pos)
         {
             pos = Math.Min(Math.Max(pos, 0), str.Length);
@@ -94,6 +106,12 @@ namespace MathExpr.Utilities
             return 0;
         }
 
+        /// <summary>
+        /// Finds the nearest line break after <paramref name="pos"/> in <paramref name="str"/>.
+        /// </summary>
+        /// <param name="str">the string to search in</param>
+        /// <param name="pos">the position to find the nearest line break after</param>
+        /// <returns>the position of the nearest line break after <paramref name="pos"/></returns>
         public static int FindLineBreakAfter(this string str, int pos)
         {
             pos = Math.Min(Math.Max(pos, 0), str.Length);
