@@ -1,4 +1,5 @@
 ﻿using MathExpr.Compiler;
+using MathExpr.Compiler.Compilation;
 using MathExpr.Syntax;
 using System;
 using System.Collections.Generic;
@@ -33,6 +34,29 @@ namespace MathExprTests
         {
             var del = ExpressionCompiler.Default.Compile<Func<double, double, double>>(MathExpression.Parse(expression), "x", "y");
             Assert.Equal(expect, del(arg1, arg2));
+        }
+
+        [Theory]
+        [InlineData("customFunc'(x)")]
+        [InlineData("customFunc'(x) = x; customFunc'(x)")]
+        [InlineData("defaultFunc(x)")]
+        [InlineData("defaultFunc(x, y)")]
+        [InlineData("sin(x, y)")]
+        [InlineData("sin(z)")]
+        public void CompileError(string expression)
+        {
+            Assert.Throws<CompilationException>(() =>
+            {
+                try
+                {
+                    ExpressionCompiler.Default.Compile<Func<double, double, double>>(MathExpression.Parse(expression), optimize: false, "x", "y");
+                }
+                catch (Exception e)
+                {
+                    _ = e.ToString();
+                    throw;
+                }
+            });
         }
     }
 }
