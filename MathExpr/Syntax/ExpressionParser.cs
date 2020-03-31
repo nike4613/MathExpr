@@ -9,9 +9,9 @@ namespace MathExpr.Syntax
 {
     internal struct ExpressionParser
     {
-        public static MathExpression ParseRoot(string s)
+        public static MathExpression ParseRoot(string s, bool saveText = true)
         {
-            var tokenStream = Tokenizer.Tokenize(s)
+            var tokenStream = Tokenizer.Tokenize(s, saveText)
                 .Select(t => t.Type != TokenType.Error 
                     ? t 
                     : throw new SyntaxException(t, t.AsString!)).AsLookahead(1); // should be able to get away with just 1 token of lookahead
@@ -239,6 +239,14 @@ namespace MathExpr.Syntax
             : base(message + (token == null ? "" : $" at token {token.Value} at {token.Value.Position}:{token.Value.Length}"))
         {
             Token = token;
+        }
+
+        public override string ToString()
+        {
+            var str = base.ToString();
+            if (Token != null)
+                str = Token.Value.FormatTokenLocation() + str;
+            return str;
         }
     }
 }

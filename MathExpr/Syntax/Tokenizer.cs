@@ -1,7 +1,9 @@
-﻿using System;
+﻿using MathExpr.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using System.Text;
 
 namespace MathExpr.Syntax
 {
@@ -87,6 +89,11 @@ namespace MathExpr.Syntax
         public int Length { get; }
 
         /// <summary>
+        /// The input text that this token was parsed from, if that information is avaliable.
+        /// </summary>
+        public string? InputText { get; }
+
+        /// <summary>
         /// The value contained in this token as a <see cref="decimal"/>.
         /// </summary>
         public decimal? AsDecimal => Value as decimal?;
@@ -103,9 +110,23 @@ namespace MathExpr.Syntax
         /// <param name="value">the value to store in the token</param>
         /// <param name="pos">the position of the token in the input string</param>
         /// <param name="len">the length of the token</param>
-        public Token(TokenType type, object? value, int pos, int len)
+        public Token(TokenType type, object? value, int pos, int len) : this(type, value, pos, len, null) 
         {
-            Type = type; Value = value; Position = pos; Length = len;
+        }
+
+        /// <summary>
+        /// Constructs a new token of the given type with the given value, position,
+        /// and length, along with the original input text for debugging.
+        /// </summary>
+        /// <param name="type">the type of token being constructed</param>
+        /// <param name="value">the value to store in the token</param>
+        /// <param name="pos">the position of the token in the input string</param>
+        /// <param name="len">the length of the token</param>
+        /// <param name="inputText">the text that this token was parsed from</param>
+        public Token(TokenType type, object? value, int pos, int len, string? inputText)
+        {
+            Type = type; Value = value; Position = pos; 
+            Length = len; InputText = inputText;
         }
 
         /// <inheritdoc/>
@@ -145,6 +166,38 @@ namespace MathExpr.Syntax
             hashCode = hashCode * -1521134295 + Length.GetHashCode();
             return hashCode;
         }
+
+        public string FormatTokenLocation()
+        {
+            if (InputText == null)
+                return $"at {Position} (token type {Type})";
+
+            var sb = new StringBuilder();
+
+            var lineNo = InputText.CountLinesBefore(Position) + 1;
+            var lineStart = InputText.FindLineBreakBefore(Position);
+            var lineEnd = InputText.FindLineBreakAfter(Position);
+
+            var line = InputText.Substring(lineStart, lineEnd - lineStart);
+
+            var lineNoStr = $" {lineNo} ";
+
+            sb.Append('-', lineNoStr.Length)
+              .AppendLine("+")
+              .Append(lineNoStr)
+              .Append("|")
+              .AppendLine(line)
+              .Append('-', lineNoStr.Length)
+              .Append('+')
+              .Append('-', Position - lineStart)
+              .Append('^')
+              .Append('~', Length - 1)
+              .AppendLine()
+              .Append(' ', lineNoStr.Length + (Position - lineStart) + 1)
+              .AppendLine("here");
+
+            return sb.ToString();
+        }
     }
 
     internal static class Tokenizer
@@ -155,7 +208,7 @@ namespace MathExpr.Syntax
         private static bool IsNumberChar(char c)
             => char.IsNumber(c);
 
-        public static IEnumerable<Token> Tokenize(string text)
+        public static IEnumerable<Token> Tokenize(string text, bool saveText = true)
         {
             int tokenStart;
             int tokenLen;
@@ -169,12 +222,12 @@ namespace MathExpr.Syntax
                     TokenType.Literal => (object?)decimal.Parse(text.Substring(tokenStart, tokenLen), CultureInfo.InvariantCulture),
                     _ => null
                 };
-                return new Token(currentTokenType, value, tokenStart, tokenLen);
+                return new Token(currentTokenType, value, tokenStart, tokenLen, saveText ? text : null);
             }
 
-            static Token NewToken(TokenType type, ref int i, int len = 1)
+            Token NewToken(TokenType type, ref int i, int len = 1, object? value = null)
             {
-                var tok = new Token(type, null, i, len);
+                var tok = new Token(type, value, i, len, saveText ? text : null);
                 i += len;
                 return tok;
             }
@@ -287,7 +340,7 @@ namespace MathExpr.Syntax
                             yield return NewToken(TokenType.Period, ref i);
                             break;
                         default:
-                            yield return new Token(TokenType.Error, "Unexpected character", i++, 1);
+                            yield return NewToken(TokenType.Error, ref i, value: "Unexpected character");
                             break;
                     }
                 }

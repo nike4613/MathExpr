@@ -40,36 +40,47 @@ namespace MathExpr.Compiler.Compilation.Passes
         /// <returns>the compiled <see cref="Expression"/></returns>
         public override Expression ApplyTo(MathExpression expr, ICompilationTransformContext<TSettings> ctx)
         {
-            if (!IsRootExpression(ctx))
-                return base.ApplyTo(expr, ctx);
-
-            SetRootExpression(ctx);
-
-            // TODO: set up lambda stuff
-
-            SetTypeHint(ctx, ctx.Settings.ExpectReturn);
-            var subexpr = base.ApplyTo(expr, ctx);
-            if (subexpr.Type != ctx.Settings.ExpectReturn)
-                subexpr = CompilerHelpers.ConvertToType(subexpr, ctx.Settings.ExpectReturn);
-
-            // TODO: use subexpr
-
-            if (!ctx.Settings.IgnoreDomainRestrictions)
+            try
             {
-                var overflowCtor = Helpers.GetConstructor<Action>(() => new OverflowException(""));
-                subexpr = DomainRestrictionSettings.GetDomainRestrictionsFor(ctx)
-                    .Select(e =>
-                    {
-                        SetTypeHint(ctx, typeof(bool));
-                        return (x: CompilerHelpers.ConvertToType(base.ApplyTo(e, ctx), typeof(bool)), e);
-                    })
-                    .Aggregate(subexpr, (start, restrict) =>
-                        Expression.Condition(restrict.x,
-                            Expression.Throw(Expression.New(overflowCtor, Expression.Constant($"{restrict.e} not in domain")), start.Type),
-                            start));
-            }
+                if (!IsRootExpression(ctx))
+                    return base.ApplyTo(expr, ctx);
 
-            return subexpr;
+                SetRootExpression(ctx);
+
+                // TODO: set up lambda stuff
+
+                SetTypeHint(ctx, ctx.Settings.ExpectReturn);
+                var subexpr = base.ApplyTo(expr, ctx);
+                if (subexpr.Type != ctx.Settings.ExpectReturn)
+                    subexpr = CompilerHelpers.ConvertToType(subexpr, ctx.Settings.ExpectReturn);
+
+                // TODO: use subexpr
+
+                if (!ctx.Settings.IgnoreDomainRestrictions)
+                {
+                    var overflowCtor = Helpers.GetConstructor<Action>(() => new OverflowException(""));
+                    subexpr = DomainRestrictionSettings.GetDomainRestrictionsFor(ctx)
+                        .Select(e =>
+                        {
+                            SetTypeHint(ctx, typeof(bool));
+                            return (x: CompilerHelpers.ConvertToType(base.ApplyTo(e, ctx), typeof(bool)), e);
+                        })
+                        .Aggregate(subexpr, (start, restrict) =>
+                            Expression.Condition(restrict.x,
+                                Expression.Throw(Expression.New(overflowCtor, Expression.Constant($"{restrict.e} not in domain")), start.Type),
+                                start));
+                }
+
+                return subexpr;
+            }
+            catch (CompilationException)
+            {
+                throw;
+            }
+            catch (Exception e)
+            {
+                throw new CompilationException(expr, e);
+            }
         }
 
         private Func<Expression, Expression, Expression> SpecialBinaryAggregator(IEnumerable<ISpecialBinaryOperationCompiler> set)

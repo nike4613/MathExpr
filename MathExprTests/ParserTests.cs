@@ -66,8 +66,9 @@ namespace MathExprTests
                 _ = MathExpression.Parse(input);
                 Assert.True(valid, "Parser did not throw when it was supposed to");
             }
-            catch (SyntaxException)
+            catch (SyntaxException e)
             {
+                var str = e.ToString();
                 Assert.False(valid, "Parser threw when it was not supposed to");
             }
         }

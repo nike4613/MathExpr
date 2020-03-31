@@ -15,10 +15,11 @@ namespace MathExpr.Syntax
         /// Parses an exression string into an expression tree.
         /// </summary>
         /// <param name="expr">the string to parse</param>
+        /// <param name="saveText">whether or not to save the original input text in the parsed tokens</param>
         /// <returns>the expression tree</returns>
         /// <exception cref="SyntaxException">when there is a syntax error</exception>
-        public static MathExpression Parse(string expr)
-            => ExpressionParser.ParseRoot(expr);
+        public static MathExpression Parse(string expr, bool saveText = true)
+            => ExpressionParser.ParseRoot(expr, saveText);
 
         private Token? identificationToken;
         /// <summary>

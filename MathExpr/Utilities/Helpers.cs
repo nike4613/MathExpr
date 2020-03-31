@@ -66,5 +66,44 @@ namespace MathExpr.Utilities
         {
             yield return val;
         }
+
+        public static int CountLinesBefore(this string str, int pos)
+        {
+            char last = ' ';
+            pos = Math.Min(Math.Max(pos, 0), str.Length);
+            int count = 0;
+            for (int i = 0; i < pos; i++)
+            {
+                var c = str[i];
+                if (c == '\r' || (last != '\r' && c == '\n')) 
+                    count++;
+                last = c;
+            }
+            return count;
+        }
+
+        public static int FindLineBreakBefore(this string str, int pos)
+        {
+            pos = Math.Min(Math.Max(pos, 0), str.Length);
+            while (pos > 0)
+            {
+                var c = str[pos--];
+                if (c == '\r' && c == '\n')
+                    return pos+1;
+            }
+            return 0;
+        }
+
+        public static int FindLineBreakAfter(this string str, int pos)
+        {
+            pos = Math.Min(Math.Max(pos, 0), str.Length);
+            while (pos < str.Length)
+            {
+                var c = str[pos++];
+                if (c == '\r' && c == '\n')
+                    return pos;
+            }
+            return str.Length;
+        }
     }
 }
