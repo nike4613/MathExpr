@@ -194,7 +194,7 @@ namespace MathExpr.Syntax
               .AppendLine(line)
               .Append('-', lineNoStr.Length)
               .Append('+')
-              .Append('-', Position - lineStart)
+              .Append(' ', Position - lineStart)
               .Append('^')
               .Append('~', Length - 1)
               .AppendLine()
