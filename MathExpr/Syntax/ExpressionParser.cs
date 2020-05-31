@@ -193,6 +193,8 @@ namespace MathExpr.Syntax
         {
             if (TryConsumeToken(TokenType.Literal, out var tok))
                 return new LiteralExpression(tok.AsDecimal!.Value).WithToken(tok);
+            else if (TryConsumeToken(TokenType.String, out tok))
+                return new StringExpression(tok.AsString!).WithToken(tok);
             else if (TryConsumeToken(TokenType.Identifier, out tok))
             {
                 if (TryConsumeToken(TokenType.Prime, out _)) // a prime function

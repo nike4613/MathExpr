@@ -52,6 +52,7 @@ namespace MathExpr.Syntax
         [TokenDesc("'")]            Prime,
         [TokenDesc(";")]            Semicolon,
         [TokenDesc(".")]            Period,
+        [TokenDesc(@""".*""")]      String,
 #pragma warning restore 1591 // Missing XML comment for publicly visible type or member
 
         /// <summary>
@@ -264,6 +265,34 @@ namespace MathExpr.Syntax
                         tokenLen++;
                     }
                     yield return EmitToken();
+                }
+                else if (text[i] == '"')
+                {
+                    tokenStart = i++;
+                    tokenLen = 1;
+                    var builder = new StringBuilder();
+                    bool escaped = false;
+                    while (i < text.Length && (escaped || text[i] != '"'))
+                    {
+                        if (!escaped && text[i] == '\\')
+                            escaped = true;
+                        else
+                        {
+                            builder.Append(text[i]);
+                        }
+
+                        i++;
+                        tokenLen++;
+                    }
+                    if (text[i++] != '"')
+                    {
+                        yield return new Token(TokenType.Error, "End of input while in string", tokenStart, tokenLen, saveText ? text : null);
+                    }
+                    else
+                    {
+                        tokenLen++;
+                        yield return new Token(TokenType.String, builder.ToString(), tokenStart, tokenLen, saveText ? text : null);
+                    }
                 }
                 else
                 {
