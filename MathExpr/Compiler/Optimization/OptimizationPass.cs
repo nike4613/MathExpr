@@ -41,6 +41,7 @@ namespace MathExpr.Compiler.Optimization
         /// <seealso cref="ApplyTo(VariableExpression, IOptimizationContext{TSettings}, out bool)"/>
         /// <seealso cref="ApplyTo(FunctionExpression, IOptimizationContext{TSettings}, out bool)"/>
         /// <seealso cref="ApplyTo(LiteralExpression, IOptimizationContext{TSettings}, out bool)"/>
+        /// <seealso cref="ApplyTo(StringExpression, IOptimizationContext{TSettings}, out bool)"/>
         /// <seealso cref="ApplyTo(CustomDefinitionExpression, IOptimizationContext{TSettings}, out bool)"/>
         public virtual MathExpression ApplyTo(MathExpression expr, IOptimizationContext<TSettings> ctx)
         {
@@ -53,6 +54,7 @@ namespace MathExpr.Compiler.Optimization
                 VariableExpression b => ApplyTo(b, ctx, out transformResult),
                 FunctionExpression b => ApplyTo(b, ctx, out transformResult),
                 LiteralExpression b => ApplyTo(b, ctx, out transformResult),
+                StringExpression b => ApplyTo(b, ctx, out transformResult),
                 CustomDefinitionExpression b => ApplyTo(b, ctx, out transformResult),
                 _ => throw new ArgumentException("Unknown expression type", nameof(expr))
             };
@@ -79,6 +81,8 @@ namespace MathExpr.Compiler.Optimization
             => SequenceExpressions(transformResult = true, new FunctionExpression(expr.Name, expr.Arguments.Select(e => ApplyTo(e, ctx)).ToList(), expr.IsUserDefined))
                 .WithToken(expr.Token);
         public virtual MathExpression ApplyTo(LiteralExpression expr, IOptimizationContext<TSettings> ctx, out bool transformResult) 
+            => SequenceExpressions(transformResult = true, expr);
+        public virtual MathExpression ApplyTo(StringExpression expr, IOptimizationContext<TSettings> ctx, out bool transformResult)
             => SequenceExpressions(transformResult = true, expr);
         public virtual MathExpression ApplyTo(CustomDefinitionExpression expr, IOptimizationContext<TSettings> ctx, out bool transformResult)
             => SequenceExpressions(transformResult = true, 

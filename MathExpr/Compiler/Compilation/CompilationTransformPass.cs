@@ -35,6 +35,7 @@ namespace MathExpr.Compiler.Compilation
         /// <seealso cref="ApplyTo(VariableExpression, ICompilationTransformContext{TSettings})"/>
         /// <seealso cref="ApplyTo(FunctionExpression, ICompilationTransformContext{TSettings})"/>
         /// <seealso cref="ApplyTo(LiteralExpression, ICompilationTransformContext{TSettings})"/>
+        /// <seealso cref="ApplyTo(StringExpression, ICompilationTransformContext{TSettings})"/>
         /// <seealso cref="ApplyTo(CustomDefinitionExpression, ICompilationTransformContext{TSettings})"/>
         public virtual Expression ApplyTo(MathExpression expr, ICompilationTransformContext<TSettings> ctx)
             => expr switch
@@ -56,6 +57,7 @@ namespace MathExpr.Compiler.Compilation
         public abstract Expression ApplyTo(VariableExpression expr, ICompilationTransformContext<TSettings> ctx);
         public abstract Expression ApplyTo(FunctionExpression expr, ICompilationTransformContext<TSettings> ctx);
         public abstract Expression ApplyTo(LiteralExpression expr, ICompilationTransformContext<TSettings> ctx);
+        public abstract Expression ApplyTo(StringExpression expr, ICompilationTransformContext<TSettings> ctx);
         public abstract Expression ApplyTo(CustomDefinitionExpression expr, ICompilationTransformContext<TSettings> ctx);
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
     }

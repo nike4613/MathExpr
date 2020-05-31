@@ -283,6 +283,10 @@ namespace MathExpr.Compiler.Compilation.Passes
         }
 
         /// <inheritdoc/>
+        public override Expression ApplyTo(StringExpression expr, ICompilationTransformContext<TSettings> ctx)
+            => Expression.Constant(expr.Value);
+
+        /// <inheritdoc/>
         public override Expression ApplyTo(CustomDefinitionExpression expr, ICompilationTransformContext<TSettings> ctx)
         {
             throw new InvalidOperationException("Default compiler does not support un-inlined user functions");
