@@ -279,12 +279,13 @@ namespace MathExpr.Syntax
                         else
                         {
                             builder.Append(text[i]);
+                            escaped = false;
                         }
 
                         i++;
                         tokenLen++;
                     }
-                    if (text[i++] != '"')
+                    if (i >= text.Length || text[i++] != '"')
                     {
                         yield return new Token(TokenType.Error, "End of input while in string", tokenStart, tokenLen, saveText ? text : null);
                     }
