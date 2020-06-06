@@ -13,7 +13,7 @@ namespace MathExprTests
         [Fact]
         public void TokenizeString()
         {
-            var tokens = Tokenizer.Tokenize("a+b*c/d^ehij  % k %( 3.442*ident) ^^ y & y");
+            var tokens = Tokenizer.Tokenize("a+b*c/d^ehij  % k %( 3.442*ident) ^^ y & y \"haha this is a \\\" string literal &^\"");
             var expect = new[]
             {
                 new Token(TokenType.Identifier, "a", 0, 1),
@@ -37,9 +37,13 @@ namespace MathExprTests
                 new Token(TokenType.Identifier, "y", 37, 1),
                 new Token(TokenType.And, null, 39, 1),
                 new Token(TokenType.Identifier, "y", 41, 1),
+                new Token(TokenType.String, "haha this is a \" string literal &^", 43, 37)
             };
 
-            Assert.Equal(expect, tokens);
+            foreach (var (actual, expected) in tokens.Zip(expect))
+            {
+                Assert.Equal(expected, actual);
+            }
         }
 
         [Theory]
