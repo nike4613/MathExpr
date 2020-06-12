@@ -17,7 +17,7 @@ namespace MathExpr.Syntax
         /// <summary>
         /// The list of arguments in the definition.
         /// </summary>
-        public IReadOnlyList<VariableExpression> ArgumentList { get; }
+        public IReadOnlyList<VariableExpression> ParameterList { get; }
         /// <summary>
         /// The definition of the function.
         /// </summary>
@@ -54,7 +54,7 @@ namespace MathExpr.Syntax
                 throw new ArgumentException("Left side of definition cannot contain arguments with expressions");
 
             FunctionName = func.Name;
-            ArgumentList = func.Arguments.Cast<VariableExpression>().ToList();
+            ParameterList = func.Arguments.Cast<VariableExpression>().ToList();
             Definition = bexp.Right;
             Value = valueExpr;
         }
@@ -69,7 +69,7 @@ namespace MathExpr.Syntax
         public CustomDefinitionExpression(string name, IReadOnlyList<VariableExpression> args, MathExpression def, MathExpression val)
         {
             FunctionName = name;
-            ArgumentList = args;
+            ParameterList = args;
             Definition = def;
             Value = val;
         }
@@ -83,15 +83,15 @@ namespace MathExpr.Syntax
             => other is CustomDefinitionExpression cde
             && FunctionName == cde.FunctionName
             && Equals(Value, cde.Value)
-            && ArgumentList.Count == cde.ArgumentList.Count
-            && ArgumentList.Zip(cde.ArgumentList, (a, b) => Equals(a, b)).All(a => a);
+            && ParameterList.Count == cde.ParameterList.Count
+            && ParameterList.Zip(cde.ParameterList, (a, b) => Equals(a, b)).All(a => a);
 
         /// <summary>
         /// Returns a string representation of the operation.
         /// </summary>
         /// <returns>a string representation of the operation</returns>
         public override string ToString()
-            => $"{FunctionName}'({string.Join(",", ArgumentList)}) = {Definition}; \n{Value}";
+            => $"{FunctionName}'({string.Join(",", ParameterList)}) = {Definition}; \n{Value}";
 
         /// <summary>
         /// Gets a hashcode that represents this expression.
@@ -101,7 +101,7 @@ namespace MathExpr.Syntax
         {
             var hashCode = 312308290;
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(FunctionName);
-            hashCode = hashCode * -1521134295 + EqualityComparer<IReadOnlyList<VariableExpression>>.Default.GetHashCode(ArgumentList);
+            hashCode = hashCode * -1521134295 + EqualityComparer<IReadOnlyList<VariableExpression>>.Default.GetHashCode(ParameterList);
             hashCode = hashCode * -1521134295 + EqualityComparer<MathExpression>.Default.GetHashCode(Definition);
             hashCode = hashCode * -1521134295 + EqualityComparer<MathExpression>.Default.GetHashCode(Value);
             return hashCode;

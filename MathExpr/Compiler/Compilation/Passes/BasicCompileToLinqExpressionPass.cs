@@ -4,6 +4,7 @@ using MathExpr.Syntax;
 using MathExpr.Utilities;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -19,8 +20,8 @@ namespace MathExpr.Compiler.Compilation.Passes
     {
         // TODO: completely redo the compiler-side architecture, because the fundamental extension point is now builtin implementations
 
-        private sealed class HasParentWithRoot { }
-        private sealed class TypeHint { }
+        private struct HasParentWithRoot { }
+        private struct TypeHint { }
 
         private bool IsRootExpression(IDataContext ctx)
             => !ctx.Data<bool>().GetOrCreateIn<HasParentWithRoot>(false);
@@ -207,45 +208,48 @@ namespace MathExpr.Compiler.Compilation.Passes
 
             throw new MemberAccessException($"Expression of type {type} does not have member '{name}'");
         }
+        private struct UserFuncParameters { }
+        private Dictionary<VariableExpression, ParameterExpression>? GetUserFuncParams(IDataContext ctx)
+            => ctx.Data<Dictionary<VariableExpression, ParameterExpression>?>().GetOrDefaultIn<UserFuncParameters>();
+        private void SetUserFuncParams(IDataContext ctx, Dictionary<VariableExpression, ParameterExpression>? value)
+            => ctx.Data<Dictionary<VariableExpression, ParameterExpression>?>().SetIn<UserFuncParameters>(value);
 
         /// <inheritdoc/>
         public override Expression ApplyTo(VariableExpression expr, ICompilationTransformContext<TSettings> ctx)
         {
-            if (ctx.Settings.ParameterMap.TryGetValue(expr, out var param))
+            var userFuncParams = GetUserFuncParams(ctx);
+            if (userFuncParams != null && userFuncParams.TryGetValue(expr, out var param))
+                return param;
+            else if (ctx.Settings.ParameterMap.TryGetValue(expr, out param))
                 return param;
             else
                 throw new InvalidOperationException($"Variable '{expr.Name}' does not have an associated ParameterExpression");
         }
 
-        Type? ITypeHintHandler.CurrentHint<TSettings2>(ICompilationTransformContext<TSettings2> ctx)
-            => GetTypeHint(ctx);
-        Expression ITypeHintHandler.TransformWithHint<TSettings2>(MathExpression expr, Type? hint, ICompilationTransformContext<TSettings2> ctx)
+        private T WithHint<T>(IDataContext ctx, Type? hint, Func<T> action)
         {
             var savedHint = GetTypeHint(ctx);
             SetTypeHint(ctx, hint);
-            var outExpr = ctx.Transform(expr);
+            var outExpr = action();
             SetTypeHint(ctx, savedHint);
             return outExpr;
         }
+        private T NoHint<T>(IDataContext ctx, Func<T> action) => WithHint(ctx, null, action);
+
+        Type? ITypeHintHandler.CurrentHint<TSettings2>(ICompilationTransformContext<TSettings2> ctx)
+            => GetTypeHint(ctx);
+        Expression ITypeHintHandler.TransformWithHint<TSettings2>(MathExpression expr, Type? hint, ICompilationTransformContext<TSettings2> ctx)
+            => WithHint(ctx, hint, () => ctx.Transform(expr));
 
         /// <inheritdoc/>
         public override Expression ApplyTo(FunctionExpression expr, ICompilationTransformContext<TSettings> ctx)
         {
             if (expr.IsUserDefined)
-                throw new InvalidOperationException("Default compiler does not support un-inlined user functions");
+                return ApplyToUserDefined(expr, ctx);
 
             var name = expr.Name;
             var args = expr.Arguments;
 
-            /*if (ctx.Settings.BuiltinFunctions.TryGetValue(name, out var impls))
-            {
-                foreach (var impl in impls)
-                    if (impl.TryCompile(args, ctx, this, out var outexpr))
-                        return outexpr;
-                throw new InvalidOperationException($"Function '{name}' coult not compile with the given arguments");
-            }
-            else
-                throw new InvalidOperationException($"Builtin function named '{name}' with {args.Count} arguments does not exist");*/
             foreach (var impl in ctx.Settings.BuiltinFunctions)
             {
                 if (impl.Name != name) continue;
@@ -286,10 +290,77 @@ namespace MathExpr.Compiler.Compilation.Passes
         public override Expression ApplyTo(StringExpression expr, ICompilationTransformContext<TSettings> ctx)
             => Expression.Constant(expr.Value);
 
+        private struct CustomDefLambdas { }
+        private struct CustomDefinitions { }
+        private Dictionary<CustomDefInstKey, LambdaExpression> GetCustomDefLambdas(IDataContext ctx)
+            => ctx.Data<Dictionary<CustomDefInstKey, LambdaExpression>>().GetOrCreateIn<CustomDefLambdas>();
+        private Dictionary<string, CustomDefinitionExpression> GetCustomDefs(IDataContext ctx)
+            => ctx.Data<Dictionary<string, CustomDefinitionExpression>>().GetOrCreateIn<CustomDefinitions>();
+
+        private struct CustomDefInstKey : IEquatable<CustomDefInstKey>
+        {
+            public string Name { get; }
+            public IEnumerable<Type> ArgTypes { get; }
+
+            public CustomDefInstKey(string name, IEnumerable<Type> args)
+            {
+                Name = name;
+                ArgTypes = args;
+            }
+
+            public bool Equals(CustomDefInstKey other)
+                => Name == other.Name && ArgTypes.SequenceEqual(other.ArgTypes);
+
+            public override int GetHashCode()
+            {
+                int hashCode = 2125030170;
+                hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Name);
+                hashCode = hashCode * -1521134295 + SequenceEqualityComparer<Type>.Default.GetHashCode(ArgTypes);
+                return hashCode;
+            }
+        }
+
         /// <inheritdoc/>
         public override Expression ApplyTo(CustomDefinitionExpression expr, ICompilationTransformContext<TSettings> ctx)
         {
-            throw new InvalidOperationException("Default compiler does not support un-inlined user functions");
+            var customDefs = GetCustomDefs(ctx);
+            customDefs.Add(expr.FunctionName, expr);
+
+            return ApplyTo(expr.Value, ctx);
+        }
+
+        private Expression ApplyToUserDefined(FunctionExpression expr, ICompilationTransformContext<TSettings> ctx)
+        {
+            var args = expr.Arguments.Select(e => ApplyTo(e, ctx)).ToList();
+
+            var argTypes = args.Select(e => e.Type).ToList();
+            var customDefLambdas = GetCustomDefLambdas(ctx);
+            var key = new CustomDefInstKey(expr.Name, argTypes);
+            if (!customDefLambdas.TryGetValue(key, out var lambda))
+            {
+                var customDefs = GetCustomDefs(ctx);
+                if (!customDefs.TryGetValue(expr.Name, out var def) || def.ParameterList.Count != expr.Arguments.Count)
+                    throw new InvalidProgramException($"No such user-defined function named '{expr.Name}' with {expr.Arguments.Count} arguments");
+
+                var userFuncParams = new Dictionary<VariableExpression, ParameterExpression>();
+                SetUserFuncParams(ctx, userFuncParams);
+                var paramList = new List<ParameterExpression>();
+                foreach (var (varExpr, paramType) in def.ParameterList.Zip(argTypes!, (a, b) => (a, b)))
+                {
+                    var param = Expression.Parameter(paramType, varExpr.Name);
+                    paramList.Add(param);
+                    userFuncParams.Add(varExpr, param);
+                }
+
+                var bodyExpr = ApplyTo(def.Definition, ctx);
+
+                SetUserFuncParams(ctx, null);
+
+                lambda = Expression.Lambda(bodyExpr, paramList);
+                customDefLambdas.Add(key, lambda);
+            }
+
+            return Expression.Invoke(lambda, args);
         }
 
     }

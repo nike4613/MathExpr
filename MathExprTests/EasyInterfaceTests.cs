@@ -12,11 +12,12 @@ namespace MathExprTests
     {
         [Theory]
         [InlineData("x", 1.2d, 1.2d)]
+        [InlineData("customFunc'(x) = x; customFunc'(x)", 1.2d, 1.2d)]
         [InlineData("2*x", 1.5d, 3d)]
         [InlineData("2*x + 1", 1.5d, 4d)]
         public void CompileX(string expression, double arg, double expect)
         {
-            var del = ExpressionCompiler.Default.Compile<Func<double, double>>(MathExpression.Parse(expression), "x");
+            var del = ExpressionCompiler.Default.Compile<Func<double, double>>(MathExpression.Parse(expression), optimize: false, "x");
             Assert.Equal(expect, del(arg));
         }
 
@@ -38,7 +39,6 @@ namespace MathExprTests
 
         [Theory]
         [InlineData("customFunc'(x)")]
-        [InlineData("customFunc'(x) = x; customFunc'(x)")]
         [InlineData("defaultFunc(x)")]
         [InlineData("defaultFunc(x, y)")]
         [InlineData("sin(x, y)")]

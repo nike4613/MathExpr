@@ -86,7 +86,7 @@ namespace MathExpr.Compiler.Optimization
             => SequenceExpressions(transformResult = true, expr);
         public virtual MathExpression ApplyTo(CustomDefinitionExpression expr, IOptimizationContext<TSettings> ctx, out bool transformResult)
             => SequenceExpressions(transformResult = true, 
-                new CustomDefinitionExpression(expr.FunctionName, expr.ArgumentList, ApplyTo(expr.Definition, ctx), ApplyTo(expr.Value, ctx)))
+                new CustomDefinitionExpression(expr.FunctionName, expr.ParameterList, ApplyTo(expr.Definition, ctx), ApplyTo(expr.Value, ctx)))
                 .WithToken(expr.Token);
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
     }

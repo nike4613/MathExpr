@@ -28,7 +28,7 @@ namespace MathExpr.Compiler.Optimization.Passes
                 var value = ApplyTo(expr.Value, ctx);
                 transformResult = false; // because the resulting value has already been fully transformed
                 if (definedFunctions[expr.FunctionName].hasNotInlinedUses)
-                    return new CustomDefinitionExpression(expr.FunctionName, expr.ArgumentList, expr.Definition, value).WithToken(expr.Token);
+                    return new CustomDefinitionExpression(expr.FunctionName, expr.ParameterList, expr.Definition, value).WithToken(expr.Token);
                 else
                     return value;
             }
@@ -46,12 +46,12 @@ namespace MathExpr.Compiler.Optimization.Passes
             {
                 var definedFunctions = GetDefinedFunctions(ctx);
 
-                if (definedFunctions.TryGetValue(expr.Name, out var tup) && expr.Arguments.Count == tup.func.ArgumentList.Count)
+                if (definedFunctions.TryGetValue(expr.Name, out var tup) && expr.Arguments.Count == tup.func.ParameterList.Count)
                 {
                     var variableSubs = GetVariableSubstitutions(ctx);
                     if (variableSubs.Count == 0)
                     { // only when we're not currently substituting
-                        foreach (var (replace, with) in tup.func.ArgumentList.Zip(expr.Arguments, (a, b) => (a, b)))
+                        foreach (var (replace, with) in tup.func.ParameterList.Zip(expr.Arguments, (a, b) => (a, b)))
                             variableSubs.Add(replace, with);
 
                         var value = ApplyTo(tup.func.Definition, ctx);
