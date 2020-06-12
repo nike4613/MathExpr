@@ -38,6 +38,8 @@ namespace MathExprTests
             new object[] { MathExpression.Parse("15"), typeof(float), 15f },
             new object[] { MathExpression.Parse("15"), typeof(long), 15L },
             new object[] { MathExpression.Parse("15"), typeof(int), 15 },
+            new object[] { MathExpression.Parse("\"hecc\""), typeof(string), "hecc" },
+            new object[] { MathExpression.Parse("\"\""), typeof(string), "" },
         };
 
         [Theory]

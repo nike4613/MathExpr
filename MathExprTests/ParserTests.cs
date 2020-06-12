@@ -63,6 +63,9 @@ namespace MathExprTests
         [InlineData("f'(x, y) = x^2 + y - 1; f'(2, 3 + z)^2", true)]
         [InlineData("vec3(a, b, c).x", true)] // ideally this should be able to simplify to just 'a'
         [InlineData("(vec3(a, b, c) * 13 + vec3(1,2,3)).z", true)]
+        [InlineData("\"Hello there!\"", true)]
+        [InlineData("\"Hello there!", false)]
+        [InlineData("\"Hello there!\\\"", false)]
         public void ParseString(string input, bool valid)
         {
             try

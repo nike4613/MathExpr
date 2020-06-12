@@ -46,6 +46,7 @@ namespace MathExpr.Compiler.Compilation
                 VariableExpression b => ApplyTo(b, ctx),
                 FunctionExpression b => ApplyTo(b, ctx),
                 LiteralExpression b => ApplyTo(b, ctx),
+                StringExpression b => ApplyTo(b, ctx),
                 CustomDefinitionExpression b => ApplyTo(b, ctx),
                 _ => throw new ArgumentException("Unknown expression type", nameof(expr))
             };
