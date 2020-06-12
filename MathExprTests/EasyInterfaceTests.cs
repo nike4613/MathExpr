@@ -31,9 +31,10 @@ namespace MathExprTests
         [InlineData("x*y", 1.2d, 2d, 2.4d)]
         [InlineData("2*x*y", 1.5d, 2d, 6d)]
         [InlineData("(2*x + 1)*y", 1.5d, 2d, 8d)]
+        [InlineData("c'(x) = x*2+y; c'(x) + c'(y)", 1d, 2d, 10d)]
         public void CompileXY(string expression, double arg1, double arg2, double expect)
         {
-            var del = ExpressionCompiler.Default.Compile<Func<double, double, double>>(MathExpression.Parse(expression), "x", "y");
+            var del = ExpressionCompiler.Default.Compile<Func<double, double, double>>(MathExpression.Parse(expression), optimize: false, "x", "y");
             Assert.Equal(expect, del(arg1, arg2));
         }
 
