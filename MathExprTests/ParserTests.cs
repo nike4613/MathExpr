@@ -52,7 +52,7 @@ namespace MathExprTests
         [InlineData("a + b + c - 3 * d ^ e * f - g)", false)]
         [InlineData("a + b + c - 3 * d ^ e * {f - g)", false)]
         [InlineData("a + b + c - 3 * d ^ e * f - g", true)]
-        [InlineData("a+b*c/d^ehij  % k %( 3.442*ident) ^^ y & y", true)]
+        [InlineData("a+b*c/d^ehij  % k %( 3.442*ident) ^^ y & y | ~& ~| ~= >=", true)]
         [InlineData("x = y + 2 ~^ y * 2 > z", true)]
         [InlineData("func'(a, b) = 14.3 * a * b!", true)]
         [InlineData("5!", true)]
