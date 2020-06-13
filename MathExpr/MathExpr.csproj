@@ -5,7 +5,7 @@
     <LangVersion>8.0</LangVersion>
     <Nullable>enable</Nullable>
     
-    <VersionPrefix>0.1.1</VersionPrefix>
+    <VersionPrefix>0.1.2</VersionPrefix>
     <Authors>Anairkoen Schno</Authors>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageDescription>An extensible mathematical expression compiler and evaluator.</PackageDescription>
