@@ -30,3 +30,5 @@ jobs:
         run: dotnet pack --configuration Release MathExpr -p:InformationalVersion="GitHub Actions CI"
       - name: Publish Nuget package to GitHub Packages
         run: dotnet nuget push MathExpr/bin/Release/*.nupkg
+        env:
+          NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
