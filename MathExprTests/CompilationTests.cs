@@ -243,6 +243,8 @@ namespace MathExprTests
             new object[] { MathExpression.Parse("if(x > 5, x*2, x*3)"), typeof(int), 4, 12 },
             new object[] { MathExpression.Parse("if(x < 0.5, 8 * x^4, -8 * (x-1)^4 + 1)"), typeof(decimal), 0.7m, 0.9352m },
             new object[] { MathExpression.Parse("if(x < 0.5, 8 * x^4, -8 * (x-1)^4 + 1)"), typeof(decimal), 0.3m, 0.0648m },
+            new object[] { MathExpression.Parse("if(1, x, 0)"), typeof(int), 2, 2 },
+            new object[] { MathExpression.Parse("if(0, x, 0)"), typeof(int), 2, 0 },
         };
 
         [Theory]

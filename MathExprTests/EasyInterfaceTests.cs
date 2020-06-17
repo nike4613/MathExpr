@@ -1,8 +1,11 @@
 ﻿using MathExpr.Compiler;
 using MathExpr.Compiler.Compilation;
 using MathExpr.Syntax;
+using Microsoft.VisualBasic.CompilerServices;
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 using System.Text;
 using Xunit;
 
@@ -36,6 +39,29 @@ namespace MathExprTests
         {
             var del = ExpressionCompiler.Default.Compile<Func<double, double, double>>(MathExpression.Parse(expression), optimize: false, "x", "y");
             Assert.Equal(expect, del(arg1, arg2));
+        }
+
+        [Theory]
+        [InlineData("obj", 0, 0)]
+        [InlineData("obj", 1, 1)]
+        [InlineData("obj", 2, 2)]
+        [InlineData("~obj", 0, 42)]
+        [InlineData("~obj", 1, 0)]
+        [InlineData("(obj | 1) & ~obj", 1, 0)]
+        [InlineData("(obj | 1) & ~obj", 0, 1)]
+        public void CompileCustomType(string expression, int ctorArg, int expect)
+        {
+            var del = ExpressionCompiler.Default.Compile<Func<CustomType, int>>(MathExpression.Parse(expression), "obj");
+            Assert.Equal(expect, del(new CustomType(ctorArg)));
+        }
+
+        private class CustomType
+        {
+            public int Thing { get; }
+            public CustomType(int t) => Thing = t;
+            public static implicit operator CustomType(int i) => new CustomType(i);
+            public static implicit operator int(CustomType t) => t.Thing;
+            public static explicit operator CustomType(bool b) => new CustomType(b ? 42 : 0);
         }
 
         [Theory]

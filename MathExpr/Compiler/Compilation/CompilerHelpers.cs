@@ -6,6 +6,8 @@ using System.Reflection;
 using System.Linq;
 using MathExpr.Utilities;
 using System.Runtime.InteropServices;
+using Microsoft.VisualBasic;
+using System.Diagnostics;
 
 namespace MathExpr.Compiler.Compilation
 {
@@ -22,12 +24,16 @@ namespace MathExpr.Compiler.Compilation
         /// <summary>
         /// Coerces the argument to a boolean, by effectively doing <c>arg != 0</c>.
         /// </summary>
+        /// <remarks>
+        /// This is equivalent to calling <see cref="ConvertToType"/> with the target type of <see cref="bool"/>.
+        /// </remarks>
         /// <param name="arg">the argument to coerce to a boolean type</param>
         /// <returns>an <see cref="Expression"/> coerced to a booelan</returns>
         public static Expression AsBoolean(Expression arg)
         {
             if (arg.Type == typeof(bool)) return arg;
-            return Expression.NotEqual(arg, ConstantOfType(arg.Type, 0));
+            //return Expression.NotEqual(arg, ConstantOfType(arg.Type, 0));
+            return ConvertToType(arg, typeof(bool));
         }
         /// <summary>
         /// Coerces a boolean expression to a numeric expression, optionally as an inverse.
@@ -38,15 +44,13 @@ namespace MathExpr.Compiler.Compilation
         /// </remarks>
         /// <param name="arg">the boolean expression to convert</param>
         /// <param name="type">the type to convert it to</param>
-        /// <param name="inverse">whether or not to reat it as an inverse</param>
+        /// <param name="inverse">whether or not to treat it as an inverse</param>
         /// <returns><paramref name="arg"/> as a numeric boolean.</returns>
         public static Expression BoolToNumBool(Expression arg, Type type, bool inverse = false)
         {
             Assert(arg.Type == typeof(bool), "Expression type must be boolean", nameof(arg));
             if (type == arg.Type) return arg;
-            return Expression.Condition(arg,
-                    ConstantOfType(type, inverse ? 0 : 1),
-                    ConstantOfType(type, inverse ? 1 : 0));
+            return BoolToNumBoolInternal(arg, type, inverse);
         }
         /// <summary>
         /// Coerces a numeric argument to either 1 or 0 representing <see langword="true"/> or <see langword="false"/>.
@@ -98,7 +102,7 @@ namespace MathExpr.Compiler.Compilation
         {
             var path = FindConversionPathTo(expr.Type, type);
             if (path == null) throw new InvalidOperationException($"No conversion path exists from '{expr.Type}' to '{type}'");
-            return path.Aggregate(expr, Expression.Convert);
+            return path.Aggregate(expr, ConversionPathNode.Convert);
         }
 
         /// <summary>
@@ -148,7 +152,7 @@ namespace MathExpr.Compiler.Compilation
         /// <returns><see langword="true"/> if there is a conversion path, <see langword="false"/> otherwise.</returns>
         public static bool HasConversionPathTo(Type from, Type to) => FindConversionPathTo(from, to) != null;
 
-        const BindingFlags OperatorFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.DeclaredOnly;
+        private const BindingFlags OperatorFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.DeclaredOnly;
         private static readonly Dictionary<Type, MethodInfo[]> ConversionOperatorCache = new Dictionary<Type, MethodInfo[]>();
         private static MethodInfo[] GetConversionOperators(Type ty)
         {
@@ -160,7 +164,29 @@ namespace MathExpr.Compiler.Compilation
             return values;
         }
 
-        private static readonly Dictionary<(Type from, Type to), Type[]?> ConversionPathCache = new Dictionary<(Type from, Type to), Type[]?>();
+        [DebuggerDisplay("Convert to {ToType}")]
+        public struct ConversionPathNode
+        {
+            public Type ToType { get; }
+            public Func<Expression, Expression>? Converter { get; }
+
+            public ConversionPathNode(Type to, Func<Expression, Expression>? converter)
+            {
+                ToType = to;
+                Converter = converter;
+            }
+
+            public Expression Convert(Expression expr)
+            {
+                if (Converter != null) return Converter(expr);
+                else return Expression.Convert(expr, ToType);
+            }
+
+            public static Expression Convert(Expression expr, ConversionPathNode node)
+                => node.Convert(expr);
+        }
+
+        private static readonly Dictionary<(Type from, Type to), ConversionPathNode[]?> ConversionPathCache = new Dictionary<(Type from, Type to), ConversionPathNode[]?>();
         /// <summary>
         /// Attempts to find a conversion path from any type to any other type.
         /// </summary>
@@ -171,31 +197,31 @@ namespace MathExpr.Compiler.Compilation
         /// <param name="to">the type to end at</param>
         /// <returns>an enumerable of types to cast to in order, excluding the starting type while including the ending type,
         /// or <see langword="null"/> if there is no such path</returns>
-        public static IEnumerable<Type>? FindConversionPathTo(Type from, Type to)
+        public static IEnumerable<ConversionPathNode>? FindConversionPathTo(Type from, Type to)
         {
             if (!ConversionPathCache.TryGetValue((from, to), out var path))
                 ConversionPathCache.Add((from, to), path = FindConversionPathToInternal(from, to)?.ToArray());
             return path;
         }
-        private static IEnumerable<Type>? FindConversionPathToInternal(Type from, Type to)
+        private static IEnumerable<ConversionPathNode>? FindConversionPathToInternal(Type from, Type to)
         {
-            if (from == to) return Enumerable.Empty<Type>();
-            if (to.IsAssignableFrom(from)) return Enumerable.Empty<Type>();
-            if (from.IsAssignableFrom(to)) return Helpers.Single(to);
+            if (from == to) return Enumerable.Empty<ConversionPathNode>();
+            if (to.IsAssignableFrom(from)) return Enumerable.Empty<ConversionPathNode>();
+            if (from.IsAssignableFrom(to)) return Helpers.Single(new ConversionPathNode(to, null));
 
             if (from.IsPrimitive && to.IsPrimitive)
             {
                 if ((IsIntegral(from) || IsFloating(from))
                  && (IsIntegral(to) || IsFloating(to)))
-                    return Helpers.Single(to);
+                    return Helpers.Single(new ConversionPathNode(to, null));
             }
 
             var fromPath = GetConversionOperators(from).Where(m => m.GetParameters()[0].ParameterType == from)
                 .Select(m => m.ReturnType == to
-                                ? Helpers.Single(to)
-                                : (FindConversionPathTo(m.ReturnType, to)?.Prepend(m.ReturnType) ?? Enumerable.Empty<Type>()))
+                                ? Helpers.Single(new ConversionPathNode(to, null))
+                                : (FindConversionPathTo(m.ReturnType, to)?.Prepend(new ConversionPathNode(m.ReturnType, null)) ?? Enumerable.Empty<ConversionPathNode>()))
                 .Select(e => e.ToList())
-                .Where(l => l.Any() && l.Last() == to)
+                .Where(l => l.Any() && l.Last().ToType == to)
                 .OrderBy(l => l.Count)
                 .FirstOrDefault();
 
@@ -204,17 +230,56 @@ namespace MathExpr.Compiler.Compilation
                 {
                     var paramType = m.GetParameters()[0].ParameterType;
                     return paramType == from
-                                 ? Helpers.Single(to)
-                                 : (FindConversionPathTo(from, paramType)?.Append(to) ?? Enumerable.Empty<Type>());
+                                 ? Helpers.Single(new ConversionPathNode(to, null))
+                                 : (FindConversionPathTo(from, paramType)?.Append(new ConversionPathNode(to, null)) ?? Enumerable.Empty<ConversionPathNode>());
                 })
                 .Select(e => e.ToList())
-                .Where(l => l.Any() && l.Last() == to)
+                .Where(l => l.Any() && l.Last().ToType == to)
                 .OrderBy(l => l.Count)
                 .FirstOrDefault();
+
+            if (fromPath == null && toPath == null)
+            {
+                var knownConversion = knownConversions.Select(d => d(from, to)).FirstOrDefault(n => n != null);
+                if (knownConversion != null)
+                    return Helpers.Single(knownConversion.Value);
+            }
 
             if (fromPath == null) return toPath;
             if (toPath == null) return fromPath;
             return fromPath.Count < toPath.Count ? fromPath : toPath;
+        }
+
+        private delegate ConversionPathNode? KnownConverterDelegate(Type from, Type to);
+
+        private static readonly KnownConverterDelegate[] knownConversions = new KnownConverterDelegate[]
+        {
+            (from, to) =>
+                to == typeof(bool) && HasConversionPathTo(from, typeof(int))
+                    ? new ConversionPathNode(to, e => Expression.NotEqual(ConvertToType(e, typeof(int)), Expression.Constant(0)))
+                    : new ConversionPathNode?(),
+            (from, to) =>
+                from == typeof(bool) && HasConversionPathTo(typeof(int), to)
+                    ? new ConversionPathNode(to, e => BoolToNumBoolInternal(e, to, hasIntPath: true))
+                    : new ConversionPathNode?(),
+        };
+
+        private static Expression BoolToNumBoolInternal(Expression arg, Type type, bool inverse = false, bool hasIntPath = false)
+        {
+            if (!hasIntPath)
+            {
+                var path = FindConversionPathTo(arg.Type, type);
+                // if there is no converter node, then we have a really nice way to convert
+                if (path != null && path.All(n => n.Converter == null))
+                { // if we're in here, then we have a more direct path and should use it
+                    var expr = inverse ? Expression.Not(arg) : arg;
+                    return ConvertToType(expr, type);
+                }
+            }
+
+            return Expression.Condition(arg,
+                    ConstantOfType(type, inverse ? 0 : 1),
+                    ConstantOfType(type, inverse ? 1 : 0));
         }
 
         private static readonly MethodInfo MarshalSizeOfMethod = Helpers.GetMethod<Action>(() => Marshal.SizeOf<int>())!.GetGenericMethodDefinition();
@@ -222,14 +287,18 @@ namespace MathExpr.Compiler.Compilation
         /// Attempts to estimate the size and precision of a given type.
         /// </summary>
         /// <remarks>
+        /// <para>
         /// For all of the types that there is a unique <see cref="TypeCode"/> for, this returns <c>sizeof(type)</c>.
         /// For both <see cref="float"/> and <see cref="double"/>, that size is incremented by 1 to indicate higher precision
         /// than the integers of the same size.
-        /// 
+        /// </para>
+        /// <para>
         /// For all other value types, this returns the result of <see cref="Marshal.SizeOf{T}()"/> using <paramref name="type"/>
         /// as the type parameter.
-        /// 
+        /// </para>
+        /// <para>
         /// For all reference types, this returns <see cref="int.MaxValue"/>.
+        /// </para>
         /// </remarks>
         /// <param name="type">the type to estimate the size and precision of</param>
         /// <returns>the estimated size</returns>
