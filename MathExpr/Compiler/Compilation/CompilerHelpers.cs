@@ -164,24 +164,49 @@ namespace MathExpr.Compiler.Compilation
             return values;
         }
 
+        /// <summary>
+        /// A node representing a conversion in a conversion path, as returned by <see cref="FindConversionPathTo"/>.
+        /// </summary>
         [DebuggerDisplay("Convert to {ToType}")]
         public struct ConversionPathNode
         {
+            /// <summary>
+            /// Gets the type this node represents a conversion to.
+            /// </summary>
             public Type ToType { get; }
+            /// <summary>
+            /// Gets the function this node should use to convert to the target type, if any.
+            /// </summary>
             public Func<Expression, Expression>? Converter { get; }
 
+            /// <summary>
+            /// Creates a new node with the given target type and converter.
+            /// </summary>
+            /// <param name="to">the type to convert to</param>
+            /// <param name="converter">the function to use to perform the conversion</param>
             public ConversionPathNode(Type to, Func<Expression, Expression>? converter)
             {
                 ToType = to;
                 Converter = converter;
             }
 
+            /// <summary>
+            /// Converts an expression to one of type <see cref="ToType"/>, using <see cref="Converter"/> if present.
+            /// </summary>
+            /// <param name="expr">the expression to convert</param>
+            /// <returns>the converted expression</returns>
             public Expression Convert(Expression expr)
             {
                 if (Converter != null) return Converter(expr);
                 else return Expression.Convert(expr, ToType);
             }
 
+            /// <summary>
+            /// A static form of <see cref="Convert(Expression)"/> suitable for use with <see cref="Enumerable.Aggregate{TSource, TAccumulate}(IEnumerable{TSource}, TAccumulate, Func{TAccumulate, TSource, TAccumulate})"/>.
+            /// </summary>
+            /// <param name="expr">the expression to convert</param>
+            /// <param name="node">the <see cref="ConversionPathNode"/> to convert with</param>
+            /// <returns>the converted expression</returns>
             public static Expression Convert(Expression expr, ConversionPathNode node)
                 => node.Convert(expr);
         }
