@@ -25,7 +25,7 @@ namespace MathExprTests
             }, new DefaultLinqExpressionCompiler<DefaultLinqExpressionCompilerSettings>());
 
             var fn = Expression.Lambda<Func<object>>(Expression.Convert(
-                    context.Transform(expr),
+                    context.Compile(expr),
                     typeof(object)
                 )).Compile();
             Assert.Equal(fn(), result);
@@ -52,7 +52,7 @@ namespace MathExprTests
             }, new DefaultLinqExpressionCompiler<DefaultLinqExpressionCompilerSettings>());
 
             var fn = Expression.Lambda<Func<object>>(Expression.Convert(
-                    context.Transform(expr),
+                    context.Compile(expr),
                     typeof(object)
                 )).Compile();
             Assert.Equal(fn(), result);
@@ -100,7 +100,7 @@ namespace MathExprTests
                     new[] { var },
                     Expression.Assign(var, Expression.Convert(objParam, expectType)),
                     Expression.Convert(
-                        context.Transform(expr),
+                        context.Compile(expr),
                         typeof(object)
                     )
                 ), 
@@ -151,7 +151,7 @@ namespace MathExprTests
                     new[] { var },
                     Expression.Assign(var, Expression.Convert(objParam, parameter.GetType())),
                     Expression.Convert(
-                        context.Transform(expr),
+                        context.Compile(expr),
                         typeof(object)
                     )
                 ),
@@ -189,7 +189,7 @@ namespace MathExprTests
             }, new DefaultLinqExpressionCompiler<DefaultLinqExpressionCompilerSettings>());
 
             var fn = Expression.Lambda<Func<object>>(Expression.Convert(
-                    context.Transform(expr),
+                    context.Compile(expr),
                     typeof(object)
                 )).Compile();
             Assert.Equal(fn(), result);
@@ -225,7 +225,7 @@ namespace MathExprTests
                     new[] { var },
                     Expression.Assign(var, Expression.Convert(objParam, expectType)),
                     Expression.Convert(
-                        context.Transform(expr),
+                        context.Compile(expr),
                         typeof(object)
                     )
                 ),
@@ -269,7 +269,7 @@ namespace MathExprTests
                     new[] { var },
                     Expression.Assign(var, Expression.Convert(objParam, expectType)),
                     Expression.Convert(
-                        context.Transform(expr),
+                        context.Compile(expr),
                         typeof(object)
                     )
                 ),
@@ -306,7 +306,7 @@ namespace MathExprTests
             context.Settings.ParameterMap.Add(new VariableExpression("x"), var);
 
             var fn = Expression.Lambda<Func<decimal, decimal>>(
-                context.Transform(expr),
+                context.Compile(expr),
                 var
             ).Compile();
 
@@ -343,7 +343,7 @@ namespace MathExprTests
             context.Settings.ParameterMap.Add(new VariableExpression("x"), var);
 
             var fn = Expression.Lambda<Func<decimal, decimal>>(
-                context.Transform(expr),
+                context.Compile(expr),
                 var
             ).Compile();
 
@@ -380,7 +380,7 @@ namespace MathExprTests
             context.Settings.ParameterMap.Add(new VariableExpression("x"), var);
 
             var fn = Expression.Lambda<Func<double, double>>(
-                context.Transform(expr),
+                context.Compile(expr),
                 var
             ).Compile();
 

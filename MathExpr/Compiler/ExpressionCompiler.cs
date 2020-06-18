@@ -92,7 +92,7 @@ namespace MathExpr.Compiler
             if (optimize) expr = Optimize(expr);
             var ctx = CompilationContext.CreateWith(CompilerSettings, Compiler);
             ctx.SetParentDataContext(SharedDataStore);
-            return ctx.Transform(expr);
+            return ctx.Compile(expr);
         }
 
         /// <inheritdoc/>

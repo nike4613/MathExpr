@@ -111,7 +111,10 @@ namespace MathExpr.Compiler.Compilation
         /// </summary>
         /// <param name="from">the expression to transform</param>
         /// <returns>an implementation of that expression</returns>
-        public Expression Transform(MathExpression from)
+        public Expression Compile(MathExpression from)
             => new ContextImpl(this).Transform(from);
+
+        Expression ITransformContext<TSettings, MathExpression, Expression>.Transform(MathExpression from)
+            => Compile(from);
     }
 }
