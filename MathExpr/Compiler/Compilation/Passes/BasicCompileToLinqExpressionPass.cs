@@ -132,7 +132,7 @@ namespace MathExpr.Compiler.Compilation.Passes
             return AggregateBinaryExpr(expr.Type, args, boolResType, ctx.Settings);
         }
 
-        private Expression AggregateBinaryExpr(Syntax.BinaryExpression.ExpressionType type, IEnumerable<Expression> args, Type boolResultType, TSettings settings)
+        private Expression AggregateBinaryExpr(Syntax.BinaryExpression.ExpressionType type, IEnumerable<Expression> args, Type boolResultType, TSettings settings) 
             => type switch
             {
                 Syntax.BinaryExpression.ExpressionType.Add
@@ -148,14 +148,17 @@ namespace MathExpr.Compiler.Compilation.Passes
                 Syntax.BinaryExpression.ExpressionType.Power
                     => args.Aggregate(SpecialBinaryAggregator(settings.PowerCompilers)),
 
+                // Hopefully by doing that we get the behaviour in https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/expressions#user-defined-conditional-logical-operators
+                //   for free.
                 Syntax.BinaryExpression.ExpressionType.And
-                    => CompilerHelpers.BoolToNumBool(args.Select(CompilerHelpers.AsBoolean).Aggregate(Expression.AndAlso), boolResultType),
+                    => AggregateLogicalExpression(args, boolResultType, Expression.AndAlso, negate: false),
                 Syntax.BinaryExpression.ExpressionType.NAnd
-                    => CompilerHelpers.BoolToNumBool(Expression.IsFalse(args.Select(CompilerHelpers.AsBoolean).Aggregate(Expression.AndAlso)), boolResultType),
+                    => AggregateLogicalExpression(args, boolResultType, Expression.AndAlso, negate: true),
                 Syntax.BinaryExpression.ExpressionType.Or
-                    => CompilerHelpers.BoolToNumBool(args.Select(CompilerHelpers.AsBoolean).Aggregate(Expression.OrElse), boolResultType),
+                    => AggregateLogicalExpression(args, boolResultType, Expression.OrElse, negate: false),
                 Syntax.BinaryExpression.ExpressionType.NOr
-                    => CompilerHelpers.BoolToNumBool(Expression.IsFalse(args.Select(CompilerHelpers.AsBoolean).Aggregate(Expression.OrElse)), boolResultType),
+                    => AggregateLogicalExpression(args, boolResultType, Expression.OrElse, negate: true),
+                // TODO: somehow make XOR be overloadable for custom types, and always be treated as a boolean exclusive or
                 Syntax.BinaryExpression.ExpressionType.Xor
                     => CompilerHelpers.BoolToNumBool(args.Select(CompilerHelpers.AsBoolean).Aggregate(Expression.NotEqual), boolResultType),
                 Syntax.BinaryExpression.ExpressionType.XNor
@@ -177,6 +180,22 @@ namespace MathExpr.Compiler.Compilation.Passes
                 _ => throw new InvalidOperationException("Invalid type of binary expression"),
             };
 
+        private static Expression AggregateLogicalExpression(IEnumerable<Expression> args, Type boolResultType, Func<Expression, Expression, Expression> aggregate, bool negate)
+        {
+            try
+            {
+                return args.Aggregate(aggregate);
+            }
+            catch (InvalidOperationException)
+            {
+                // ignore
+            }
+
+            var agExpr = args.Select(CompilerHelpers.AsBoolean).Aggregate(aggregate);
+            if (negate) agExpr = Expression.IsFalse(agExpr);
+            return CompilerHelpers.BoolToNumBool(agExpr, boolResultType);
+        }
+
         /// <inheritdoc/>
         public override Expression ApplyTo(Syntax.UnaryExpression expr, ICompilationTransformContext<TSettings> ctx)
         {
@@ -184,14 +203,36 @@ namespace MathExpr.Compiler.Compilation.Passes
             return expr.Type switch
             {
                 Syntax.UnaryExpression.ExpressionType.Negate => Expression.Negate(arg),
-                Syntax.UnaryExpression.ExpressionType.Not => // we use a value of 0 to represent false, and nonzero for true
-                    CompilerHelpers.CoerceNumBoolean(arg, true),
-                Syntax.UnaryExpression.ExpressionType.Factorial => 
-                    ctx.Settings.TypedFactorialCompilers.TryGetValue(arg.Type, out var func)
+                Syntax.UnaryExpression.ExpressionType.Not // we use a value of 0 to represent false, and nonzero for true
+                    => NotExpression(arg),
+                Syntax.UnaryExpression.ExpressionType.Factorial
+                    => ctx.Settings.TypedFactorialCompilers.TryGetValue(arg.Type, out var func)
                     ? func(arg)
                     : throw new InvalidOperationException("Applying factorial to type with no compiler"),
                 _ => throw new InvalidOperationException("Invalid expression type")
             };
+        }
+
+        private static Expression NotExpression(Expression arg)
+        {
+            // If the expression is a primitive type, we always want to coerce to boolean for the operation.
+            // Otherwise, we want to try to use the builtin override for Not, though it unfortunately also
+            //   looks for the ~ C# operator (bitwise compliment). If those are not present however, we simply
+            //   use the same coersion.
+
+            if (!arg.Type.IsPrimitive)
+            {
+                try
+                {
+                    return Expression.Not(arg);
+                }
+                catch (InvalidOperationException)
+                {
+                    // ignore
+                }
+            }
+
+            return CompilerHelpers.CoerceNumBoolean(arg, true);
         }
 
         /// <inheritdoc/>
