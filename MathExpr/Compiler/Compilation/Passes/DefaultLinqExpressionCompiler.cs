@@ -15,7 +15,7 @@ namespace MathExpr.Compiler.Compilation.Passes
     /// <summary>
     /// A compiler that compiles a <see cref="MathExpression"/> to a <see cref="Expression"/>, using type hinting.
     /// </summary>
-    public class BasicCompileToLinqExpressionPass<TSettings> : CompilationTransformPass<TSettings>, ITypeHintHandler
+    public class DefaultLinqExpressionCompiler<TSettings> : Compiler<TSettings>, ITypeHintHandler
         where TSettings : ICompileToLinqExpressionSettings<TSettings>
     {
         // TODO: completely redo the compiler-side architecture, because the fundamental extension point is now builtin implementations
@@ -39,7 +39,7 @@ namespace MathExpr.Compiler.Compilation.Passes
         /// <param name="expr">the <see cref="MathExpression"/> to compile</param>
         /// <param name="ctx">the context to compile in</param>
         /// <returns>the compiled <see cref="Expression"/></returns>
-        public override Expression ApplyTo(MathExpression expr, ICompilationTransformContext<TSettings> ctx)
+        public override Expression ApplyTo(MathExpression expr, ICompilationContext<TSettings> ctx)
         {
             try
             {
@@ -95,7 +95,7 @@ namespace MathExpr.Compiler.Compilation.Passes
             };
 
         /// <inheritdoc/>
-        public override Expression ApplyTo(Syntax.BinaryExpression expr, ICompilationTransformContext<TSettings> ctx)
+        public override Expression ApplyTo(Syntax.BinaryExpression expr, ICompilationContext<TSettings> ctx)
         {
             var args = expr.Arguments.Select(m =>
             {
@@ -197,7 +197,7 @@ namespace MathExpr.Compiler.Compilation.Passes
         }
 
         /// <inheritdoc/>
-        public override Expression ApplyTo(Syntax.UnaryExpression expr, ICompilationTransformContext<TSettings> ctx)
+        public override Expression ApplyTo(Syntax.UnaryExpression expr, ICompilationContext<TSettings> ctx)
         {
             var arg = ApplyTo(expr.Argument, ctx);
             return expr.Type switch
@@ -236,7 +236,7 @@ namespace MathExpr.Compiler.Compilation.Passes
         }
 
         /// <inheritdoc/>
-        public override Expression ApplyTo(Syntax.MemberExpression expr, ICompilationTransformContext<TSettings> ctx)
+        public override Expression ApplyTo(Syntax.MemberExpression expr, ICompilationContext<TSettings> ctx)
         {
             var arg = ApplyTo(expr.Target, ctx);
             var name = expr.MemberName;
@@ -256,7 +256,7 @@ namespace MathExpr.Compiler.Compilation.Passes
             => ctx.Data<Dictionary<VariableExpression, ParameterExpression>?>().SetIn<UserFuncParameters>(value);
 
         /// <inheritdoc/>
-        public override Expression ApplyTo(VariableExpression expr, ICompilationTransformContext<TSettings> ctx)
+        public override Expression ApplyTo(VariableExpression expr, ICompilationContext<TSettings> ctx)
         {
             var userFuncParams = GetUserFuncParams(ctx);
             if (userFuncParams != null && userFuncParams.TryGetValue(expr, out var param))
@@ -277,13 +277,13 @@ namespace MathExpr.Compiler.Compilation.Passes
         }
         private T NoHint<T>(IDataContext ctx, Func<T> action) => WithHint(ctx, null, action);
 
-        Type? ITypeHintHandler.CurrentHint<TSettings2>(ICompilationTransformContext<TSettings2> ctx)
+        Type? ITypeHintHandler.CurrentHint<TSettings2>(ICompilationContext<TSettings2> ctx)
             => GetTypeHint(ctx);
-        Expression ITypeHintHandler.TransformWithHint<TSettings2>(MathExpression expr, Type? hint, ICompilationTransformContext<TSettings2> ctx)
+        Expression ITypeHintHandler.TransformWithHint<TSettings2>(MathExpression expr, Type? hint, ICompilationContext<TSettings2> ctx)
             => WithHint(ctx, hint, () => ctx.Transform(expr));
 
         /// <inheritdoc/>
-        public override Expression ApplyTo(FunctionExpression expr, ICompilationTransformContext<TSettings> ctx)
+        public override Expression ApplyTo(FunctionExpression expr, ICompilationContext<TSettings> ctx)
         {
             if (expr.IsUserDefined)
                 return ApplyToUserDefined(expr, ctx);
@@ -301,7 +301,7 @@ namespace MathExpr.Compiler.Compilation.Passes
         }
 
         /// <inheritdoc/>
-        public override Expression ApplyTo(LiteralExpression expr, ICompilationTransformContext<TSettings> ctx)
+        public override Expression ApplyTo(LiteralExpression expr, ICompilationContext<TSettings> ctx)
         {
             var val = expr.Value;
 
@@ -328,7 +328,7 @@ namespace MathExpr.Compiler.Compilation.Passes
         }
 
         /// <inheritdoc/>
-        public override Expression ApplyTo(StringExpression expr, ICompilationTransformContext<TSettings> ctx)
+        public override Expression ApplyTo(StringExpression expr, ICompilationContext<TSettings> ctx)
             => Expression.Constant(expr.Value);
 
         private struct CustomDefLambdas { }
@@ -362,7 +362,7 @@ namespace MathExpr.Compiler.Compilation.Passes
         }
 
         /// <inheritdoc/>
-        public override Expression ApplyTo(CustomDefinitionExpression expr, ICompilationTransformContext<TSettings> ctx)
+        public override Expression ApplyTo(CustomDefinitionExpression expr, ICompilationContext<TSettings> ctx)
         {
             var customDefs = GetCustomDefs(ctx);
             customDefs.Add(expr.FunctionName, expr);
@@ -370,7 +370,7 @@ namespace MathExpr.Compiler.Compilation.Passes
             return ApplyTo(expr.Value, ctx);
         }
 
-        private Expression ApplyToUserDefined(FunctionExpression expr, ICompilationTransformContext<TSettings> ctx)
+        private Expression ApplyToUserDefined(FunctionExpression expr, ICompilationContext<TSettings> ctx)
         {
             var args = expr.Arguments.Select(e => ApplyTo(e, ctx)).ToList();
 

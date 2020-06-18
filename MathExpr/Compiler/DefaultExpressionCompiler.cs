@@ -15,14 +15,14 @@ namespace MathExpr.Compiler
 {
     /// <summary>
     /// A specialization of <see cref="ExpressionCompiler{TOptimizerSettings, TCompilerSettings}"/> using the default settings types
-    /// <see cref="DefaultOptimizationSettings"/> and <see cref="DefaultBasicCompileToLinqExpressionSettings"/>.
+    /// <see cref="DefaultOptimizationSettings"/> and <see cref="DefaultLinqExpressionCompilerSettings"/>.
     /// </summary>
-    public class DefaultExpressionCompiler : ExpressionCompiler<DefaultOptimizationSettings, DefaultBasicCompileToLinqExpressionSettings>
+    public class DefaultExpressionCompiler : ExpressionCompiler<DefaultOptimizationSettings, DefaultLinqExpressionCompilerSettings>
     {
         /// <summary>
         /// Constructs an expression compiler with default constructed optimization and compilation settings.
         /// </summary>
-        public DefaultExpressionCompiler() : this(new DefaultOptimizationSettings(), new DefaultBasicCompileToLinqExpressionSettings())
+        public DefaultExpressionCompiler() : this(new DefaultOptimizationSettings(), new DefaultLinqExpressionCompilerSettings())
         {
         }
 
@@ -31,8 +31,8 @@ namespace MathExpr.Compiler
         /// </summary>
         /// <param name="optimizerSettings">the optmization settings to initialize with</param>
         /// <param name="compilerSettings">the compielr settings to initialize with</param>
-        public DefaultExpressionCompiler(DefaultOptimizationSettings optimizerSettings, DefaultBasicCompileToLinqExpressionSettings compilerSettings) 
-            : base(optimizerSettings, compilerSettings, new BasicCompileToLinqExpressionPass<DefaultBasicCompileToLinqExpressionSettings>())
+        public DefaultExpressionCompiler(DefaultOptimizationSettings optimizerSettings, DefaultLinqExpressionCompilerSettings compilerSettings) 
+            : base(optimizerSettings, compilerSettings, new DefaultLinqExpressionCompiler<DefaultLinqExpressionCompilerSettings>())
         {
         }
 
@@ -95,7 +95,7 @@ namespace MathExpr.Compiler
             foreach (var (name, param) in parameters)
                 CompilerSettings.ParameterMap.Add(new VariableExpression(name), param);
 
-            DomainRestrictionSettings.GetDomainRestrictionsFor(this); // ensure that restrictions are defined locally
+            DomainRestrictionSettings.GetDomainRestrictionsFor(this).Clear(); // ensure that restrictions are defined locally
 
             return compile(
                 Expression.Lambda<TDelegate>(

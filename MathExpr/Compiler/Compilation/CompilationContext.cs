@@ -13,33 +13,34 @@ namespace MathExpr.Compiler.Compilation
     /// <see cref="MathExpression"/> to an <see cref="Expression"/>.
     /// </summary>
     /// <typeparam name="TSettings">the settings type to provide</typeparam>
-    public interface ICompilationTransformContext<out TSettings> : ITransformContext<TSettings, MathExpression, Expression>
+    public interface ICompilationContext<out TSettings> : ITransformContext<TSettings, MathExpression, Expression>
     { }
 
     /// <summary>
-    /// A static class for creating a <see cref="CompilationTransformContext{TSettings}"/> easily, using type inference.
+    /// A static class for creating a <see cref="CompilationContext{TSettings}"/> easily, using type inference.
     /// </summary>
-    public static class CompilationTransformContext
+    public static class CompilationContext
+
     {
         /// <summary>
-        /// Creates a <see cref="CompilationTransformContext{TSettings}"/> using the specified settings and transformer.
+        /// Creates a <see cref="CompilationContext{TSettings}"/> using the specified settings and transformer.
         /// </summary>
         /// <typeparam name="TSettings">the settings type to provide to the transformer</typeparam>
         /// <param name="settings">the settings to create the context with</param>
         /// <param name="pass">the compilation backend to use</param>
-        /// <returns>the new <see cref="CompilationTransformContext{TSettings}"/></returns>
-        public static CompilationTransformContext<TSettings> CreateWith<TSettings>(TSettings settings, ICompilationTransformPass<TSettings> pass)
-            => new CompilationTransformContext<TSettings>(settings, pass);
+        /// <returns>the new <see cref="CompilationContext{TSettings}"/></returns>
+        public static CompilationContext<TSettings> CreateWith<TSettings>(TSettings settings, ICompiler<TSettings> pass)
+            => new CompilationContext<TSettings>(settings, pass);
 
         /// <summary>
-        /// Creates a <see cref="CompilationTransformContext{TSettings}"/> using the specified settings, builtin functions, and transformer.
+        /// Creates a <see cref="CompilationContext{TSettings}"/> using the specified settings, builtin functions, and transformer.
         /// </summary>
         /// <typeparam name="TSettings">the settings type to provide to the transformer</typeparam>
         /// <param name="settings">the settings to create the context with</param>
         /// <param name="pass">the compilation backend to use</param>
         /// <param name="builtinFunctions">the builtin functions to use</param>
-        /// <returns>the new <see cref="CompilationTransformContext{TSettings}"/></returns>
-        public static CompilationTransformContext<TSettings> CreateWith<TSettings>(TSettings settings, ICompilationTransformPass<TSettings> pass,
+        /// <returns>the new <see cref="CompilationContext{TSettings}"/></returns>
+        public static CompilationContext<TSettings> CreateWith<TSettings>(TSettings settings, ICompiler<TSettings> pass,
             IEnumerable<IBuiltinFunction<TSettings>> builtinFunctions)
             where TSettings : IBuiltinFunctionWritableCompilerSettings<TSettings>
         {
@@ -48,14 +49,14 @@ namespace MathExpr.Compiler.Compilation
             return CreateWith(settings, pass);
         }
         /// <summary>
-        /// Creates a <see cref="CompilationTransformContext{TSettings}"/> using the specified settings, builtin functions, and transformer.
+        /// Creates a <see cref="CompilationContext{TSettings}"/> using the specified settings, builtin functions, and transformer.
         /// </summary>
         /// <typeparam name="TSettings">the settings type to provide to the transformer</typeparam>
         /// <param name="settings">the settings to create the context with</param>
         /// <param name="pass">the compilation backend to use</param>
         /// <param name="builtinFunctions">the builtin functions to use</param>
-        /// <returns>the new <see cref="CompilationTransformContext{TSettings}"/></returns>
-        public static CompilationTransformContext<TSettings> CreateWith<TSettings>(TSettings settings, ICompilationTransformPass<TSettings> pass,
+        /// <returns>the new <see cref="CompilationContext{TSettings}"/></returns>
+        public static CompilationContext<TSettings> CreateWith<TSettings>(TSettings settings, ICompiler<TSettings> pass,
             params IBuiltinFunction<TSettings>[] builtinFunctions)
             where TSettings : IBuiltinFunctionWritableCompilerSettings<TSettings>
             => CreateWith(settings, pass, builtinFunctions.AsEnumerable());
@@ -65,22 +66,22 @@ namespace MathExpr.Compiler.Compilation
     /// A context for managing the compilation of <see cref="MathExpression"/>s.
     /// </summary>
     /// <typeparam name="TSettings"></typeparam>
-    public class CompilationTransformContext<TSettings> : DataProvidingContext, ICompilationTransformContext<TSettings>
+    public class CompilationContext<TSettings> : DataProvidingContext, ICompilationContext<TSettings>
     {
         /// <summary>
-        /// The <see cref="ICompilationTransformContext{TSettings}"/> to use to compile expressions.
+        /// The <see cref="ICompilationContext{TSettings}"/> to use to compile expressions.
         /// </summary>
-        public ICompilationTransformPass<TSettings> Transformer { get; }
+        public ICompiler<TSettings> Compiler { get; }
 
         /// <summary>
         /// Creates a new context with the given settings and transformer.
         /// </summary>
         /// <param name="settings">the settings to create the context with</param>
         /// <param name="transform">the compilation backend to use</param>
-        public CompilationTransformContext(TSettings settings, ICompilationTransformPass<TSettings> transform)
+        public CompilationContext(TSettings settings, ICompiler<TSettings> transform)
         {
             Settings = settings;
-            Transformer = transform;
+            Compiler = transform;
         }
 
         /// <summary>
@@ -94,15 +95,15 @@ namespace MathExpr.Compiler.Compilation
         /// <param name="newParent">the context to parent this to</param>
         public void SetParentDataContext(DataProvidingContext? newParent) => SetParent(newParent);
 
-        private class ContextImpl : DataProvidingContext, ICompilationTransformContext<TSettings>
+        private class ContextImpl : DataProvidingContext, ICompilationContext<TSettings>
         {
-            private readonly CompilationTransformContext<TSettings> owner;
-            public ContextImpl(CompilationTransformContext<TSettings> own) : base(own)
+            private readonly CompilationContext<TSettings> owner;
+            public ContextImpl(CompilationContext<TSettings> own) : base(own)
                 => owner = own;
 
             public TSettings Settings => owner.Settings;
             public Expression Transform(MathExpression from)
-                => owner.Transformer.ApplyTo(from, this);
+                => owner.Compiler.ApplyTo(from, this);
         }
 
         /// <summary>

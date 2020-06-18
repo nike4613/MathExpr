@@ -25,7 +25,7 @@ namespace MathExpr.Compiler.Compilation.Builtins
         /// </summary>
         protected abstract MethodInfo Method { get; }
         /// <inheritdoc/>
-        public bool TryCompile(IReadOnlyList<MathExpression> arguments, ICompilationTransformContext<object?> context, ITypeHintHandler typeHintHandler, out Expression expr)
+        public bool TryCompile(IReadOnlyList<MathExpression> arguments, ICompilationContext<object?> context, ITypeHintHandler typeHintHandler, out Expression expr)
         {
             // TODO: add logging to contexts
             if (arguments.Count != 1)

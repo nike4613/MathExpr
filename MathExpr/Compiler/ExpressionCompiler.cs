@@ -21,7 +21,7 @@ namespace MathExpr.Compiler
     }
 
     /// <summary>
-    /// An easy-to-use wrapper around both <see cref="OptimizationContext{TSettings}"/> and <see cref="CompilationTransformContext{TSettings}"/>
+    /// An easy-to-use wrapper around both <see cref="OptimizationContext{TSettings}"/> and <see cref="CompilationContext{TSettings}"/>
     /// for easily optimizing and compiling <see cref="MathExpression"/>s to <see cref="Expression"/>s.
     /// </summary>
     /// <typeparam name="TOptimizerSettings">the type of optimizer settings to use</typeparam>
@@ -44,7 +44,7 @@ namespace MathExpr.Compiler
         /// <summary>
         /// The compiler backend to use when compiling.
         /// </summary>
-        public ICompilationTransformPass<TCompilerSettings> Compiler { get; set; }
+        public ICompiler<TCompilerSettings> Compiler { get; set; }
 
         /// <summary>
         /// Constructs a compiler wrapper with the given optimizer and compiler settings, along with the specified compiler backend.
@@ -52,7 +52,7 @@ namespace MathExpr.Compiler
         /// <param name="optimizerSettings">the optimizer settings to initialize with</param>
         /// <param name="compilerSettings">the compiler settings to initialize with</param>
         /// <param name="compiler">the compiler backend to initialize with</param>
-        public ExpressionCompiler(TOptimizerSettings optimizerSettings, TCompilerSettings compilerSettings, ICompilationTransformPass<TCompilerSettings> compiler)
+        public ExpressionCompiler(TOptimizerSettings optimizerSettings, TCompilerSettings compilerSettings, ICompiler<TCompilerSettings> compiler)
         {
             OptimizerSettings = optimizerSettings;
             CompilerSettings = compilerSettings;
@@ -90,7 +90,7 @@ namespace MathExpr.Compiler
         public virtual Expression CompileToExpression(MathExpression expr, bool optimize = true)
         {
             if (optimize) expr = Optimize(expr);
-            var ctx = CompilationTransformContext.CreateWith(CompilerSettings, Compiler);
+            var ctx = CompilationContext.CreateWith(CompilerSettings, Compiler);
             ctx.SetParentDataContext(SharedDataStore);
             return ctx.Transform(expr);
         }

@@ -12,9 +12,9 @@ namespace MathExpr.Compiler.Compilation.Settings
     /// <summary>
     /// A default implementation of <see cref="ICompileToLinqExpressionSettings{TSettings}"/>
     /// </summary>
-    public class DefaultBasicCompileToLinqExpressionSettings : 
-        ICompileToLinqExpressionSettings<DefaultBasicCompileToLinqExpressionSettings>,
-        IBuiltinFunctionWritableCompilerSettings<DefaultBasicCompileToLinqExpressionSettings>
+    public class DefaultLinqExpressionCompilerSettings : 
+        ICompileToLinqExpressionSettings<DefaultLinqExpressionCompilerSettings>,
+        IBuiltinFunctionWritableCompilerSettings<DefaultLinqExpressionCompilerSettings>
     {
         /// <inheritdoc/>
         public Type ExpectReturn { get; set; } = typeof(decimal);
@@ -23,16 +23,16 @@ namespace MathExpr.Compiler.Compilation.Settings
         public IDictionary<VariableExpression, ParameterExpression> ParameterMap { get; } = new Dictionary<VariableExpression, ParameterExpression>();
 
         /// <inheritdoc/>
-        public IReadOnlyCollection<IBuiltinFunction<DefaultBasicCompileToLinqExpressionSettings>> BuiltinFunctions => builtinFunctions;
+        public IReadOnlyCollection<IBuiltinFunction<DefaultLinqExpressionCompilerSettings>> BuiltinFunctions => builtinFunctions;
         /// <inheritdoc/>
-        public ICollection<IBuiltinFunction<DefaultBasicCompileToLinqExpressionSettings>> WritableBuiltinFunctions => builtinFunctions;
+        public ICollection<IBuiltinFunction<DefaultLinqExpressionCompilerSettings>> WritableBuiltinFunctions => builtinFunctions;
 
-        private readonly List<IBuiltinFunction<DefaultBasicCompileToLinqExpressionSettings>> builtinFunctions = new List<IBuiltinFunction<DefaultBasicCompileToLinqExpressionSettings>>();
+        private readonly List<IBuiltinFunction<DefaultLinqExpressionCompilerSettings>> builtinFunctions = new List<IBuiltinFunction<DefaultLinqExpressionCompilerSettings>>();
 
         /// <summary>
         /// Initializes a default configuration.
         /// </summary>
-        public DefaultBasicCompileToLinqExpressionSettings()
+        public DefaultLinqExpressionCompilerSettings()
         {
             this.AddBuiltin().OfType<BuiltinFunctionIf>();
             this.AddBuiltin().OfType<BuiltinFunctionExp>();

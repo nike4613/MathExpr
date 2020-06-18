@@ -23,7 +23,7 @@ namespace MathExpr.Compiler.Compilation
         /// <typeparam name="TSettings">the settings type for the context</typeparam>
         /// <param name="ctx">the context being compiled in</param>
         /// <returns>the currently hinted type, or <see langword="null"/> if there is none</returns>
-        Type? CurrentHint<TSettings>(ICompilationTransformContext<TSettings> ctx);
+        Type? CurrentHint<TSettings>(ICompilationContext<TSettings> ctx);
         /// <summary>
         /// Transforms <paramref name="expr"/> using the provided type hint in the given context.
         /// </summary>
@@ -32,7 +32,7 @@ namespace MathExpr.Compiler.Compilation
         /// <param name="hint">the type hint to provide</param>
         /// <param name="ctx">the context to compile in</param>
         /// <returns>the compiled expression</returns>
-        Expression TransformWithHint<TSettings>(MathExpression expr, Type? hint, ICompilationTransformContext<TSettings> ctx);
+        Expression TransformWithHint<TSettings>(MathExpression expr, Type? hint, ICompilationContext<TSettings> ctx);
     }
 
     /// <summary>
@@ -55,7 +55,7 @@ namespace MathExpr.Compiler.Compilation
         /// <returns><see langword="true"/> if the invocation successfully compiled, or
         /// <see langword="false"/> if it could not</returns>
         bool TryCompile(IReadOnlyList<MathExpression> arguments, 
-            ICompilationTransformContext<TSettings> context,
+            ICompilationContext<TSettings> context,
             ITypeHintHandler typeHintHandler, out Expression expr);
     }
 }
