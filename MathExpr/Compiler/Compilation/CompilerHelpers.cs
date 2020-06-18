@@ -345,8 +345,15 @@ namespace MathExpr.Compiler.Compilation
                 case TypeCode.Double: return sizeof(double) + 1;
                 case TypeCode.Decimal: return sizeof(decimal); // decimal doesn't because it is much less special than other floating point types
                 default:
-                    if (!type.IsValueType) return int.MaxValue; // there isn't a good way to estimate reference type sizes, so we assume better
-                    return (int)MarshalSizeOfMethod.MakeGenericMethod(type).Invoke(null, Array.Empty<object>())!;
+                    try
+                    {
+                        if (type.IsValueType) return (int)MarshalSizeOfMethod.MakeGenericMethod(type).Invoke(null, Array.Empty<object>())!;
+                    }
+                    catch
+                    {
+                        // ignore
+                    }
+                    return int.MaxValue; // there isn't a good way to estimate reference type sizes, so we assume better
             }
         }
     }
