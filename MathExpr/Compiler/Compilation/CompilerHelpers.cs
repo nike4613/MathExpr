@@ -8,6 +8,7 @@ using MathExpr.Utilities;
 using System.Runtime.InteropServices;
 using Microsoft.VisualBasic;
 using System.Diagnostics;
+using System.Collections.Concurrent;
 
 namespace MathExpr.Compiler.Compilation
 {
@@ -153,11 +154,11 @@ namespace MathExpr.Compiler.Compilation
         public static bool HasConversionPathTo(Type from, Type to) => FindConversionPathTo(from, to) != null;
 
         private const BindingFlags OperatorFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.DeclaredOnly;
-        private static readonly Dictionary<Type, MethodInfo[]> ConversionOperatorCache = new Dictionary<Type, MethodInfo[]>();
+        private static readonly ConcurrentDictionary<Type, MethodInfo[]> ConversionOperatorCache = new ConcurrentDictionary<Type, MethodInfo[]>();
         private static MethodInfo[] GetConversionOperators(Type ty)
         {
             if (!ConversionOperatorCache.TryGetValue(ty, out var values))
-                ConversionOperatorCache.Add(ty, 
+                ConversionOperatorCache.TryAdd(ty,
                     values = ty.GetMethods(OperatorFlags)
                                .Where(m => m.Name == "op_Implicit" || m.Name == "op_Explicit")
                                .ToArray());
@@ -211,7 +212,7 @@ namespace MathExpr.Compiler.Compilation
                 => node.Convert(expr);
         }
 
-        private static readonly Dictionary<(Type from, Type to), ConversionPathNode[]?> ConversionPathCache = new Dictionary<(Type from, Type to), ConversionPathNode[]?>();
+        private static readonly ConcurrentDictionary<(Type from, Type to), ConversionPathNode[]?> ConversionPathCache = new ConcurrentDictionary<(Type from, Type to), ConversionPathNode[]?>();
         /// <summary>
         /// Attempts to find a conversion path from any type to any other type.
         /// </summary>
@@ -225,7 +226,7 @@ namespace MathExpr.Compiler.Compilation
         public static IEnumerable<ConversionPathNode>? FindConversionPathTo(Type from, Type to)
         {
             if (!ConversionPathCache.TryGetValue((from, to), out var path))
-                ConversionPathCache.Add((from, to), path = FindConversionPathToInternal(from, to)?.ToArray());
+                ConversionPathCache.TryAdd((from, to), path = FindConversionPathToInternal(from, to)?.ToArray());
             return path;
         }
         private static IEnumerable<ConversionPathNode>? FindConversionPathToInternal(Type from, Type to)
