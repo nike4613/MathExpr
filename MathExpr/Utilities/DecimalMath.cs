@@ -13,7 +13,7 @@ namespace MathExpr.Utilities
         // x^n can be represented as sigma(v=0 -> inf, (n^v * log(x)^v) / v!)
         // ln(x) around 1 is sigma(n=1 -> inf, ((-1)^(n + 1) * (x - 1)^n)/n)
         private const MethodImplOptions AggressiveOptimization =
-#if NETCOREAPP3_0
+#if NETCOREAPP3_1
             MethodImplOptions.AggressiveOptimization;
 #else
             (MethodImplOptions)0;
@@ -272,7 +272,7 @@ namespace MathExpr.Utilities
             return prod;
         }
 
-#if NETCOREAPP3_0
+#if NETCOREAPP3_1
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static uint Log2(uint n)
             => System.Runtime.Intrinsics.X86.Lzcnt.IsSupported
