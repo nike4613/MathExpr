@@ -386,7 +386,7 @@ namespace MathExpr.Compiler.Compilation.Passes
                 var userFuncParams = new Dictionary<VariableExpression, ParameterExpression>();
                 SetUserFuncParams(ctx, userFuncParams);
                 var paramList = new List<ParameterExpression>();
-                foreach (var (varExpr, paramType) in def.ParameterList.Zip(argTypes!, (a, b) => (a, b)))
+                foreach (var (varExpr, paramType) in def.ParameterList.Zip(argTypes!, Helpers.Tuple))
                 {
                     var param = Expression.Parameter(paramType, varExpr.Name);
                     paramList.Add(param);

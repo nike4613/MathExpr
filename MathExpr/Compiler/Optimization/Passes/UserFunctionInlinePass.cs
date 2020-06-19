@@ -1,5 +1,6 @@
 ﻿using MathExpr.Compiler.Optimization.Settings;
 using MathExpr.Syntax;
+using MathExpr.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -51,7 +52,7 @@ namespace MathExpr.Compiler.Optimization.Passes
                     var variableSubs = GetVariableSubstitutions(ctx);
                     if (variableSubs.Count == 0)
                     { // only when we're not currently substituting
-                        foreach (var (replace, with) in tup.func.ParameterList.Zip(expr.Arguments, (a, b) => (a, b)))
+                        foreach (var (replace, with) in tup.func.ParameterList.Zip(expr.Arguments, Helpers.Tuple))
                             variableSubs.Add(replace, with);
 
                         var value = ApplyTo(tup.func.Definition, ctx);

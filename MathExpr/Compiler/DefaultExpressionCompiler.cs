@@ -83,8 +83,8 @@ namespace MathExpr.Compiler
             where TDelegate : Delegate
         {
             var parameters = DelegateInformation<TDelegate>.ParamTypes
-                .Zip(parameterNames, (type, name) => (type, name))
-                .Select(t => (t.name, param: Expression.Parameter(t.type, t.name)))
+                .Zip(parameterNames, Helpers.Tuple)
+                .Select(t => (name: t.b, param: Expression.Parameter(t.a, t.b)))
                 .ToList();
 
             if (parameters.Count != DelegateInformation<TDelegate>.ParamTypes.Length)

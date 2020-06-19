@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Reflection;
 using System.Linq.Expressions;
+using System.Linq;
 
 namespace MathExpr.Utilities
 {
@@ -123,5 +124,15 @@ namespace MathExpr.Utilities
             }
             return str.Length;
         }
+
+        /// <summary>
+        /// Creates a <see cref="ValueTuple{T1, T2}"/> of its arguments. Primarily for use with <see cref="Enumerable.Zip{TFirst, TSecond, TResult}(IEnumerable{TFirst}, IEnumerable{TSecond}, Func{TFirst, TSecond, TResult})"/>.
+        /// </summary>
+        /// <typeparam name="T1">The type of the first value.</typeparam>
+        /// <typeparam name="T2">The type of the second parameter.</typeparam>
+        /// <param name="a">The first element.</param>
+        /// <param name="b">The second element.</param>
+        /// <returns>A <see cref="ValueTuple{T1, T2}"/> consisting of <paramref name="a"/> and <paramref name="b"/>.</returns>
+        public static (T1 a, T2 b) Tuple<T1, T2>(T1 a, T2 b) => (a, b);
     }
 }
