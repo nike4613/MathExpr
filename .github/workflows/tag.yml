@@ -13,7 +13,7 @@ jobs:
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: '3.1.101' # SDK Version to use.
+          dotnet-version: '3.1.301' # SDK Version to use.
           source-url: https://nuget.pkg.github.com/nike4613/index.json
         env:
           NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
