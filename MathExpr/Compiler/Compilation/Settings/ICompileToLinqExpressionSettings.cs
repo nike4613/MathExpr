@@ -39,4 +39,16 @@ namespace MathExpr.Compiler.Compilation.Settings
         /// </summary>
         IList<ISpecialBinaryOperationCompiler> PowerCompilers { get; }
     }
+
+    /// <summary>
+    /// An interface representing the writable portions of <see cref="ICompileToLinqExpressionSettings{TSettings}"/> for
+    /// those that need it.
+    /// </summary>
+    public interface IWritableCompileToLinqExpressionSettings
+    {
+        /// <summary>
+        /// Sets the type that the resulting expression is expected to return.
+        /// </summary>
+        Type ExpectReturn { get; set; }
+    }
 }

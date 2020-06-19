@@ -14,8 +14,6 @@ namespace MathExpr.Compiler.Optimization.Settings
         public bool IgnoreDomainRestrictions { get; set; } = false;
         /// <inheritdoc/>
         public bool AllowDomainChangingOptimizations { get; set; } = true;
-        /// <inheritdoc/>
-        public IList<MathExpression> DomainRestrictions { get; } = new List<MathExpression>();
 
         /// <inheritdoc/>
         public IList<BinaryExpression.ExpressionType> IgnoreCommutativityFor { get; } = new List<BinaryExpression.ExpressionType>();

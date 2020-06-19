@@ -14,6 +14,7 @@ namespace MathExpr.Compiler.Compilation.Settings
     /// </summary>
     public class DefaultLinqExpressionCompilerSettings : 
         ICompileToLinqExpressionSettings<DefaultLinqExpressionCompilerSettings>,
+        IWritableCompileToLinqExpressionSettings,
         IBuiltinFunctionWritableCompilerSettings<DefaultLinqExpressionCompilerSettings>
     {
         /// <inheritdoc/>
