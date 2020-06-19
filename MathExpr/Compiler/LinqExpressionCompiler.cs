@@ -65,7 +65,7 @@ namespace MathExpr.Compiler
         }
 
         /// <summary>
-        /// Compiles a <see cref="MathExpression"/> to a delegate of a specified type, optionally optimizing first, using the specified
+        /// Compiles a <see cref="MathExpression"/> to a delegate of the specified type, optionally optimizing first, using the specified
         /// <see cref="Expression{TDelegate}"/> compiler, with the given parameter variable order.
         /// </summary>
         /// <remarks>
@@ -78,6 +78,7 @@ namespace MathExpr.Compiler
         /// <param name="compile">the delegate to use to compile the resulting <see cref="Expression{TDelegate}"/> into a delegate</param>
         /// <param name="parameterNames">an ordered list of parameter names corresponding to delegate arguments</param>
         /// <returns>the compiled delegate</returns>
+        /// <exception cref="CompilationException">Thrown if there was an error compiling the expression.</exception>
         public TDelegate Compile<TDelegate>(MathExpression expr, bool optimize, Func<Expression<TDelegate>, TDelegate> compile, IEnumerable<string> parameterNames)
             where TDelegate : Delegate
         {
@@ -102,6 +103,26 @@ namespace MathExpr.Compiler
                     parameters.Select(p => p.param)));
         }
         /// <summary>
+        /// Compiles a <see cref="string"/> representing a <see cref="MathExpression"/> to a delegate of the specified type, optionally optimizing
+        /// first, using the specified <see cref="Expression{TDelegate}"/> compiler, with the given parameter variable order.
+        /// </summary>
+        /// <remarks>
+        /// <para>The <paramref name="expr"/> given is first passed to <see cref="MathExpression.Parse(string, bool)"/> to parse it into an expression tree.</para>
+        /// <para>There must be at least as many elements of <paramref name="parameterNames"/> as there are parameters to <typeparamref name="TDelegate"/>,
+        /// even if some of the variables remain unused.</para>
+        /// </remarks>
+        /// <typeparam name="TDelegate">The type of delegate to compile.</typeparam>
+        /// <param name="expr">The expression to compile, as a string.</param>
+        /// <param name="optimize">Whether or not to optimize the expression before compiling.</param>
+        /// <param name="compile">The delegate to use to compile the <see cref="Expression{TDelegate}"/> into a delegate.</param>
+        /// <param name="parameterNames">An ordered list of parameter names corresponding to delegate arguments.</param>
+        /// <returns>The compiled delegate.</returns>
+        /// <exception cref="CompilationException">Thrown if there was an error compiling the expression.</exception>
+        /// <exception cref="SyntaxException">Thrown if there was an error in the syntax of the expression.</exception>
+        public TDelegate Compile<TDelegate>(string expr, bool optimize, Func<Expression<TDelegate>, TDelegate> compile, IEnumerable<string> parameterNames)
+            where TDelegate : Delegate
+            => Compile(MathExpression.Parse(expr), optimize, compile, parameterNames);
+        /// <summary>
         /// Compiles a <see cref="MathExpression"/> to a delegate of a specified type, optionally optimizing first, using the specified
         /// <see cref="Expression{TDelegate}"/> compiler, with the given parameter variable order.
         /// </summary>
@@ -115,7 +136,28 @@ namespace MathExpr.Compiler
         /// <param name="compile">the delegate to use to compile the resulting <see cref="Expression{TDelegate}"/> into a delegate</param>
         /// <param name="parameterNames">an ordered list of parameter names corresponding to delegate arguments</param>
         /// <returns>the compiled delegate</returns>
+        /// <exception cref="CompilationException">Thrown if there was an error compiling the expression.</exception>
         public TDelegate Compile<TDelegate>(MathExpression expr, bool optimize, Func<Expression<TDelegate>, TDelegate> compile, params string[] parameterNames)
+            where TDelegate : Delegate
+            => Compile(expr, optimize, compile, parameterNames.AsEnumerable());
+        /// <summary>
+        /// Compiles a <see cref="string"/> representing a <see cref="MathExpression"/> to a delegate of the specified type, optionally optimizing
+        /// first, using the specified <see cref="Expression{TDelegate}"/> compiler, with the given parameter variable order.
+        /// </summary>
+        /// <remarks>
+        /// <para>The <paramref name="expr"/> given is first passed to <see cref="MathExpression.Parse(string, bool)"/> to parse it into an expression tree.</para>
+        /// <para>There must be at least as many elements of <paramref name="parameterNames"/> as there are parameters to <typeparamref name="TDelegate"/>,
+        /// even if some of the variables remain unused.</para>
+        /// </remarks>
+        /// <typeparam name="TDelegate">The type of delegate to compile.</typeparam>
+        /// <param name="expr">The expression to compile, as a string.</param>
+        /// <param name="optimize">Whether or not to optimize the expression before compiling.</param>
+        /// <param name="compile">The delegate to use to compile the <see cref="Expression{TDelegate}"/> into a delegate.</param>
+        /// <param name="parameterNames">An ordered list of parameter names corresponding to delegate arguments.</param>
+        /// <returns>The compiled delegate.</returns>
+        /// <exception cref="CompilationException">Thrown if there was an error compiling the expression.</exception>
+        /// <exception cref="SyntaxException">Thrown if there was an error in the syntax of the expression.</exception>
+        public TDelegate Compile<TDelegate>(string expr, bool optimize, Func<Expression<TDelegate>, TDelegate> compile, params string[] parameterNames)
             where TDelegate : Delegate
             => Compile(expr, optimize, compile, parameterNames.AsEnumerable());
         /// <summary>
@@ -131,9 +173,29 @@ namespace MathExpr.Compiler
         /// <param name="optimize">whether or not to optimize the expression before compiling</param>
         /// <param name="parameterNames">an ordered list of parameter names corresponding to delegate arguments</param>
         /// <returns>the compiled delegate</returns>
+        /// <exception cref="CompilationException">Thrown if there was an error compiling the expression.</exception>
         public TDelegate Compile<TDelegate>(MathExpression expr, bool optimize, IEnumerable<string> parameterNames)
             where TDelegate : Delegate
             => Compile<TDelegate>(expr, optimize, e => e.Compile(), parameterNames);
+        /// <summary>
+        /// Compiles a <see cref="string"/> representing a <see cref="MathExpression"/> to a delegate of the specified type, optionally optimizing
+        /// first, using the default <see cref="Expression{TDelegate}"/> compiler, with the given parameter variable order.
+        /// </summary>
+        /// <remarks>
+        /// <para>The <paramref name="expr"/> given is first passed to <see cref="MathExpression.Parse(string, bool)"/> to parse it into an expression tree.</para>
+        /// <para>There must be at least as many elements of <paramref name="parameterNames"/> as there are parameters to <typeparamref name="TDelegate"/>,
+        /// even if some of the variables remain unused.</para>
+        /// </remarks>
+        /// <typeparam name="TDelegate">The type of delegate to compile.</typeparam>
+        /// <param name="expr">The expression to compile, as a string.</param>
+        /// <param name="optimize">Whether or not to optimize the expression before compiling.</param>
+        /// <param name="parameterNames">An ordered list of parameter names corresponding to delegate arguments.</param>
+        /// <returns>The compiled delegate.</returns>
+        /// <exception cref="CompilationException">Thrown if there was an error compiling the expression.</exception>
+        /// <exception cref="SyntaxException">Thrown if there was an error in the syntax of the expression.</exception>
+        public TDelegate Compile<TDelegate>(string expr, bool optimize, IEnumerable<string> parameterNames)
+            where TDelegate : Delegate
+            => Compile<TDelegate>(MathExpression.Parse(expr), optimize, parameterNames);
         /// <summary>
         /// Compiles a <see cref="MathExpression"/> to a delegate of a specified type, optionally optimizing first, using the default 
         /// <see cref="Expression{TDelegate}"/> compiler, with the given parameter variable order.
@@ -147,7 +209,27 @@ namespace MathExpr.Compiler
         /// <param name="optimize">whether or not to optimize the expression before compiling</param>
         /// <param name="parameterNames">an ordered list of parameter names corresponding to delegate arguments</param>
         /// <returns>the compiled delegate</returns>
+        /// <exception cref="CompilationException">Thrown if there was an error compiling the expression.</exception>
         public TDelegate Compile<TDelegate>(MathExpression expr, bool optimize, params string[] parameterNames)
+            where TDelegate : Delegate
+            => Compile<TDelegate>(expr, optimize, parameterNames.AsEnumerable());
+        /// <summary>
+        /// Compiles a <see cref="string"/> representing a <see cref="MathExpression"/> to a delegate of the specified type, optionally optimizing
+        /// first, using the default <see cref="Expression{TDelegate}"/> compiler, with the given parameter variable order.
+        /// </summary>
+        /// <remarks>
+        /// <para>The <paramref name="expr"/> given is first passed to <see cref="MathExpression.Parse(string, bool)"/> to parse it into an expression tree.</para>
+        /// <para>There must be at least as many elements of <paramref name="parameterNames"/> as there are parameters to <typeparamref name="TDelegate"/>,
+        /// even if some of the variables remain unused.</para>
+        /// </remarks>
+        /// <typeparam name="TDelegate">The type of delegate to compile.</typeparam>
+        /// <param name="expr">The expression to compile, as a string.</param>
+        /// <param name="optimize">Whether or not to optimize the expression before compiling.</param>
+        /// <param name="parameterNames">An ordered list of parameter names corresponding to delegate arguments.</param>
+        /// <returns>The compiled delegate.</returns>
+        /// <exception cref="CompilationException">Thrown if there was an error compiling the expression.</exception>
+        /// <exception cref="SyntaxException">Thrown if there was an error in the syntax of the expression.</exception>
+        public TDelegate Compile<TDelegate>(string expr, bool optimize, params string[] parameterNames)
             where TDelegate : Delegate
             => Compile<TDelegate>(expr, optimize, parameterNames.AsEnumerable());
         /// <summary>
@@ -162,9 +244,28 @@ namespace MathExpr.Compiler
         /// <param name="expr">the expression to compile</param>
         /// <param name="parameterNames">an ordered list of parameter names corresponding to delegate arguments</param>
         /// <returns>the compiled delegate</returns>
+        /// <exception cref="CompilationException">Thrown if there was an error compiling the expression.</exception>
         public TDelegate Compile<TDelegate>(MathExpression expr, IEnumerable<string> parameterNames)
             where TDelegate : Delegate
             => Compile<TDelegate>(expr, true, e => e.Compile(), parameterNames);
+        /// <summary>
+        /// Compiles a <see cref="string"/> representing a <see cref="MathExpression"/> to a delegate of the specified type, optimizing
+        /// first, using the default <see cref="Expression{TDelegate}"/> compiler, with the given parameter variable order.
+        /// </summary>
+        /// <remarks>
+        /// <para>The <paramref name="expr"/> given is first passed to <see cref="MathExpression.Parse(string, bool)"/> to parse it into an expression tree.</para>
+        /// <para>There must be at least as many elements of <paramref name="parameterNames"/> as there are parameters to <typeparamref name="TDelegate"/>,
+        /// even if some of the variables remain unused.</para>
+        /// </remarks>
+        /// <typeparam name="TDelegate">The type of delegate to compile.</typeparam>
+        /// <param name="expr">The expression to compile, as a string.</param>
+        /// <param name="parameterNames">An ordered list of parameter names corresponding to delegate arguments.</param>
+        /// <returns>The compiled delegate.</returns>
+        /// <exception cref="CompilationException">Thrown if there was an error compiling the expression.</exception>
+        /// <exception cref="SyntaxException">Thrown if there was an error in the syntax of the expression.</exception>
+        public TDelegate Compile<TDelegate>(string expr, IEnumerable<string> parameterNames)
+            where TDelegate : Delegate
+            => Compile<TDelegate>(MathExpression.Parse(expr), parameterNames);
         /// <summary>
         /// Compiles a <see cref="MathExpression"/> to a delegate of a specified type, optimizing first, using the default 
         /// <see cref="Expression{TDelegate}"/> compiler, with the given parameter variable order.
@@ -177,7 +278,26 @@ namespace MathExpr.Compiler
         /// <param name="expr">the expression to compile</param>
         /// <param name="parameterNames">an ordered list of parameter names corresponding to delegate arguments</param>
         /// <returns>the compiled delegate</returns>
+        /// <exception cref="CompilationException">Thrown if there was an error compiling the expression.</exception>
         public TDelegate Compile<TDelegate>(MathExpression expr, params string[] parameterNames)
+            where TDelegate : Delegate
+            => Compile<TDelegate>(expr, parameterNames.AsEnumerable());
+        /// <summary>
+        /// Compiles a <see cref="string"/> representing a <see cref="MathExpression"/> to a delegate of the specified type, optimizing
+        /// first, using the default <see cref="Expression{TDelegate}"/> compiler, with the given parameter variable order.
+        /// </summary>
+        /// <remarks>
+        /// <para>The <paramref name="expr"/> given is first passed to <see cref="MathExpression.Parse(string, bool)"/> to parse it into an expression tree.</para>
+        /// <para>There must be at least as many elements of <paramref name="parameterNames"/> as there are parameters to <typeparamref name="TDelegate"/>,
+        /// even if some of the variables remain unused.</para>
+        /// </remarks>
+        /// <typeparam name="TDelegate">The type of delegate to compile.</typeparam>
+        /// <param name="expr">The expression to compile, as a string.</param>
+        /// <param name="parameterNames">An ordered list of parameter names corresponding to delegate arguments.</param>
+        /// <returns>The compiled delegate.</returns>
+        /// <exception cref="CompilationException">Thrown if there was an error compiling the expression.</exception>
+        /// <exception cref="SyntaxException">Thrown if there was an error in the syntax of the expression.</exception>
+        public TDelegate Compile<TDelegate>(string expr, params string[] parameterNames)
             where TDelegate : Delegate
             => Compile<TDelegate>(expr, parameterNames.AsEnumerable());
     }
