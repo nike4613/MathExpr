@@ -1,4 +1,5 @@
 ﻿using MathExpr.Compiler.Compilation;
+using MathExpr.Compiler.Compilation.Passes;
 using MathExpr.Compiler.Compilation.Settings;
 using MathExpr.Compiler.Optimization;
 using MathExpr.Compiler.Optimization.Settings;
@@ -12,6 +13,43 @@ using System.Text;
 
 namespace MathExpr.Compiler
 {
+    /// <summary>
+    /// A static class containing helpers to more easily create <see cref="LinqExpressionCompiler{TOptimizerSettings, TCompilerSettings}"/>s.
+    /// </summary>
+    public static class LinqExpressionCompiler
+    {
+        /// <summary>
+        /// Creates a new <see cref="LinqExpressionCompiler{TOptimizerSettings, TCompilerSettings}"/> using the specified settings and compiler.
+        /// </summary>
+        /// <typeparam name="TOptimizerSettings">The type of the optimizer settings.</typeparam>
+        /// <typeparam name="TCompilerSettings">The type of the compiler settings.</typeparam>
+        /// <param name="optimizerSettings">The optimizer settings to use.</param>
+        /// <param name="compilerSettings">The compiler settings to use.</param>
+        /// <param name="compiler">The compiler to use.</param>
+        /// <returns>The new <see cref="LinqExpressionCompiler{TOptimizerSettings, TCompilerSettings}"/>.</returns>
+        /// <seealso cref="LinqExpressionCompiler{TOptimizerSettings, TCompilerSettings}(TOptimizerSettings, TCompilerSettings, ICompiler{TCompilerSettings})"/>
+        public static LinqExpressionCompiler<TOptimizerSettings, TCompilerSettings> Create<TOptimizerSettings, TCompilerSettings>(
+            TOptimizerSettings optimizerSettings, 
+            TCompilerSettings compilerSettings, 
+            ICompiler<TCompilerSettings> compiler
+        ) where TCompilerSettings : ICompileToLinqExpressionSettings<TCompilerSettings>, IWritableCompileToLinqExpressionSettings
+            => new LinqExpressionCompiler<TOptimizerSettings, TCompilerSettings>(optimizerSettings, compilerSettings, compiler);
+        /// <summary>
+        /// Creates a new <see cref="LinqExpressionCompiler{TOptimizerSettings, TCompilerSettings}"/> using the specified settings, using the default compiler.
+        /// </summary>
+        /// <typeparam name="TOptimizerSettings">The type of the optimizer settings.</typeparam>
+        /// <typeparam name="TCompilerSettings">The type of the compiler settings.</typeparam>
+        /// <param name="optimizerSettings">The optimizer settings to use.</param>
+        /// <param name="compilerSettings">The compiler settings to use.</param>
+        /// <returns>The new <see cref="LinqExpressionCompiler{TOptimizerSettings, TCompilerSettings}"/>.</returns>
+        /// <seealso cref="LinqExpressionCompiler{TOptimizerSettings, TCompilerSettings}(TOptimizerSettings, TCompilerSettings)"/>
+        public static LinqExpressionCompiler<TOptimizerSettings, TCompilerSettings> Create<TOptimizerSettings, TCompilerSettings>(
+            TOptimizerSettings optimizerSettings,
+            TCompilerSettings compilerSettings
+        ) where TCompilerSettings : ICompileToLinqExpressionSettings<TCompilerSettings>, IWritableCompileToLinqExpressionSettings
+            => new LinqExpressionCompiler<TOptimizerSettings, TCompilerSettings>(optimizerSettings, compilerSettings);
+    }
+
     /// <summary>
     /// A specialization of <see cref="ExpressionCompiler{TOptimizerSettings, TCompilerSettings}"/> that provides a fairly nice interface for use.
     /// </summary>
@@ -32,6 +70,19 @@ namespace MathExpr.Compiler
         /// <param name="compiler">The compiler to use.</param>
         public LinqExpressionCompiler(TOptimizerSettings optimizerSettings, TCompilerSettings compilerSettings, ICompiler<TCompilerSettings> compiler) 
             : base(optimizerSettings, compilerSettings, compiler)
+        {
+        }
+
+        /// <summary>
+        /// Creates a new <see cref="LinqExpressionCompiler{TOptimizerSettings, TCompilerSettings}"/> using the specified settings, with the default compiler.
+        /// </summary>
+        /// <remarks>
+        /// The compiler that this constructor uses is <see cref="DefaultLinqExpressionCompiler{TSettings}"/>.
+        /// </remarks>
+        /// <param name="optimizerSettings">The optimizer settings to use.</param>
+        /// <param name="compilerSettings">The compiler settings to use.</param>
+        public LinqExpressionCompiler(TOptimizerSettings optimizerSettings, TCompilerSettings compilerSettings)
+            : this(optimizerSettings, compilerSettings, new DefaultLinqExpressionCompiler<TCompilerSettings>())
         {
         }
 
