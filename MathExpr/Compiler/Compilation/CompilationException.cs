@@ -15,6 +15,9 @@ namespace MathExpr.Compiler.Compilation
         /// </summary>
         public MathExpression? Location { get; } = null;
 
+        /// <inheritdoc/>
+        public override string Message => (Location?.Token?.FormatTokenLocation() ?? "") + base.Message;
+
         /// <summary>
         /// Constructs a <see cref="CompilationException"/> wrapping another exception at a given location.
         /// </summary>
@@ -69,7 +72,7 @@ namespace MathExpr.Compiler.Compilation
         {
         }
 
-        /// <summary>
+        /*/// <summary>
         /// Converts this exception to a string, prepending the result of <see cref="Token.FormatTokenLocation"/>
         /// for the token associated with the expression associated with this expression.
         /// </summary>
@@ -81,6 +84,6 @@ namespace MathExpr.Compiler.Compilation
             if (tok != null)
                 str = tok.Value.FormatTokenLocation() + str;
             return str;
-        }
+        }*/
     }
 }

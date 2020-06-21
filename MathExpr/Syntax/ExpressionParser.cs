@@ -232,6 +232,9 @@ namespace MathExpr.Syntax
         /// </summary>
         public Token? Token { get; }
 
+        /// <inheritdoc/>
+        public override string Message => (Token?.FormatTokenLocation() ?? "") + base.Message;
+
         /// <summary>
         /// Constructs a new instance of the exception with a token and a message.
         /// </summary>
@@ -241,19 +244,6 @@ namespace MathExpr.Syntax
             : base(message + (token == null ? "" : $" at token {token.Value} at {token.Value.Position}:{token.Value.Length}"))
         {
             Token = token;
-        }
-
-        /// <summary>
-        /// Converts this exception to a string, prepending the result of <see cref="Token.FormatTokenLocation"/>
-        /// for the token associated with the expression associated with this expression.
-        /// </summary>
-        /// <returns>a string representatino of this exception</returns>
-        public override string ToString()
-        {
-            var str = base.ToString();
-            if (Token != null)
-                str = Token.Value.FormatTokenLocation() + str;
-            return str;
         }
     }
 }
