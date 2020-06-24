@@ -1,7 +1,6 @@
 ﻿using MathExpr.Compiler;
 using MathExpr.Compiler.Compilation;
 using MathExpr.Syntax;
-using Microsoft.VisualBasic.CompilerServices;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;

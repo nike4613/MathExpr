@@ -130,9 +130,9 @@ namespace MathExpr.Utilities
         /// </summary>
         /// <typeparam name="T1">The type of the first value.</typeparam>
         /// <typeparam name="T2">The type of the second parameter.</typeparam>
-        /// <param name="a">The first element.</param>
-        /// <param name="b">The second element.</param>
-        /// <returns>A <see cref="ValueTuple{T1, T2}"/> consisting of <paramref name="a"/> and <paramref name="b"/>.</returns>
-        public static (T1 a, T2 b) Tuple<T1, T2>(T1 a, T2 b) => (a, b);
+        /// <param name="first">The first element.</param>
+        /// <param name="second">The second element.</param>
+        /// <returns>A <see cref="ValueTuple{T1, T2}"/> consisting of <paramref name="first"/> and <paramref name="second"/>.</returns>
+        public static (T1 First, T2 Second) Tuple<T1, T2>(T1 first, T2 second) => (first, second);
     }
 }

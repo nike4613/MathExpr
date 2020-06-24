@@ -5,6 +5,7 @@ using Xunit;
 
 using MathExpr.Syntax;
 using System.Linq;
+using MathExpr.Utilities;
 
 namespace MathExprTests
 {
@@ -40,7 +41,7 @@ namespace MathExprTests
                 new Token(TokenType.String, "haha this is a \" string literal &^", 43, 37)
             };
 
-            foreach (var (actual, expected) in tokens.Zip(expect))
+            foreach (var (actual, expected) in tokens.Zip(expect, Helpers.Tuple))
             {
                 Assert.Equal(expected, actual);
             }
