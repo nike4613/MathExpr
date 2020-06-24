@@ -2,6 +2,7 @@
 using MathExpr.Utilities;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -25,12 +26,12 @@ namespace MathExpr.Compiler.Compilation.Builtins
         /// </summary>
         protected abstract MethodInfo Method { get; }
         /// <inheritdoc/>
-        public bool TryCompile(IReadOnlyList<MathExpression> arguments, ICompilationContext<object?> context, ITypeHintHandler typeHintHandler, out Expression expr)
+        public bool TryCompile(IReadOnlyList<MathExpression> arguments, ICompilationContext<object?> context, ITypeHintHandler typeHintHandler, [MaybeNullWhen(false)] out Expression expr)
         {
             // TODO: add logging to contexts
             if (arguments.Count != 1)
             {
-                expr = default!;
+                expr = null;
                 return false;
             }
 

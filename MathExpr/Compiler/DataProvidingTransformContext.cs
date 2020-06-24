@@ -59,7 +59,7 @@ namespace MathExpr.Compiler
                     return parent.TryGetData<TScope, TData>(out data);
                 else
                 {
-                    data = default!;
+                    data = default;
                     return false;
                 }
             }

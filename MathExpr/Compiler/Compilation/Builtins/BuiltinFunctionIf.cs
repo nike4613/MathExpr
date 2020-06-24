@@ -1,6 +1,7 @@
 ﻿using MathExpr.Syntax;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
@@ -24,11 +25,11 @@ namespace MathExpr.Compiler.Compilation.Builtins
         public string Name => ConstName;
 
         /// <inheritdoc/>
-        public bool TryCompile(IReadOnlyList<MathExpression> arguments, ICompilationContext<object?> ctx, ITypeHintHandler hintHandler, out Expression expr)
+        public bool TryCompile(IReadOnlyList<MathExpression> arguments, ICompilationContext<object?> ctx, ITypeHintHandler hintHandler, [MaybeNullWhen(false)] out Expression expr)
         {
             if (arguments.Count != 3)
             {
-                expr = default!;
+                expr = null;
                 return false;
             }
 

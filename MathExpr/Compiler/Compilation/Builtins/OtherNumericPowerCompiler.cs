@@ -1,6 +1,7 @@
 ﻿using MathExpr.Utilities;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Text;
 
@@ -19,9 +20,9 @@ namespace MathExpr.Compiler.Compilation.Builtins
         /// <param name="exp">the exponent of the operation</param>
         /// <param name="result">the result of the compilation</param>
         /// <returns><see langword="true"/> if it was compiled, <see langword="false"/> otherwise.</returns>
-        public bool TryCompile(Expression bas, Expression exp, out Expression result)
+        public bool TryCompile(Expression bas, Expression exp, [MaybeNullWhen(false)] out Expression result)
         {
-            result = null!;
+            result = null;
 
             var powMethod = Helpers.GetMethod<Action<decimal>>(a => DecimalMath.Pow(a, a))!;
 

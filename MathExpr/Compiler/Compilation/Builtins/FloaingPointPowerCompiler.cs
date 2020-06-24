@@ -1,6 +1,7 @@
 ﻿using MathExpr.Utilities;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Text;
 
@@ -19,9 +20,9 @@ namespace MathExpr.Compiler.Compilation.Builtins
         /// <param name="right">the exponent of the operation</param>
         /// <param name="result">the result of the compilation</param>
         /// <returns><see langword="true"/> if it was compiled, <see langword="false"/> otherwise.</returns>
-        public bool TryCompile(Expression left, Expression right, out Expression result)
+        public bool TryCompile(Expression left, Expression right, [MaybeNullWhen(false)] out Expression result)
         {
-            result = null!;
+            result = null;
             if (left.Type != typeof(float) && left.Type != typeof(double)) return false;
             if (right.Type != typeof(float) && right.Type != typeof(double)) return false;
 

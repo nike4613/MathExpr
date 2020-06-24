@@ -56,6 +56,6 @@ namespace MathExpr.Compiler.Compilation
         /// <see langword="false"/> if it could not</returns>
         bool TryCompile(IReadOnlyList<MathExpression> arguments, 
             ICompilationContext<TSettings> context,
-            ITypeHintHandler typeHintHandler, out Expression expr);
+            ITypeHintHandler typeHintHandler, [MaybeNullWhen(false)] out Expression expr);
     }
 }
