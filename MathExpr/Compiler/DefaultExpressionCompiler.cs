@@ -35,5 +35,18 @@ namespace MathExpr.Compiler
             : base(optimizerSettings, compilerSettings, new DefaultLinqExpressionCompiler<DefaultLinqExpressionCompilerSettings>())
         {
         }
+
+        /// <summary>
+        /// Optimizes the provided expression using an <see cref="OptimizationContext{TSettings}"/>
+        /// created with <see cref="OptimizationContext.CreateDefault(DefaultOptimizationSettings?, IEnumerable{IOptimizationPass{DefaultOptimizationSettings}})"/>
+        /// </summary>
+        /// <param name="expr">the expression to optimize</param>
+        /// <returns>the optimized expression</returns>
+        public override MathExpression Optimize(MathExpression expr)
+        {
+            var ctx = OptimizationContext.CreateDefault(OptimizerSettings, OptimizerPasses);
+            ctx.SetParentDataContext(SharedDataStore);
+            return ctx.Optimize(expr);
+        }
     }
 }

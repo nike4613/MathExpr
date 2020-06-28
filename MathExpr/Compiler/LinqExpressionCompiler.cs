@@ -87,25 +87,12 @@ namespace MathExpr.Compiler
         }
 
         /// <summary>
-        /// Optimizes the provided expression using an <see cref="OptimizationContext{TSettings}"/>
-        /// created with <see cref="OptimizationContext.CreateWith{TOptimizerSettings}(TOptimizerSettings, IEnumerable{IOptimizationPass{TOptimizerSettings}})"/>.
-        /// </summary>
-        /// <param name="expr">the expression to optimize</param>
-        /// <returns>the optimized expression</returns>
-        public override MathExpression Optimize(MathExpression expr)
-        {
-            var ctx = OptimizationContext.CreateWith(OptimizerSettings, OptimizerPasses);
-            ctx.SetParentDataContext(SharedDataStore);
-            return ctx.Optimize(expr);
-        }
-
-        /// <summary>
         /// Compiles a <see cref="MathExpression"/> to an <see cref="Expression"/>, optionally optimizing it first.
         /// </summary>
         /// <param name="expr">the expression to compile</param>
         /// <param name="optimize">whether or not to optimize <paramref name="expr"/></param>
         /// <returns>the compiled <see cref="Expression"/></returns>
-        /// <seealso cref="Optimize(MathExpression)"/>
+        /// <seealso cref="ExpressionCompiler{TOptimizerSettings, TCompilerSettings}.Optimize(MathExpression)"/>
         public override Expression CompileToExpression(MathExpression expr, bool optimize = true)
         {
             if (optimize)
