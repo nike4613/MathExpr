@@ -27,7 +27,7 @@ namespace MathExpr.Compiler.Optimization
     /// <typeparam name="TSettings">the settings type that the implementer needs</typeparam>
     public abstract class OptimizationPass<TSettings> : IOptimizationPass<TSettings>
     {
-        // TODO: there has to be some way to reduce the number of traversals of the tree
+        // TODO: switch this with an actual pass-based system that isn't nearly infinitely recursive (this wouldn't be as much of an issue if Roslyn emitted tailcalls)
         /// <summary>
         /// The main application method for optimizing an expression. It dispatches to the specific overloads, and depending on their out parameter,
         /// forwards the result to the context's <see cref="ITransformContext{TSettings, TFrom, TTo}.Transform(TFrom)"/>.

@@ -23,6 +23,8 @@ namespace MathExpr.Syntax
     [SuppressMessage("Documentation", "CS1591", Justification = "The names are self-explanatory.")]
     public enum TokenType
     {
+        // TODO: make the 0 token type something else so that a default token can be more easily detected
+
 #pragma warning disable 1591 // Missing XML comment for publicly visible type or member
         [TokenDesc(@"[A-Za-z_]([A-Za-z_]|\d)*")] Identifier,
         [TokenDesc(@"\d+(\.\d+)?")] Literal,
@@ -154,7 +156,7 @@ namespace MathExpr.Syntax
         /// Returns a string represenation of this token.
         /// </summary>
         /// <returns>the string representation of the token</returns>
-        public override string ToString()
+        public override string ToString() // TODO: do something different when this is a default token
             => $"Token({Type}, {Value?.ToString()})";
 
         /// <inheritdoc/>
@@ -174,12 +176,16 @@ namespace MathExpr.Syntax
         /// <returns>a string representing the token and its location in the original string</returns>
         public string FormatTokenLocation()
         {
+            // TODO: identify when this is a default token and handle that differently
+
             var sb = new StringBuilder();
             sb.AppendLine($"at {Position} (token type {Type})");
 
             if (InputText == null)
                 return sb.ToString();
 
+            // TODO: come up with a way to give fixed context so a long line isn't fully emitted
+            
             var lineNo = InputText.CountLinesBefore(Position) + 1;
             var lineStart = InputText.FindLineBreakBefore(Position);
             var lineEnd = InputText.FindLineBreakAfter(Position);

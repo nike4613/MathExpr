@@ -104,7 +104,7 @@ namespace MathExpr.Syntax
             => other is BinaryExpression e
             && Arguments.Count == e.Arguments.Count
             && Arguments.Zip(e.Arguments, (a, b) => Equals(a, b)).All(b => b);
-        // TODO: make Equals not care about order in some cases
+        // TODO: make Equals not care about order for commutative operators (for common subexpression elimination)
 
         /// <summary>
         /// Returns a string representation of the operation.

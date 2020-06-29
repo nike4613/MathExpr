@@ -6,7 +6,8 @@ using System.Text;
 
 namespace MathExpr.Compiler.Compilation.Settings
 {
-    // TODO: introduce something like a variant dictionary interface to use here
+    // ~~TODO:~~ introduce something like a variant dictionary interface to use here
+    // the above is probably not necessary, seems to be fine without
 
     /// <summary>
     /// A settings interface that allows compiling with <see cref="IBuiltinFunction{TSettings}"/>.

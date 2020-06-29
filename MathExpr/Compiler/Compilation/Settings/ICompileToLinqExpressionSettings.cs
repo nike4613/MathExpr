@@ -17,8 +17,9 @@ namespace MathExpr.Compiler.Compilation.Settings
     /// </summary>
     public interface ICompileToLinqExpressionSettings<TSettings> : 
         IDomainRestrictionSettings,
-        IBuiltinFunctionCompilerSettings<TSettings> // TODO: refactor stuff a bit so that this isn't actually necessary
+        IBuiltinFunctionCompilerSettings<TSettings>
     {
+        // TODO: pull the inherited interfaces out
         /// <summary>
         /// The type that the resulting expression is expected to return.
         /// </summary>

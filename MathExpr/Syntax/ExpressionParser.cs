@@ -203,7 +203,7 @@ namespace MathExpr.Syntax
                     return new FunctionExpression(tok.AsString!, ReadCallParamList().ToList(), false).WithToken(tok);
                 else return new VariableExpression(tok.AsString!).WithToken(tok);
             }
-            else
+            else // TODO: this is sometimes hit at end-of-stream, give a better message (and probably location info)
                 throw new SyntaxException(tok, "Unexpected token");
         }
 

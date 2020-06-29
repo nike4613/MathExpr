@@ -18,7 +18,8 @@ namespace MathExpr.Compiler.Compilation.Passes
     public class DefaultLinqExpressionCompiler<TSettings> : Compiler<TSettings>, ITypeHintHandler
         where TSettings : ICompileToLinqExpressionSettings<TSettings>
     {
-        // TODO: completely redo the compiler-side architecture, because the fundamental extension point is now builtin implementations
+        // ~~TODO:~~ completely redo the compiler-side architecture, because the fundamental extension point is now builtin implementations
+        // it actually seems to be fine, no reworking necessary
 
         private struct HasParentWithRoot { }
         private struct TypeHint { }
@@ -48,14 +49,10 @@ namespace MathExpr.Compiler.Compilation.Passes
 
                 SetRootExpression(ctx);
 
-                // TODO: set up lambda stuff
-
                 SetTypeHint(ctx, ctx.Settings.ExpectReturn);
                 var subexpr = base.ApplyTo(expr, ctx);
                 if (subexpr.Type != ctx.Settings.ExpectReturn)
                     subexpr = CompilerHelpers.ConvertToType(subexpr, ctx.Settings.ExpectReturn);
-
-                // TODO: use subexpr
 
                 if (!ctx.Settings.IgnoreDomainRestrictions)
                 {
