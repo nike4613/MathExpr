@@ -70,7 +70,10 @@ namespace MathExprTests
         [InlineData("1 | ", false)]
         [InlineData("0 || 1", false)]
         [InlineData("0 | 1", true)]
-        public void ParseString(string input, bool valid)
+        [InlineData("a'(x) = x*2; a + (b * c}", false, false)]
+        [InlineData("a'(x) = x * {2 + x); a + (b * c)", false, false)]
+        [InlineData("a'(x) = x * {2 + x); a + (b * c}", false, true)]
+        public void ParseString(string input, bool valid, bool throwsMulti = false)
         {
             try
             {
@@ -81,6 +84,12 @@ namespace MathExprTests
             {
                 _ = e.ToString();
                 Assert.False(valid, "Parser threw when it was not supposed to");
+                Assert.False(throwsMulti, "Parser threw one error when it should have thrown multiple");
+            }
+            catch (AggregateException e)
+            {
+                _ = e.ToString();
+                Assert.True(throwsMulti, "Parser threw multiple errors when it should not have");
             }
         }
     }

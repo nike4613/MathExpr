@@ -18,6 +18,7 @@ namespace MathExpr.Syntax
         /// <param name="saveText">whether or not to save the original input text in the parsed tokens</param>
         /// <returns>the expression tree</returns>
         /// <exception cref="SyntaxException">when there is a syntax error</exception>
+        /// <exception cref="AggregateException">when there are multiple identified syntax errors</exception>
         public static MathExpression Parse(string expr, bool saveText = true)
             => ExpressionParser.ParseRoot(expr, saveText);
 

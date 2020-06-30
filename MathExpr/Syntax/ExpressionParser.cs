@@ -42,22 +42,60 @@ namespace MathExpr.Syntax
 
         private MathExpression ReadDefinition()
         {
-            var left = ReadLogicExpr();
-            if (TryConsumeToken(TokenType.Semicolon, out var tok))
+            MathExpression left;
+            try
+            { // This is a sync point; if we encounter an error, we can resume parsing after the semicolon 
+                left = ReadLogicExpr();
+            }
+            catch (SyntaxException e)
             {
-                if (!(left is BinaryExpression bleft))
-                    throw new SyntaxException(left.Token, $"Left hand of semicolon must be a custom function definition");
-                var right = ReadDefinition();
+                // advance until we get a token of type Semicolon
+                while (tokens.TryPeek(out var tok) && tok.Type != TokenType.Semicolon)
+                    _ = tokens.Next();
+
                 try
                 {
-                    return new CustomDefinitionExpression(bleft, right).WithToken(left.Token);
+                    // try to parse the remainder of the input using a dummy function definition
+                    _ = Consume(this, new BinaryExpression(
+                        new FunctionExpression("<>__NonexisentFunc", new List<MathExpression>(), true),
+                        new LiteralExpression(0),
+                        BinaryExpression.ExpressionType.Equals
+                    ));
                 }
-                catch (ArgumentException e)
+                catch (SyntaxException e2)
                 {
-                    throw new SyntaxException(tok, e.Message);
+                    throw new AggregateException(e, e2);
                 }
+                catch (AggregateException e2)
+                {
+                    throw new AggregateException(Helpers.Single(e).Concat(e2.InnerExceptions));
+                }
+
+                throw;
             }
-            return left;
+
+            static MathExpression Consume(in ExpressionParser _this, MathExpression left)
+            {
+                if (_this.TryConsumeToken(TokenType.Semicolon, out var tok))
+                {
+                    if (!(left is BinaryExpression bleft))
+                        throw new SyntaxException(left.Token, $"Left hand of semicolon must be a custom function definition");
+
+                    var right = _this.ReadDefinition();
+
+                    try
+                    {
+                        return new CustomDefinitionExpression(bleft, right).WithToken(left.Token);
+                    }
+                    catch (ArgumentException e)
+                    {
+                        throw new SyntaxException(tok, e.Message);
+                    }
+                }
+                return left;
+            }
+
+            return Consume(this, left);
         }
 
         private MathExpression ReadLogicExpr()
