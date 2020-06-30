@@ -23,7 +23,10 @@ namespace MathExpr.Syntax
     [SuppressMessage("Documentation", "CS1591", Justification = "The names are self-explanatory.")]
     public enum TokenType
     {
-        // TODO: make the 0 token type something else so that a default token can be more easily detected
+        /// <summary>
+        /// A token type representing that no token was found.
+        /// </summary>
+        None = 0,
 
 #pragma warning disable 1591 // Missing XML comment for publicly visible type or member
         [TokenDesc(@"[A-Za-z_]([A-Za-z_]|\d)*")] Identifier,
@@ -156,8 +159,8 @@ namespace MathExpr.Syntax
         /// Returns a string represenation of this token.
         /// </summary>
         /// <returns>the string representation of the token</returns>
-        public override string ToString() // TODO: do something different when this is a default token
-            => $"Token({Type}, {Value?.ToString()})";
+        public override string ToString()
+            => $"Token({Type}{(Value != null ? ", " + Value.ToString() : "")})";
 
         /// <inheritdoc/>
         public override int GetHashCode()
@@ -176,7 +179,8 @@ namespace MathExpr.Syntax
         /// <returns>a string representing the token and its location in the original string</returns>
         public string FormatTokenLocation()
         {
-            // TODO: identify when this is a default token and handle that differently
+            if (Type == TokenType.None && InputText == null)
+                return "(empty token)\n";
 
             var sb = new StringBuilder();
             sb.AppendLine($"at {Position} (token type {Type})");
@@ -203,7 +207,7 @@ namespace MathExpr.Syntax
               .Append('+')
               .Append(' ', Position - lineStart)
               .Append('^')
-              .Append('~', Length - 1)
+              .Append('~', Math.Max(Length - 1, 0))
               .AppendLine()
               .Append(' ', lineNoStr.Length + (Position - lineStart) + 1)
               .AppendLine("here");

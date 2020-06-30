@@ -67,6 +67,9 @@ namespace MathExprTests
         [InlineData("\"Hello there!\"", true)]
         [InlineData("\"Hello there!", false)]
         [InlineData("\"Hello there!\\\"", false)]
+        [InlineData("1 | ", false)]
+        [InlineData("0 || 1", false)]
+        [InlineData("0 | 1", true)]
         public void ParseString(string input, bool valid)
         {
             try

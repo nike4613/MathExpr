@@ -21,12 +21,21 @@ namespace MathExpr.Syntax
 
         private readonly LookaheadEnumerable<Token> tokens;
         private ExpressionParser(LookaheadEnumerable<Token> toks)
-            => tokens = toks;
+        {
+            tokens = toks;
+            lastReadToken = default;
+        }
+
+        private Token lastReadToken;
 
         private bool CheckNextToken(TokenType type, out Token token)
             => tokens.TryPeek(out token) && token.Type == type;
         private bool TryConsumeToken(TokenType type, out Token token)
-            => CheckNextToken(type, out token) && tokens.TryNext(out token);
+        {
+            var ret = CheckNextToken(type, out token) && tokens.TryNext(out token);
+            if (ret) lastReadToken = token;
+            return ret;
+        }
 
         private MathExpression Read()
         {
@@ -203,8 +212,19 @@ namespace MathExpr.Syntax
                     return new FunctionExpression(tok.AsString!, ReadCallParamList().ToList(), false).WithToken(tok);
                 else return new VariableExpression(tok.AsString!).WithToken(tok);
             }
-            else // TODO: this is sometimes hit at end-of-stream, give a better message (and probably location info)
-                throw new SyntaxException(tok, "Unexpected token");
+            else
+            {
+                // TODO: this is sometimes hit at end-of-stream, give a better message (and probably location info)
+                if (tok.Type == TokenType.None)
+                {
+                    throw new SyntaxException(new Token(TokenType.None, null, lastReadToken.Position + lastReadToken.Length, 0, lastReadToken.InputText),
+                                              "Unexpected end of input");
+                }
+                else
+                {
+                    throw new SyntaxException(tok, "Unexpected token");
+                }
+            }
         }
 
         private IEnumerable<MathExpression> ReadCallParamList()
