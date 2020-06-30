@@ -1,4 +1,5 @@
-﻿using MathExpr.Utilities;
+﻿using MathExpr.Compiler.Compilation.Builtins;
+using MathExpr.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -21,26 +22,17 @@ namespace MathExpr.Syntax
 
         private readonly LookaheadEnumerable<Token> tokens;
         private ExpressionParser(LookaheadEnumerable<Token> toks)
-        {
-            tokens = toks;
-            lastReadToken = default;
-        }
-
-        private Token lastReadToken;
+            => tokens = toks;
 
         private bool CheckNextToken(TokenType type, out Token token)
             => tokens.TryPeek(out token) && token.Type == type;
         private bool TryConsumeToken(TokenType type, out Token token)
-        {
-            var ret = CheckNextToken(type, out token) && tokens.TryNext(out token);
-            if (ret) lastReadToken = token;
-            return ret;
-        }
+            => CheckNextToken(type, out token) && tokens.TryNext(out token);
 
         private MathExpression Read()
         {
             var expr = ReadRoot();
-            if (tokens.HasNext && tokens.TryNext(out var tok))
+            if (tokens.HasNext && tokens.TryNext(out var tok) && tok.Type != TokenType.EndOfInput)
                 throw new SyntaxException(tok, "Unexpected trailing token(s)");
             return expr;
         }
@@ -212,18 +204,10 @@ namespace MathExpr.Syntax
                     return new FunctionExpression(tok.AsString!, ReadCallParamList().ToList(), false).WithToken(tok);
                 else return new VariableExpression(tok.AsString!).WithToken(tok);
             }
+            else if (TryConsumeToken(TokenType.EndOfInput, out tok))
+                throw new SyntaxException(tok, "Unexpected end of input");
             else
-            {
-                if (tok.Type == TokenType.None)
-                {
-                    throw new SyntaxException(new Token(TokenType.None, null, lastReadToken.Position + lastReadToken.Length, 0, lastReadToken.InputText),
-                                              "Unexpected end of input");
-                }
-                else
-                {
-                    throw new SyntaxException(tok, "Unexpected token");
-                }
-            }
+                throw new SyntaxException(tok, "Unexpected token");
         }
 
         private IEnumerable<MathExpression> ReadCallParamList()

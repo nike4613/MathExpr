@@ -97,7 +97,7 @@ namespace MathExpr.Utilities
         /// <returns>the position of the nearest line break before <paramref name="pos"/></returns>
         public static int FindLineBreakBefore(this string str, int pos)
         {
-            pos = Math.Min(Math.Max(pos, 0), str.Length);
+            pos = Math.Min(Math.Max(pos, 0), str.Length - 1);
             while (pos > 0)
             {
                 var c = str[pos--];

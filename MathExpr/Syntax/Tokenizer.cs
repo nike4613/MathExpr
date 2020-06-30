@@ -69,6 +69,10 @@ namespace MathExpr.Syntax
         /// property.
         /// </remarks>
         Error,
+        /// <summary>
+        /// A token type that represents the end of input.
+        /// </summary>
+        EndOfInput,
     }
 
     /// <summary>
@@ -179,7 +183,7 @@ namespace MathExpr.Syntax
         /// <returns>a string representing the token and its location in the original string</returns>
         public string FormatTokenLocation()
         {
-            if (Type == TokenType.None && InputText == null)
+            if (Type == TokenType.None)
                 return "(empty token)\n";
 
             var sb = new StringBuilder();
@@ -390,6 +394,8 @@ namespace MathExpr.Syntax
                     }
                 }
             }
+
+            yield return new Token(TokenType.EndOfInput, null, text.Length, 0, text);
         }
     }
 }
