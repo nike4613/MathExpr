@@ -214,7 +214,6 @@ namespace MathExpr.Syntax
             }
             else
             {
-                // TODO: this is sometimes hit at end-of-stream, give a better message (and probably location info)
                 if (tok.Type == TokenType.None)
                 {
                     throw new SyntaxException(new Token(TokenType.None, null, lastReadToken.Position + lastReadToken.Length, 0, lastReadToken.InputText),
