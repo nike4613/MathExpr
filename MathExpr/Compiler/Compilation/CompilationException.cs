@@ -15,15 +15,12 @@ namespace MathExpr.Compiler.Compilation
         /// </summary>
         public MathExpression? Location { get; } = null;
 
-        /// <inheritdoc/>
-        public override string Message => (Location?.Token?.FormatTokenLocation() ?? "") + base.Message;
-
         /// <summary>
         /// Constructs a <see cref="CompilationException"/> wrapping another exception at a given location.
         /// </summary>
         /// <param name="at">the expression that caused the exception</param>
         /// <param name="innerException">the inner exception</param>
-        public CompilationException(MathExpression at, Exception innerException) : this("", at, innerException)
+        public CompilationException(MathExpression at, Exception innerException) : this("An error ocurred while compiling an expression", at, innerException)
         {
         }
 
@@ -72,18 +69,8 @@ namespace MathExpr.Compiler.Compilation
         {
         }
 
-        /*/// <summary>
-        /// Converts this exception to a string, prepending the result of <see cref="Token.FormatTokenLocation"/>
-        /// for the token associated with the expression associated with this expression.
-        /// </summary>
-        /// <returns>a string representatino of this exception</returns>
+        /// <inheritdoc/>
         public override string ToString()
-        {
-            var str = base.ToString();
-            var tok = Location?.Token;
-            if (tok != null)
-                str = tok.Value.FormatTokenLocation() + str;
-            return str;
-        }*/
+            => (Location?.Token?.FormatTokenLocation() ?? "") + base.ToString();
     }
 }

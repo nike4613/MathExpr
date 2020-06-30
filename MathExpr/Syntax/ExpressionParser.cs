@@ -273,18 +273,19 @@ namespace MathExpr.Syntax
         /// </summary>
         public Token? Token { get; }
 
-        /// <inheritdoc/>
-        public override string Message => (Token?.FormatTokenLocation() ?? "") + base.Message;
-
         /// <summary>
         /// Constructs a new instance of the exception with a token and a message.
         /// </summary>
         /// <param name="token">the token that caused the error, if any</param>
         /// <param name="message">the message relating to the error</param>
         public SyntaxException(Token? token, string message) 
-            : base(message + (token == null ? "" : $" at token {token.Value} at {token.Value.Position}:{token.Value.Length}"))
+            : base(message + (token == null ? "" : $" at {token.Value.Position}:{token.Value.Length}"))
         {
             Token = token;
         }
+
+        /// <inheritdoc/>
+        public override string ToString()
+            => (Token?.FormatTokenLocation() ?? "") + base.ToString();
     }
 }
