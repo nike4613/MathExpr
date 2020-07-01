@@ -16,7 +16,7 @@ namespace MathExpr.Compiler.Compilation.Passes
     /// A compiler that compiles a <see cref="MathExpression"/> to a <see cref="Expression"/>, using type hinting.
     /// </summary>
     public class DefaultLinqExpressionCompiler<TSettings> : Compiler<TSettings>, ITypeHintHandler
-        where TSettings : ICompileToLinqExpressionSettings<TSettings>
+        where TSettings : ICompileToLinqExpressionSettings<TSettings>, IBuiltinFunctionCompilerSettings<TSettings>
     {
         // ~~TODO:~~ completely redo the compiler-side architecture, because the fundamental extension point is now builtin implementations
         // it actually seems to be fine, no reworking necessary
@@ -54,7 +54,7 @@ namespace MathExpr.Compiler.Compilation.Passes
                 if (subexpr.Type != ctx.Settings.ExpectReturn)
                     subexpr = CompilerHelpers.ConvertToType(subexpr, ctx.Settings.ExpectReturn);
 
-                if (!ctx.Settings.IgnoreDomainRestrictions)
+                if (ctx.Settings is IDomainRestrictionSettings domainSettings && !domainSettings.IgnoreDomainRestrictions)
                 {
                     var overflowCtor = Helpers.GetConstructor<Action>(() => new OverflowException(""));
                     subexpr = DomainRestrictionSettings.GetDomainRestrictionsFor(ctx)

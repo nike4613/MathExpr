@@ -32,7 +32,7 @@ namespace MathExpr.Compiler
             TOptimizerSettings optimizerSettings, 
             TCompilerSettings compilerSettings, 
             ICompiler<TCompilerSettings> compiler
-        ) where TCompilerSettings : ICompileToLinqExpressionSettings<TCompilerSettings>, IWritableCompileToLinqExpressionSettings
+        ) where TCompilerSettings : ICompileToLinqExpressionSettings<TCompilerSettings>, IBuiltinFunctionCompilerSettings<TCompilerSettings>, IWritableCompileToLinqExpressionSettings
             => new LinqExpressionCompiler<TOptimizerSettings, TCompilerSettings>(optimizerSettings, compilerSettings, compiler);
         /// <summary>
         /// Creates a new <see cref="LinqExpressionCompiler{TOptimizerSettings, TCompilerSettings}"/> using the specified settings, using the default compiler.
@@ -46,7 +46,7 @@ namespace MathExpr.Compiler
         public static LinqExpressionCompiler<TOptimizerSettings, TCompilerSettings> Create<TOptimizerSettings, TCompilerSettings>(
             TOptimizerSettings optimizerSettings,
             TCompilerSettings compilerSettings
-        ) where TCompilerSettings : ICompileToLinqExpressionSettings<TCompilerSettings>, IWritableCompileToLinqExpressionSettings
+        ) where TCompilerSettings : ICompileToLinqExpressionSettings<TCompilerSettings>, IBuiltinFunctionCompilerSettings<TCompilerSettings>, IWritableCompileToLinqExpressionSettings
             => new LinqExpressionCompiler<TOptimizerSettings, TCompilerSettings>(optimizerSettings, compilerSettings);
     }
 
@@ -60,7 +60,10 @@ namespace MathExpr.Compiler
     /// <typeparam name="TCompilerSettings">The type of the compiler settings.</typeparam>
     public class LinqExpressionCompiler<TOptimizerSettings, TCompilerSettings>
         : ExpressionCompiler<TOptimizerSettings, TCompilerSettings>
-        where TCompilerSettings : ICompileToLinqExpressionSettings<TCompilerSettings>, IWritableCompileToLinqExpressionSettings
+        where TCompilerSettings : 
+            ICompileToLinqExpressionSettings<TCompilerSettings>,
+            IBuiltinFunctionCompilerSettings<TCompilerSettings>,
+            IWritableCompileToLinqExpressionSettings
     {
         /// <summary>
         /// Creates a new <see cref="LinqExpressionCompiler{TOptimizerSettings, TCompilerSettings}"/> using the specified settings and compiler.
@@ -133,7 +136,8 @@ namespace MathExpr.Compiler
             foreach (var (name, param) in parameters)
                 CompilerSettings.ParameterMap.Add(new VariableExpression(name), param);
 
-            DomainRestrictionSettings.GetDomainRestrictionsFor(this).Clear(); // ensure that restrictions are defined locally
+            if (CompilerSettings is IDomainRestrictionSettings)
+                DomainRestrictionSettings.GetDomainRestrictionsFor(this).Clear(); // ensure that restrictions are defined locally
 
             return compile(
                 Expression.Lambda<TDelegate>(

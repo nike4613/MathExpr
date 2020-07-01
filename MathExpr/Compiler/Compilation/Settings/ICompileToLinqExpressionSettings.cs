@@ -15,11 +15,10 @@ namespace MathExpr.Compiler.Compilation.Settings
     /// <summary>
     /// Settings to control compilation to a Linq expression.
     /// </summary>
-    public interface ICompileToLinqExpressionSettings<TSettings> : 
+    public interface ICompileToLinqExpressionSettings<TSettings> /*: 
         IDomainRestrictionSettings,
-        IBuiltinFunctionCompilerSettings<TSettings>
+        IBuiltinFunctionCompilerSettings<TSettings>*/
     {
-        // TODO: pull the inherited interfaces out
         /// <summary>
         /// The type that the resulting expression is expected to return.
         /// </summary>

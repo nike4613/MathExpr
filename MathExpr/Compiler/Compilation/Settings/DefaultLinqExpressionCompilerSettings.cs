@@ -1,4 +1,5 @@
 ﻿using MathExpr.Compiler.Compilation.Builtins;
+using MathExpr.Compiler.Optimization.Settings;
 using MathExpr.Syntax;
 using MathExpr.Utilities;
 using System;
@@ -15,7 +16,9 @@ namespace MathExpr.Compiler.Compilation.Settings
     public class DefaultLinqExpressionCompilerSettings : 
         ICompileToLinqExpressionSettings<DefaultLinqExpressionCompilerSettings>,
         IWritableCompileToLinqExpressionSettings,
-        IBuiltinFunctionWritableCompilerSettings<DefaultLinqExpressionCompilerSettings>
+        IBuiltinFunctionCompilerSettings<DefaultLinqExpressionCompilerSettings>,
+        IBuiltinFunctionWritableCompilerSettings<DefaultLinqExpressionCompilerSettings>,
+        IDomainRestrictionSettings
     {
         /// <inheritdoc/>
         public Type ExpectReturn { get; set; } = typeof(decimal);
