@@ -66,8 +66,6 @@ namespace MathExpr.Compiler
         /// A proxy object for accessing data fluidly on a <see cref="IDataContext"/>.
         /// </summary>
         /// <typeparam name="TData">the type of data to access</typeparam>
-        [SuppressMessage("Design", "CA1034:Nested types should not be visible", Justification = "Only used as a proxy here, that can be inlined well.")]
-        [SuppressMessage("Performance", "CA1815:Override equals and operator equals on value types", Justification = "Should never be explicitly stored or compared.")]
         public struct DataProxy<TData>
         {
             private readonly IDataContext context;

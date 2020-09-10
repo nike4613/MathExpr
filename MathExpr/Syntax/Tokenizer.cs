@@ -20,7 +20,6 @@ namespace MathExpr.Syntax
     /// <summary>
     /// The type of a token.
     /// </summary>
-    [SuppressMessage("Documentation", "CS1591", Justification = "The names are self-explanatory.")]
     public enum TokenType
     {
         /// <summary>
