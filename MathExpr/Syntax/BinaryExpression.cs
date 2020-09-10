@@ -135,6 +135,9 @@ namespace MathExpr.Syntax
 
     }
 
+    /// <summary>
+    /// A type that provides extension methods for <see cref="BinaryExpression.ExpressionType"/>.
+    /// </summary>
     public static class BinaryExpressionTypeExtensions
     {
         private const int BitsPerFlag = 2;
@@ -147,6 +150,11 @@ namespace MathExpr.Syntax
         private const int FlagBoolean = 0b10;
         private const int FlagComparison = 0b11;
 
+        /// <summary>
+        /// Gets whether or not <paramref name="type"/> represents a boolean operation.
+        /// </summary>
+        /// <param name="type">The <see cref="BinaryExpression.ExpressionType"/> to check.</param>
+        /// <returns><see langword="true"/> if <paramref name="type"/> is a boolean operation, <see langword="false"/> otherwise.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsBooleanType(this BinaryExpression.ExpressionType type)
         {
@@ -159,12 +167,17 @@ namespace MathExpr.Syntax
 
             if (flags == FlagUnset)
             {
-                flags = InitFlagsFor(type, idx, offs);
+                flags = InitFlagsFor(type);
             }
 
             return flags == FlagBoolean;
         }
 
+        /// <summary>
+        /// Gets whether or not <paramref name="type"/> represents a comparison operation.
+        /// </summary>
+        /// <param name="type">The <see cref="BinaryExpression.ExpressionType"/> to check.</param>
+        /// <returns><see langword="true"/> if <paramref name="type"/> is a comparison operation, <see langword="false"/> otherwise.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsComparisonType(this BinaryExpression.ExpressionType type)
         {
@@ -177,7 +190,7 @@ namespace MathExpr.Syntax
 
             if (flags == FlagUnset)
             {
-                flags = InitFlagsFor(type, idx, offs);
+                flags = InitFlagsFor(type);
             }
 
             return flags == FlagComparison;
@@ -190,7 +203,7 @@ namespace MathExpr.Syntax
                 throw new ArgumentException("Invalid ExpressionType value", nameof(type));
         }
 
-        private static int InitFlagsFor(BinaryExpression.ExpressionType type, int idx, int offs)
+        private static int InitFlagsFor(BinaryExpression.ExpressionType type)
         {
             var field = typeof(BinaryExpression.ExpressionType).GetField(type.ToString(), BindingFlags.Public | BindingFlags.Static);
             if (field == null)
@@ -201,6 +214,9 @@ namespace MathExpr.Syntax
                 flags = FlagBoolean;
             else if (field.GetCustomAttribute<BinaryExpression.ComparisonAttribute>() != null)
                 flags = FlagComparison;
+
+            var idx = (int)type / FlagsPerItem;
+            var offs = (int)type % FlagsPerItem;
 
             var bitoffs = offs * BitsPerFlag;
             int read2;
