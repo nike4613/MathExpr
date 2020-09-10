@@ -94,16 +94,19 @@ namespace MathExpr.Compiler.Compilation.Passes
         /// <inheritdoc/>
         public override Expression ApplyTo(Syntax.BinaryExpression expr, ICompilationContext<TSettings> ctx)
         {
+            var exprType = expr.Type;
             var args = expr.Arguments.Select(m =>
             {
                 var origHint = GetTypeHint(ctx);
-                if (origHint == typeof(bool))
+                if (exprType.IsComparisonType())
                     SetTypeHint(ctx, null);
+                else if (exprType.IsBooleanType())
+                    SetTypeHint(ctx, typeof(bool));
                 var applied = ApplyTo(m, ctx);
                 SetTypeHint(ctx, origHint);
                 return applied;
             }).ToList();
-            var boolResType = GetTypeHint(ctx) ?? args.First().Type;
+            var boolResType = exprType.IsComparisonType() ? typeof(bool) : GetTypeHint(ctx) ?? args.First().Type;
 
             try
             {
