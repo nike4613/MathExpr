@@ -29,6 +29,7 @@ jobs:
         shell: pwsh
         run: dotnet pack --configuration Release MathExpr --version-suffix (Get-date -UFormat "nightly.%y%m%d%H%M") -p:InformationalVersion="GitHub Actions CI" --include-symbols
       - name: Publish Nuget package to GitHub Packages
+        if: false
         run: dotnet nuget push MathExpr/bin/Release/*.nupkg
         env:
           NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
