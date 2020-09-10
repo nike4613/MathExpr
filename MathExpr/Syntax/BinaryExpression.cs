@@ -4,6 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
+using System.Reflection;
+using System.Threading;
 
 namespace MathExpr.Syntax
 {
@@ -13,14 +16,13 @@ namespace MathExpr.Syntax
     public sealed class BinaryExpression : MathExpression
     {
         [AttributeUsage(AttributeTargets.Field)]
-        private sealed class BooleanAttribute : Attribute { }
+        internal sealed class BooleanAttribute : Attribute { }
         [AttributeUsage(AttributeTargets.Field)]
-        private sealed class ComparisonAttribute : Attribute { }
+        internal sealed class ComparisonAttribute : Attribute { }
 
         /// <summary>
         /// The type of a <see cref="BinaryExpression"/>.
         /// </summary>
-        [SuppressMessage("Documentation", "CS1591", Justification = "The names are self-explanatory.")]
         public enum ExpressionType
         {
 #pragma warning disable 1591 // Missing XML comment for publicly visible type or member
@@ -31,6 +33,8 @@ namespace MathExpr.Syntax
             [Comparison] Equals, [Comparison] Inequals, 
             [Comparison] Less, [Comparison] LessEq,
             [Comparison] Greater, [Comparison] GreaterEq,
+
+            _Count
 #pragma warning restore 1591 // Missing XML comment for publicly visible type or member
         }
 
@@ -67,6 +71,8 @@ namespace MathExpr.Syntax
         /// <param name="type">the type of the expression</param>
         public BinaryExpression(MathExpression left, MathExpression right, ExpressionType type)
         {
+            if (type < ExpressionType.Add || type >= ExpressionType._Count)
+                throw new ArgumentException("Invalid ExpressionType value", nameof(type));
             Type = type;
             Arguments = new List<MathExpression> { left, right };
         }
@@ -78,6 +84,8 @@ namespace MathExpr.Syntax
         /// <param name="args">the operation arguments</param>
         public BinaryExpression(ExpressionType type, IReadOnlyList<MathExpression> args)
         {
+            if (type < ExpressionType.Add || type >= ExpressionType._Count)
+                throw new ArgumentException("Invalid ExpressionType value", nameof(type));
             if (args.Count < 2)
                 throw new ArgumentException("A BinaryExpression must have at least 2 arguments", nameof(args));
             if (args.Count > 2)
@@ -126,4 +134,88 @@ namespace MathExpr.Syntax
         }
 
     }
+
+    public static class BinaryExpressionTypeExtensions
+    {
+        private const int BitsPerFlag = 2;
+        private const int FlagsPerItem = sizeof(int) * (8 / BitsPerFlag); // 2 bit flags
+        private static readonly int[] typeflags = new int[((int)BinaryExpression.ExpressionType._Count + FlagsPerItem - 1) / FlagsPerItem];
+
+        private const int Flags = 0b11;
+        private const int FlagUnset = 0b00;
+        private const int FlagNothing = 0b01;
+        private const int FlagBoolean = 0b10;
+        private const int FlagComparison = 0b11;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsBooleanType(this BinaryExpression.ExpressionType type)
+        {
+            Validate(type);
+
+            var idx = (int)type / FlagsPerItem;
+            var offs = (int)type % FlagsPerItem;
+
+            var flags = (typeflags[idx] >> (offs * BitsPerFlag)) & Flags;
+
+            if (flags == FlagUnset)
+            {
+                flags = InitFlagsFor(type, idx, offs);
+            }
+
+            return flags == FlagBoolean;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsComparisonType(this BinaryExpression.ExpressionType type)
+        {
+            Validate(type);
+
+            var idx = (int)type / FlagsPerItem;
+            var offs = (int)type % FlagsPerItem;
+
+            var flags = (typeflags[idx] >> (offs * BitsPerFlag)) & Flags;
+
+            if (flags == FlagUnset)
+            {
+                flags = InitFlagsFor(type, idx, offs);
+            }
+
+            return flags == FlagComparison;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void Validate(BinaryExpression.ExpressionType type)
+        {
+            if (type < BinaryExpression.ExpressionType.Add || type >= BinaryExpression.ExpressionType._Count)
+                throw new ArgumentException("Invalid ExpressionType value", nameof(type));
+        }
+
+        private static int InitFlagsFor(BinaryExpression.ExpressionType type, int idx, int offs)
+        {
+            var field = typeof(BinaryExpression.ExpressionType).GetField(type.ToString(), BindingFlags.Public | BindingFlags.Static);
+            if (field == null)
+                throw new InvalidOperationException("Could not get field for expression type");
+
+            int flags = FlagNothing;
+            if (field.GetCustomAttribute<BinaryExpression.BooleanAttribute>() != null)
+                flags = FlagBoolean;
+            else if (field.GetCustomAttribute<BinaryExpression.ComparisonAttribute>() != null)
+                flags = FlagComparison;
+
+            var bitoffs = offs * BitsPerFlag;
+            int read2;
+            var read = typeflags[idx];
+            do
+            {
+                read2 = read;
+                read &= ~(Flags << bitoffs);
+                read |= flags << bitoffs;
+                read = Interlocked.CompareExchange(ref typeflags[idx], read, read2);
+            }
+            while (read != read2);
+
+            return flags;
+        }
+    }
+
 }
