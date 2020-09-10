@@ -54,6 +54,19 @@ namespace MathExprTests
             Assert.Equal(expect, del(new CustomType(ctorArg)));
         }
 
+        [Theory]
+        [InlineData("arg = \"teststr\"", "teststr", true)]
+        [InlineData("arg = \"teststr\"", "teststr1", false)]
+        [InlineData("arg = \"teststr\" | 1", "teststr", true)]
+        [InlineData("arg = \"teststr\" | 1", "teststr1", true)]
+        [InlineData("arg = \"teststr\" | 0", "teststr", true)]
+        [InlineData("arg = \"teststr\" | 0", "teststr1", false)]
+        public void CompileWithStringCompare(string expr, string arg, bool expect)
+        {
+            var del = ExpressionCompiler.Default.Compile<Func<string, bool>>(expr, "arg");
+            Assert.Equal(expect, del(arg));
+        }
+
         private class CustomType
         {
             public int Thing { get; }
