@@ -7,7 +7,7 @@
     <Nullable>enable</Nullable>
     <WarningsAsErrors>CS8600;CS8601;CS8602;CS8603;CS8604;CS8618;CS8625;CS8762</WarningsAsErrors>
     
-    <VersionPrefix>0.4.0</VersionPrefix>
+    <VersionPrefix>0.4.1</VersionPrefix>
     <Authors>Anairkoen Schno</Authors>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageDescription>An extensible mathematical expression compiler and evaluator.</PackageDescription>
