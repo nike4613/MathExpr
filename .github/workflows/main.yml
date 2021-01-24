@@ -35,11 +35,3 @@ jobs:
           repo-owner: nike4613
           gh-user: nike4613
           token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Push SNupkg to GitHub Packages
-        uses: tanaka-takayoshi/nuget-publish-to-github-packages-action@v2.1
-        with:
-          nupkg-path: MathExpr/bin/Release/*.snupkg
-          repo-owner: nike4613
-          gh-user: nike4613
-          skip-duplicate: false
-          token: ${{ secrets.GITHUB_TOKEN }}
