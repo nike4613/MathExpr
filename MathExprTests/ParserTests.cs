@@ -15,7 +15,7 @@ namespace MathExprTests
         public void TokenizeString()
         {
             var tokens = Tokenizer.Tokenize("a+b*c/d^ehij  % k %( 3.442*ident) ^^ y & y \"haha this is a \\\" string literal &^\"" +
-                "# line comment\n #( block comment )# x");
+                "# line comment\n #( block comment )# x #( multiline\nblock\ncomment )#");
             var expect = new[]
             {
                 new Token(TokenType.Identifier, "a", 0, 1),
@@ -42,7 +42,8 @@ namespace MathExprTests
                 new Token(TokenType.String, "haha this is a \" string literal &^", 43, 37),
                 new Token(TokenType.LineComment, "# line comment", 80, 14),
                 new Token(TokenType.BlockComment, "#( block comment )#", 94, 19),
-                new Token(TokenType.Identifier, "x", 115, 1)
+                new Token(TokenType.Identifier, "x", 115, 1),
+                new Token(TokenType.BlockComment, "#( multiline\nblock\ncomment )#", 118, 32),
             };
 
             foreach (var (actual, expected) in tokens.Zip(expect, Helpers.Tuple))

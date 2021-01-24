@@ -114,6 +114,22 @@ namespace MathExpr.Syntax
         public string? AsString => Value as string;
 
         /// <summary>
+        /// The line of the input text that this token starts on. (1-based)
+        /// </summary>
+        public int StartLine => startLine ??= (InputText?.CountLinesBefore(Position) + 1) ?? 0;
+        private int? startLine;
+        /// <summary>
+        /// The line of the input text that this token ends on. (1-based)
+        /// </summary>
+        public int EndLine => endLine ??= (InputText?.CountLinesBefore(Position + Length - 1) + 1) ?? 0;
+        private int? endLine;
+        /// <summary>
+        /// The offset into the line of the first character of the token.
+        /// </summary>
+        public int LineOffset => lineOffset ??= Position - (InputText?.FindLineBreakBefore(Position) ?? 0);
+        private int? lineOffset;
+
+        /// <summary>
         /// Constructs a new token of the given type with the given value, position,
         /// and length.
         /// </summary>
@@ -138,6 +154,7 @@ namespace MathExpr.Syntax
         {
             Type = type; Value = value; Position = pos; 
             Length = len; InputText = inputText;
+            startLine = endLine = lineOffset = null;
         }
 
         /// <inheritdoc/>
@@ -194,8 +211,9 @@ namespace MathExpr.Syntax
                 return sb.ToString();
 
             // TODO: come up with a way to give fixed context so a long line isn't fully emitted
-            
-            var lineNo = InputText.CountLinesBefore(Position) + 1;
+            // TODO: come up with a way to present multi-line context
+
+            var lineNo = StartLine;
             var lineStart = InputText.FindLineBreakBefore(Position);
             var lineEnd = InputText.FindLineBreakAfter(Position);
 
@@ -212,7 +230,7 @@ namespace MathExpr.Syntax
               .Append('+')
               .Append(' ', Position - lineStart)
               .Append('^')
-              .Append('~', Math.Max(Length - 1, 0))
+              .Append('~', Math.Min(Math.Max(Length - 1, 0), lineEnd - Position))
               .AppendLine()
               .Append(' ', lineNoStr.Length + (Position - lineStart) + 1)
               .AppendLine("here");
