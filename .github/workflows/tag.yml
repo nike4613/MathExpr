@@ -15,16 +15,19 @@ jobs:
         with:
           dotnet-version: '3.1.x' # SDK Version to use.
       - name: Build projects
-        run: dotnet build --configuration Release
+        run: dotnet build --configuration Release -clp:NoSummary
       - name: Run tests
-        run: dotnet test MathExprTests --configuration Release --collect:"XPlat Code Coverage"
+        run: dotnet test MathExprTests --configuration Release --collect:"XPlat Code Coverage" -clp:NoSummary
       - uses: actions/upload-artifact@v1
         with:
           name: test-results
           path: MathExprTests/TestResults
       - name: Pack Nuget package
         shell: pwsh
-        run: dotnet pack --configuration Release MathExpr -p:InformationalVersion="GitHub Actions CI"
+        run: dotnet pack --configuration Release MathExpr -p:InformationalVersion="GitHub Actions CI" -clp:NoSummary
+      - name: Push to Nuget
+        shell: pwsh
+        run: dotnet nuget push MathExpr/bin/Release/*.nupkg -s https://api.nuget.org/v3/index.json -k ${{ secrets.NUGET_TOKEN }} --skip-duplicate
       - name: Push Nupkg to GitHub Packages
         uses: tanaka-takayoshi/nuget-publish-to-github-packages-action@v2.1
         with:
