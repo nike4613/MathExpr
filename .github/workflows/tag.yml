@@ -27,7 +27,9 @@ jobs:
         run: dotnet pack --configuration Release MathExpr -p:InformationalVersion="GitHub Actions CI" -clp:NoSummary
       - name: Push to Nuget
         shell: pwsh
-        run: dotnet nuget push MathExpr/bin/Release/*.nupkg -s https://api.nuget.org/v3/index.json -k ${{ secrets.NUGET_TOKEN }} --skip-duplicate
+        run: dotnet nuget push MathExpr/bin/Release/*.nupkg -s https://api.nuget.org/v3/index.json -k $env:NUGET_TOKEN --skip-duplicate
+        env:
+          NUGET_TOKEN: ${{ secrets.NUGET_TOKEN }}
       - name: Push Nupkg to GitHub Packages
         uses: tanaka-takayoshi/nuget-publish-to-github-packages-action@v2.1
         with:
