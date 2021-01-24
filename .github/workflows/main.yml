@@ -41,4 +41,5 @@ jobs:
           nupkg-path: MathExpr/bin/Release/*.snupkg
           repo-owner: nike4613
           gh-user: nike4613
+          skip-duplicate: false
           token: ${{ secrets.GITHUB_TOKEN }}
