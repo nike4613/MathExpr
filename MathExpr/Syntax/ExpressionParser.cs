@@ -13,6 +13,7 @@ namespace MathExpr.Syntax
         public static MathExpression ParseRoot(string s, bool saveText = true)
         {
             var tokenStream = Tokenizer.Tokenize(s, saveText)
+                .Where(t => t.Type != TokenType.LineComment && t.Type != TokenType.BlockComment) // ignore comment tokens
                 .Select(t => t.Type != TokenType.Error 
                     ? t 
                     : throw new SyntaxException(t, t.AsString!)).AsLookahead(1); // should be able to get away with just 1 token of lookahead

@@ -14,7 +14,8 @@ namespace MathExprTests
         [Fact]
         public void TokenizeString()
         {
-            var tokens = Tokenizer.Tokenize("a+b*c/d^ehij  % k %( 3.442*ident) ^^ y & y \"haha this is a \\\" string literal &^\"");
+            var tokens = Tokenizer.Tokenize("a+b*c/d^ehij  % k %( 3.442*ident) ^^ y & y \"haha this is a \\\" string literal &^\"" +
+                "# line comment\n #( block comment )# x");
             var expect = new[]
             {
                 new Token(TokenType.Identifier, "a", 0, 1),
@@ -38,7 +39,10 @@ namespace MathExprTests
                 new Token(TokenType.Identifier, "y", 37, 1),
                 new Token(TokenType.And, null, 39, 1),
                 new Token(TokenType.Identifier, "y", 41, 1),
-                new Token(TokenType.String, "haha this is a \" string literal &^", 43, 37)
+                new Token(TokenType.String, "haha this is a \" string literal &^", 43, 37),
+                new Token(TokenType.LineComment, "# line comment", 80, 14),
+                new Token(TokenType.BlockComment, "#( block comment )#", 94, 19),
+                new Token(TokenType.Identifier, "x", 115, 1)
             };
 
             foreach (var (actual, expected) in tokens.Zip(expect, Helpers.Tuple))
@@ -53,6 +57,13 @@ namespace MathExprTests
         [InlineData("a + b + c - 3 * d ^ e * f - g)", false)]
         [InlineData("a + b + c - 3 * d ^ e * {f - g)", false)]
         [InlineData("a + b + c - 3 * d ^ e * f - g", true)]
+        [InlineData("a + b + c - 3 * d ^ e * f - g # line comment", true)]
+        [InlineData("a + b + c - 3 * d ^ e * f - g # line comment\n + h", true)]
+        [InlineData("a + b + c - 3 * d ^ e * f - g # line comment\n h", false)]
+        [InlineData("a + b + c - 3 * d ^ e * f - g #( line comment )# + h", true)]
+        [InlineData("a + b + c - 3 * d ^ e * f - g #( line comment )# h", false)]
+        [InlineData("a + b + c - 3 * d ^ e * f - g #( line comment ) h", false)]
+        [InlineData("a + b + c - 3 * d ^ e * f - g #( line comment ) + h", false)]
         [InlineData("a+b*c/d^ehij  % k %( 3.442*ident) ^^ y & y | A ~& b ~| c ~= d >= e", true)]
         [InlineData("x = y + 2 ~^ y * 2 > z", true)]
         [InlineData("func'(a, b) = 14.3 * a * b!", true)]

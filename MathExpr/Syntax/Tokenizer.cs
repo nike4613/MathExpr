@@ -57,6 +57,8 @@ namespace MathExpr.Syntax
         [TokenDesc(";")]            Semicolon,
         [TokenDesc(".")]            Period,
         [TokenDesc(@""".*""")]      String,
+        [TokenDesc("#.*(\n|\r)")]   LineComment,
+        [TokenDesc("#(.*?)#")]      BlockComment,
 #pragma warning restore 1591 // Missing XML comment for publicly visible type or member
 
         /// <summary>
@@ -229,6 +231,7 @@ namespace MathExpr.Syntax
 
         public static IEnumerable<Token> Tokenize(string text, bool saveText = true)
         {
+            var builder = new StringBuilder();
             int tokenStart;
             int tokenLen;
             TokenType currentTokenType;
@@ -283,10 +286,11 @@ namespace MathExpr.Syntax
                 {
                     tokenStart = i++;
                     tokenLen = 1;
-                    var builder = new StringBuilder();
+                    builder.Clear();
                     bool escaped = false;
                     while (i < text.Length && (escaped || text[i] != '"'))
                     {
+                        // TODO: handle escape sequences
                         if (!escaped && text[i] == '\\')
                             escaped = true;
                         else
@@ -306,6 +310,47 @@ namespace MathExpr.Syntax
                     {
                         tokenLen++;
                         yield return new Token(TokenType.String, builder.ToString(), tokenStart, tokenLen, saveText ? text : null);
+                    }
+                }
+                else if (text[i] == '#')
+                {
+                    tokenStart = i++;
+                    tokenLen = 1; // TODO: do I want to include the comment characters in the token?
+                    builder.Clear().Append(text[i - 1]);
+
+                    if (text[i] == '(')
+                    {
+                        // block comment
+                        tokenLen++;
+                        builder.Append(text[i++]);
+
+                        while (i + 1 < text.Length && !(text[i] == ')' && text[i + 1] == '#'))
+                        {
+                            builder.Append(text[i++]);
+                            tokenLen++;
+                        }
+
+                        if (i + 1 >= text.Length || text[i] != ')' || text[i + 1] != '#')
+                        {
+                            yield return new Token(TokenType.Error, "End of input while in block comment", tokenStart, tokenLen, saveText ? text : null);
+                        }
+                        else
+                        {
+                            tokenLen += 2;
+                            builder.Append(text[i++]).Append(text[i++]);
+                            yield return new Token(TokenType.BlockComment, builder.ToString(), tokenStart, tokenLen, saveText ? text : null);
+                        }
+                    }
+                    else
+                    {
+                        // line comment
+                        while (i < text.Length && text[i] != '\n' && text[i] != '\r')
+                        {
+                            builder.Append(text[i++]);
+                            tokenLen++;
+                        }
+
+                        yield return new Token(TokenType.LineComment, builder.ToString(), tokenStart, tokenLen, saveText ? text : null);
                     }
                 }
                 else
