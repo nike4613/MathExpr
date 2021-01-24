@@ -13,10 +13,7 @@ jobs:
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: '3.1.301' # SDK Version to use.
-          source-url: https://nuget.pkg.github.com/nike4613/index.json
-        env:
-          NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          dotnet-version: '3.1.x' # SDK Version to use.
       - name: Build projects
         run: dotnet build --configuration Release
       - name: Run tests
@@ -27,9 +24,18 @@ jobs:
           path: MathExprTests/TestResults
       - name: Pack Nuget package
         shell: pwsh
-        run: dotnet pack --configuration Release MathExpr -p:InformationalVersion="GitHub Actions CI" --include-symbols
-      - name: Publish Nuget package to GitHub Packages
-        run: dotnet nuget push MathExpr/bin/Release/*.nupkg
-        if: false
-        env:
-          NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        run: dotnet pack --configuration Release MathExpr -p:InformationalVersion="GitHub Actions CI"
+      - name: Push Nupkg to GitHub Packages
+        uses: tanaka-takayoshi/nuget-publish-to-github-packages-action@v2.1
+        with:
+          nupkg-path: MathExpr/bin/Release/*.nupkg
+          repo-owner: nike4613
+          gh-user: nike4613
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Push SNupkg to GitHub Packages
+        uses: tanaka-takayoshi/nuget-publish-to-github-packages-action@v2.1
+        with:
+          nupkg-path: MathExpr/bin/Release/*.snupkg
+          repo-owner: nike4613
+          gh-user: nike4613
+          token: ${{ secrets.GITHUB_TOKEN }}

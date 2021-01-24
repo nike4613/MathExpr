@@ -13,23 +13,32 @@ jobs:
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: '3.1.301' # SDK Version to use.
+          dotnet-version: '3.1.x' # SDK Version to use.
           source-url: https://nuget.pkg.github.com/nike4613/index.json
         env:
           NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
       - name: Build projects
-        run: dotnet build --configuration Release
+        run: dotnet build --configuration Release -clp:NoSummary
       - name: Run tests
-        run: dotnet test MathExprTests --configuration Release --collect:"XPlat Code Coverage"
+        run: dotnet test MathExprTests -c Release --collect:"XPlat Code Coverage"  -clp:NoSummary
       - uses: actions/upload-artifact@v1
         with:
           name: test-results
           path: MathExprTests/TestResults
       - name: Pack Nuget package
         shell: pwsh
-        run: dotnet pack --configuration Release MathExpr --version-suffix (Get-date -UFormat "nightly.%y%m%d%H%M") -p:InformationalVersion="GitHub Actions CI" --include-symbols
-      - name: Publish Nuget package to GitHub Packages
-        if: false
-        run: dotnet nuget push MathExpr/bin/Release/*.nupkg
-        env:
-          NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        run: dotnet pack -c Release MathExpr --version-suffix (Get-date -UFormat "nightly.%y%m%d%H%M") -p:InformationalVersion="GitHub Actions CI" -clp:NoSummary
+      - name: Push Nupkg to GitHub Packages
+        uses: tanaka-takayoshi/nuget-publish-to-github-packages-action@v2.1
+        with:
+          nupkg-path: MathExpr/bin/Release/*.nupkg
+          repo-owner: nike4613
+          gh-user: nike4613
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Push SNupkg to GitHub Packages
+        uses: tanaka-takayoshi/nuget-publish-to-github-packages-action@v2.1
+        with:
+          nupkg-path: MathExpr/bin/Release/*.snupkg
+          repo-owner: nike4613
+          gh-user: nike4613
+          token: ${{ secrets.GITHUB_TOKEN }}
