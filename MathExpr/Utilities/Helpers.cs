@@ -94,15 +94,15 @@ namespace MathExpr.Utilities
         /// </summary>
         /// <param name="str">the string to search in</param>
         /// <param name="pos">the position to find the nearest line break before</param>
-        /// <returns>the position of the nearest line break before <paramref name="pos"/></returns>
+        /// <returns>the position of the character immediately following the nearest line break before <paramref name="pos"/></returns>
         public static int FindLineBreakBefore(this string str, int pos)
         {
             pos = Math.Min(Math.Max(pos, 0), str.Length - 1);
             while (pos > 0)
             {
                 var c = str[pos--];
-                if (c == '\r' && c == '\n')
-                    return pos+1;
+                if (c == '\r' || c == '\n')
+                    return pos + 2; // we return the char after the line break
             }
             return 0;
         }
@@ -119,8 +119,8 @@ namespace MathExpr.Utilities
             while (pos < str.Length)
             {
                 var c = str[pos++];
-                if (c == '\r' && c == '\n')
-                    return pos;
+                if (c == '\r' || c == '\n')
+                    return pos - 1; // because pos has already been incremented
             }
             return str.Length;
         }
